@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
+import Chat from './Chat';
 
 // fake chats just for visualization 
 const fakeChats = [
@@ -15,9 +16,31 @@ const fakeChats = [
     { id: 10, name: 'Nikita Lebedev', lastMessage: 'See you tonight.' },
 ];
 
+// fake messages just for visualization 
+const fakeMessages = {
+    1: [
+        { sender: 'John', text: 'Hey John!', time: '10:00' },
+        { sender: 'John', text: 'How are you?', time: '10:01' },
+    ],
+    2: [
+        { sender: 'me', text: 'Are we meeting tomorrow?', time: '09:00' },
+    ],
+    3: [
+        { sender: 'Sergey', text: 'I`ve sent the documents.', time: '15:30' },
+        { sender: 'me', text: 'Got them, thanks!', time: '15:35' },
+    ],
+    4: [
+        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
+        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
+        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
+        { sender: 'me', text: 'I agree', time: '15:25' },
+    ]
+};
+
 function ChatPage() {
     const [selectedChatId, setSelectedChatId] = useState(fakeChats[0].id);
     const selectedChat = fakeChats.find(chat => chat.id === selectedChatId);
+    const messages = fakeMessages[selectedChatId] || [];
 
     return (
         <div className="chat-container">
@@ -41,15 +64,13 @@ function ChatPage() {
             </div>
 
             <div className="chat-window">
-                <h2 className='chat-header'>{selectedChat.name}</h2>
-                <div className="chat-messages">
-                </div>
+                <h2 className="chat-header">{selectedChat.name}</h2>
+                <Chat messages={messages} />
             </div>
 
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap');
             </style>
-
         </div>
     );
 }
