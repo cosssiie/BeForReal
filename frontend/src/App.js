@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
+import ChatPage from './components/ChatPage';
 
-// import Chats from './components/ChatPage';
 // import Profile from './components/ProfilePage';
 // import Settings from './components/SettingsPage';
 
@@ -16,9 +16,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<HomePage />} />
-          {/* <Route path="/chats" element={<ChatPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<SettingsPage />} /> */}
+          <Route path="/chats" element={<ChatPage />} />
+          {/* <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />  */}
         </Routes>
       </div>
     </Router>
