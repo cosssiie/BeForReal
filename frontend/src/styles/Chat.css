@@ -37,3 +37,9 @@
     margin-top: 4px;
     display: block;
 }
+
+.empty-chat {
+    color: #999;
+    text-align: center;
+    margin-top: 20px;
+}
