@@ -39,7 +39,7 @@ def seed_posts(users, categories, n=20):
             user=random.choice(users),
             category=random.choice(categories),
             title=fake.sentence(nb_words=6),
-            date=fake.date(),
+            date=fake.date_object(),
             post_text=fake.text(),
             picture=fake.image_url(),
             karma=random.randint(0, 500),
