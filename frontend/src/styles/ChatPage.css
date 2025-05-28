@@ -79,56 +79,16 @@ body {
     padding-bottom: 80px;
 }
 
-.chat-messages {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.message {
-    padding: 10px 14px;
-    border-radius: 16px;
-    max-width: 60%;
-    position: relative;
-}
-
-.message-incoming {
-    background-color: #e5e7eb;
-    align-self: flex-start;
-}
-
-.message-outgoing {
-    background-color: #4f46e5;
-    color: white;
-    align-self: flex-end;
-}
-
-.message-time {
-    font-size: 12px;
-    opacity: 0.6;
-    margin-top: 4px;
-    display: block;
-}
-
-.empty-chat {
-    color: #6b7280;
-    text-align: center;
-    padding: 40px 0;
-}
-
 .message-input {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: Center;
     padding: 10px 15px;
     border-top: 1px solid #ddd;
     background-color: #fff;
     position: sticky;
     bottom: 0;
+    z-index: 10;
 }
 
 .message-text-input {
