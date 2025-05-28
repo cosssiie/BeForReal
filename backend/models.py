@@ -1,20 +1,23 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 
+from sqlalchemy import func
+
 db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    username = db.Column(db.String, unique=True, nullable=False)
-    profile_picture = db.Column(db.String)
-    bio = db.Column(db.Text)
-    links = db.Column(db.Text)
-    date_joined = db.Column(db.Date, default=date.today)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    profile_picture = db.Column(db.String(1000), default="default_profile_photo.jpg")
+    bio = db.Column(db.String(1500))
+    date_joined = db.Column(db.DateTime(timezone=True), default=func.now())
     karma = db.Column(db.Integer, default=0)
-    status = db.Column(db.Boolean, default=True)
     is_moderator = db.Column(db.Boolean, default=False)
+    is_blocked = db.Column(db.Boolean, default=False)
+    is_reported = db.Column(db.Boolean, default=False)
+
 
     posts = db.relationship('Post', backref='user', lazy=True)
     comments = db.relationship('Comment', backref='user', lazy=True)
@@ -26,6 +29,16 @@ class User(db.Model):
     report_users = db.relationship('ReportUser', foreign_keys='ReportUser.reporter_id', backref='reporter_user', lazy=True)
     reported_users = db.relationship('ReportUser', foreign_keys='ReportUser.reported_user_id', backref='reported_user', lazy=True)
 
+    @property
+    def status(self):
+        if self.karma < 0:
+            return 'demon'
+        elif self.karma < 1000:
+            return 'noob'
+        else:
+            return 'pro'
+
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
@@ -36,10 +49,10 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    title = db.Column(db.String(60))
-    data = db.Column(db.Text)
+    title = db.Column(db.String(100))
+    post_text = db.Column(db.String(1500))
     picture = db.Column(db.String)
-    date = db.Column(db.Date, default=date.today)
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
     karma = db.Column(db.Integer, default=0)
     is_temporary = db.Column(db.Boolean, default=False)
 
@@ -53,8 +66,8 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
-    data = db.Column(db.Text)
-    date = db.Column(db.Date, default=date.today)
+    comment_text = db.Column(db.String(1500))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
     karma = db.Column(db.Integer, default=0)
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
@@ -70,12 +83,12 @@ class Repost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    date = db.Column(db.Date, default=date.today)
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
 
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     is_group = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.Date, default=date.today)
+    created_at = db.Column(db.DateTime(timezone=True), default=func.now())
 
     chat_users = db.relationship('ChatUser', backref='chat', lazy=True)
     messages = db.relationship('Message', backref='chat', lazy=True)
@@ -91,9 +104,9 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
-    data = db.Column(db.Text)
-    picture = db.Column(db.String)
-    date = db.Column(db.Date, default=date.today)
+    message_text = db.Column(db.String(1500))
+    picture = db.Column(db.String(1000))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
     parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
     is_read = db.Column(db.Boolean, default=False)
 
@@ -103,19 +116,19 @@ class ReportPost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    reason = db.Column(db.Text)
-    date = db.Column(db.Date, default=date.today)
+    reason = db.Column(db.String(1500))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
 
 class ReportComment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
-    reason = db.Column(db.Text)
-    date = db.Column(db.Date, default=date.today)
+    reason = db.Column(db.String(1500))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
 
 class ReportUser(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    reason = db.Column(db.Text)
-    date = db.Column(db.Date, default=date.today)
+    reason = db.Column(db.String(1500))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())

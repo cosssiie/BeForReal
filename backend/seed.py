@@ -14,9 +14,7 @@ def seed_users(n=10):
             password=fake.password(),
             username=fake.unique.user_name(),
             bio=fake.text(max_nb_chars=100),
-            links=fake.url(),
             karma=random.randint(0, 1000),
-            status=True,
             is_moderator=random.choice([True, False])
         )
         users.append(user)
@@ -41,7 +39,8 @@ def seed_posts(users, categories, n=20):
             user=random.choice(users),
             category=random.choice(categories),
             title=fake.sentence(nb_words=6),
-            data=fake.text(max_nb_chars=300),
+            date=fake.date(),
+            post_text=fake.text(),
             picture=fake.image_url(),
             karma=random.randint(0, 500),
             is_temporary=False
@@ -57,7 +56,7 @@ def seed_comments(users, posts, n=50):
         comment = Comment(
             user=random.choice(users),
             post=random.choice(posts),
-            data=fake.text(max_nb_chars=200),
+            comment_text=fake.sentence(nb_words=6),
             karma=random.randint(0, 100)
         )
         comments.append(comment)
@@ -102,7 +101,7 @@ def seed_chats_and_messages(users, n=5):
             msg = Message(
                 user=random.choice(participants),
                 chat_id=chat.id,
-                data=fake.text(max_nb_chars=150),
+                message_text=fake.sentence(nb_words=6),
                 picture=fake.image_url() if random.choice([True, False]) else None
             )
             db.session.add(msg)
