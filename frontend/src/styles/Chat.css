@@ -1,9 +1,8 @@
-.chat-messages {
+/* .chat-messages {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 12px;
-    height: 400px;
     overflow-y: auto;
     background-color: #f9f9f9;
 }
@@ -42,4 +41,4 @@
     color: #999;
     text-align: center;
     margin-top: 20px;
-}
+} */
