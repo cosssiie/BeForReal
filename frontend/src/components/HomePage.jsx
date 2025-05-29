@@ -5,7 +5,7 @@ function HomePage() {
 
     return (
         <div className="home-container">
-            <Post/>
+            <Post />
         </div>
     )
 }

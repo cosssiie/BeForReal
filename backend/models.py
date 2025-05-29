@@ -98,7 +98,7 @@ class ChatUser(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     is_blocked = db.Column(db.Boolean, default=False)
 
-    user = db.relationship('User', backref='chat_users')
+    user = db.relationship('User', backref='chat_users', lazy='joined')
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
