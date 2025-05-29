@@ -4,7 +4,8 @@ import Post from './Post';
 function HomePage() {
 
     return (
-        <div>
+        <div className="home-container">
+            <Post/>
         </div>
     )
 }

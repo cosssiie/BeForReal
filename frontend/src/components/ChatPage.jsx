@@ -40,12 +40,7 @@ const fakeMessages = {
         { sender: 'me', text: 'I agree', time: '15:25' },
         { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
         { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
-        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
-        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
+        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' }
     ]
 };
 
@@ -79,16 +74,16 @@ function ChatPage() {
                 <header className="chat-header">{selectedChat.name}</header>
                 <div className="chat-messages-wrapper">
                     <Chat messages={messages} />
-                    <div className="message-input">
-                        <input
-                            type="text"
-                            className="message-text-input"
-                            placeholder="Type a message..."
-                        />
-                        <button className="send-message-button">
-                            <img src="/assets/images/white-arrow.png" alt="Send" />
-                        </button>
-                    </div>
+                </div>
+                <div className="message-input">
+                    <input
+                        type="text"
+                        className="message-text-input"
+                        placeholder="Type a message..."
+                    />
+                    <button className="send-message-button">
+                        <img src="/assets/images/white-arrow.png" alt="Send" />
+                    </button>
                 </div>
             </div>
 
