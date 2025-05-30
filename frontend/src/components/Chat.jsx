@@ -29,7 +29,9 @@ const Chat = ({ messages, userId, isGroup }) => {
                             )}
 
                             <p>{msg.text}</p>
-                            <span className="message-time">{msg.time}</span>
+                            <span className="message-time">
+                                {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </div>
                     );
                 })

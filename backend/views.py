@@ -1,3 +1,5 @@
+from _pydatetime import timezone
+
 from flask_socketio import SocketIO, emit
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
@@ -42,6 +44,7 @@ def get_posts():
 def get_chats(user_id):
     chats = Chat.query.join(ChatUser).filter(ChatUser.user_id == user_id).all()
     chat_list = []
+    chat_num = 0
 
     for chat in chats:
         # Отримуємо учасників чату, крім поточного користувача
@@ -52,9 +55,11 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = f"Group Chat {chat.id}"  # або chat.group_name якщо є
+            name = f"Group Chat {chat_num}"  # або chat.group_name якщо є
+            chat_num += 1
         else:
-            name = other_user.username if other_user else f"Chat {chat.id}"
+            name = other_user.username if other_user else f"Chat {chat_num}"
+            chat_num += 1
 
         chat_list.append({
             'id': chat.id,
@@ -73,7 +78,7 @@ def get_messages(chat_id):
         'userId': msg.user_id,
         'sender': msg.user.username,
         'text': msg.message_text,
-        'time': msg.date.strftime('%H:%M')
+        'time': msg.date.isoformat()
     } for msg in messages]
     return jsonify(message_list)
 
