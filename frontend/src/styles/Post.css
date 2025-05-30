@@ -42,7 +42,7 @@
 
 .post-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   font-size: 14px;
   color: #6b7280;

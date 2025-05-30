@@ -3,6 +3,7 @@
 @import './styles/Navigation.css';
 @import './styles/ChatPage.css';
 @import './styles/Chat.css';
+@import './styles/CreateNewPost.css';
 
 body,
 html {
