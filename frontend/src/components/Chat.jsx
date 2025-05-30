@@ -22,14 +22,16 @@ const Chat = ({ messages, userId, isGroup }) => {
                             key={index}
                             className={`message ${isIncoming ? 'message-incoming' : 'message-outgoing'}`}
                         >
-                            {isGroup && isIncoming && (
+                            {isIncoming && (
                                 <>
                                     <div className="message-username">{msg.sender}</div>
                                 </>
                             )}
 
                             <p>{msg.text}</p>
-                            <span className="message-time">{msg.time}</span>
+                            <span className="message-time">
+                                {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </div>
                     );
                 })

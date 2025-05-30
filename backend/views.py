@@ -1,10 +1,12 @@
+from _pydatetime import timezone
+
 from flask_socketio import SocketIO, emit
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from flask_socketio import emit
 
-from .models import User, Post, Chat, ChatUser, Message, Category
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 
@@ -13,6 +15,7 @@ views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
 
 
+#Posts:
 @views.route('/api/posts', methods=['GET'])
 def get_posts():
     posts = db.session.query(Post, User, Category). \
@@ -36,10 +39,12 @@ def get_posts():
     return jsonify(posts=result)
 
 
+#Chats:
 @views.route('/api/chats/<int:user_id>', methods=['GET'])
 def get_chats(user_id):
     chats = Chat.query.join(ChatUser).filter(ChatUser.user_id == user_id).all()
     chat_list = []
+    chat_num = 0
 
     for chat in chats:
         # Отримуємо учасників чату, крім поточного користувача
@@ -50,9 +55,11 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = f"Group Chat {chat.id}"  # або chat.group_name якщо є
+            name = f"Group Chat {chat_num}"  # або chat.group_name якщо є
+            chat_num += 1
         else:
-            name = other_user.username if other_user else f"Chat {chat.id}"
+            name = other_user.username if other_user else f"Chat {chat_num}"
+            chat_num += 1
 
         chat_list.append({
             'id': chat.id,
@@ -71,7 +78,7 @@ def get_messages(chat_id):
         'userId': msg.user_id,
         'sender': msg.user.username,
         'text': msg.message_text,
-        'time': msg.date.strftime('%H:%M')
+        'time': msg.date.isoformat()
     } for msg in messages]
     return jsonify(message_list)
 
