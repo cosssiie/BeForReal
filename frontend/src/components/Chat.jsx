@@ -1,13 +1,13 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const Chat = ({messages, userId, isGroup}) => {
+const Chat = ({ messages, userId, isGroup }) => {
 
     const bottomRef = useRef(null);
 
     useEffect(() => {
         // Скрол до останнього повідомлення
         if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({behavior: 'smooth'});
+            bottomRef.current.scrollIntoView({ behavior: 'auto' });
         }
     }, [messages]);
 
@@ -31,7 +31,7 @@ const Chat = ({messages, userId, isGroup}) => {
 
                 ))
             )}
-            <div ref={bottomRef}/>
+            <div ref={bottomRef} />
         </div>
     );
 };
