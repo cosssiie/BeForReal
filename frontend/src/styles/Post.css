@@ -1,7 +1,7 @@
 .posts-list {
   display: flex;
   flex-direction: column;
-  gap: 20px; 
+  gap: 20px;
   padding: 16px;
 }
 
@@ -66,4 +66,25 @@
 
 .post-action:hover {
   color: #1f2937;
+}
+
+.karma-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.karma-button {
+  transition: color 0.2s ease;
+}
+
+.karma-button:hover {
+  color: #1f2937;
+}
+
+.karma-value {
+  font-weight: bold;
+  min-width: 24px;
+  text-align: center;
 }

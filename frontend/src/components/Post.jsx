@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
 
 function Post() {
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
-    fetch('/api/posts')
-        .then(res => res.json())
-        .then(data => {
-            console.log("Fetched posts:", data.posts);
-            setPosts(data.posts);
-        })
-        .catch(err => console.error("Failed to load posts:", err));
-}, []);
+        fetch('/api/posts')
+            .then(res => res.json())
+            .then(data => {
+                console.log("Fetched posts:", data.posts);
+                setPosts(data.posts);
+            })
+            .catch(err => console.error("Failed to load posts:", err));
+    }, []);
 
+    const handleKarmaChange = (postId, delta) => {
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post.id === postId
+                    ? { ...post, karma: post.karma + delta }
+                    : post
+            )
+        );
+        //db request
+    };
 
     return (
         <div className="posts-list">
@@ -35,11 +45,18 @@ function Post() {
 
                     <div className="post-footer">
                         <div className="post-actions">
-                            <div className="post-action">
-                                <ThumbsUp size={16} /> {post.likes}
-                            </div>
-                            <div className="post-action">
-                                <ThumbsDown size={16} /> {post.dislikes}
+                            <div className="karma-container">
+                                <ArrowUp
+                                    size={16}
+                                    className="karma-button"
+                                    onClick={() => handleKarmaChange(post.id, 1)}
+                                />
+                                <span className="karma-value">{post.karma}</span>
+                                <ArrowDown
+                                    size={16}
+                                    className="karma-button"
+                                    onClick={() => handleKarmaChange(post.id, -1)}
+                                />
                             </div>
                             <div className="post-action">
                                 <MessageCircle size={16} /> {post.commentsCount}
