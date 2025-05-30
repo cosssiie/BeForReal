@@ -14,7 +14,7 @@ function Navigation() {
             </Link>
 
             <Link to="/profile" className="header-btn">
-                <img src="/assets/images/user (2).png" alt="Profile" className="icon" />
+                <img src="/assets/images/user.png" alt="Profile" className="icon" />
                 {/* <span>Profile</span> */}
             </Link>
 

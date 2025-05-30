@@ -30,8 +30,7 @@ def get_posts():
             'date': post.date.isoformat(),
             'username': user.username,
             'category': category.name,
-            'likes': post.karma,
-            'dislikes': 0,  # Якщо є - додай
+            'karma': post.karma,
             'commentsCount': comments_count
         })
     return jsonify(posts=result)

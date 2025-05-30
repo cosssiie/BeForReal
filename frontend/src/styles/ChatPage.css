@@ -78,7 +78,7 @@ body {
     overflow-y: auto;
     padding: 16px;
     background-color: #f9fafb;
-    padding-bottom: 80px;
+    padding-bottom: 10px;
 }
 
 .message-input {
