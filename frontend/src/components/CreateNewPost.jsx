@@ -58,7 +58,7 @@ function CreateNewPost({ onCreate }) {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Enter your post content..."
-                    rows={4}
+                    rows={1}
                 />
             </div>
 
