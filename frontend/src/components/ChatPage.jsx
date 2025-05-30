@@ -1,58 +1,82 @@
-import React, { useState } from 'react';
-import { Scrollbar } from 'react-scrollbars-custom';
+import React, {useState, useEffect} from 'react';
+import {Scrollbar} from 'react-scrollbars-custom';
 import Chat from './Chat';
 
-// fake chats just for visualization 
-const fakeChats = [
-    { id: 1, name: 'John Smith', lastMessage: 'Hey, how are you?' },
-    { id: 2, name: 'Maria Johnson', lastMessage: 'Are we meeting tomorrow?' },
-    { id: 3, name: 'Sergey Kuznetsov', lastMessage: 'I`ve sent the documents.' },
-    { id: 4, name: 'Alex Smirnov', lastMessage: 'Thanks for your help!' },
-    { id: 5, name: 'Helen Voronova', lastMessage: 'How is the project going?' },
-    { id: 6, name: 'Dmitry Fedorov', lastMessage: 'Call me when you`re free.' },
-    { id: 7, name: 'Olga Sokolova', lastMessage: 'Watching a new movie.' },
-    { id: 8, name: 'Paul Orlov', lastMessage: 'Ready for the meeting.' },
-    { id: 9, name: 'Anna Mikhailova', lastMessage: 'Thanks for the info!' },
-    { id: 10, name: 'Nikita Lebedev', lastMessage: 'See you tonight.' },
-];
+function ChatPage({userId}) {
+    const [chats, setChats] = useState([]);
+    const [selectedChatId, setSelectedChatId] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [messageInput, setMessageInput] = useState('');
 
-// fake messages just for visualization 
-const fakeMessages = {
-    1: [
-        { sender: 'John', text: 'Hey John!', time: '10:00' },
-        { sender: 'John', text: 'How are you?', time: '10:01' },
-    ],
-    2: [
-        { sender: 'me', text: 'Are we meeting tomorrow?', time: '09:00' },
-    ],
-    3: [
-        { sender: 'Sergey', text: 'I`ve sent the documents.', time: '15:30' },
-        { sender: 'me', text: 'Got them, thanks!', time: '15:35' },
-    ],
-    4: [
-        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
-        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
-        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
-        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
-        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
-        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
-        { sender: 'Alex', text: 'What about going to Paris in a week?', time: '15:12' },
-        { sender: 'Alex', text: 'I`ll be free soon, so can discuss that', time: '15:13' },
-        { sender: 'me', text: 'Oh, a good idea!', time: '15:25' },
-        { sender: 'me', text: 'I agree', time: '15:25' },
-    ]
-};
 
-function ChatPage() {
-    const [selectedChatId, setSelectedChatId] = useState(fakeChats[0].id);
-    const selectedChat = fakeChats.find(chat => chat.id === selectedChatId);
-    const messages = fakeMessages[selectedChatId] || [];
+    // Завантажуємо чати користувача
+    useEffect(() => {
+        if (!userId) {
+            console.log('No userId provided');
+            return;
+        }
+        console.log('Fetching chats for userId:', userId);
+
+        fetch(`/api/chats/${userId}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log('Fetched chats:', data);
+                setChats(data);
+                if (data.length > 0) setSelectedChatId(data[0].id);
+            })
+            .catch(err => console.error('Failed to load chats:', err));
+    }, [userId]);
+
+
+    // Завантажуємо повідомлення для вибраного чату
+    useEffect(() => {
+        if (!selectedChatId) return;
+
+        fetch(`/api/messages/${selectedChatId}`)
+            .then(res => res.json())
+            .then(data => setMessages(data))
+            .catch(err => console.error('Failed to load messages:', err));
+    }, [selectedChatId]);
+
+    const selectedChat = chats.find(chat => chat.id === selectedChatId);
+
+    const handleSendMessage = () => {
+        if (!messageInput.trim()) return;
+
+        const payload = {
+            userId: userId,
+            chatId: selectedChatId,
+            text: messageInput.trim(),
+        };
+
+        fetch('/api/messages', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to send message');
+                return res.json();
+            })
+            .then(() => {
+                // Очищаємо поле вводу
+                setMessageInput('');
+
+                // Оновлюємо повідомлення
+                fetch(`/api/messages/${selectedChatId}`)
+                    .then(res => res.json())
+                    .then(data => setMessages(data));
+
+                fetch(`/api/chats/${userId}`)
+                    .then(res => res.json())
+                    .then(data => setChats(data));
+            })
+            .catch(err => console.error(err));
+    };
+
 
     return (
         <div className="chat-container">
@@ -60,7 +84,7 @@ function ChatPage() {
                 <Scrollbar className="custom-scroll-wrapper">
                     <div className="scroll-inner">
                         <ul className="chat-list">
-                            {fakeChats.map(chat => (
+                            {chats.map(chat => (
                                 <li
                                     key={chat.id}
                                     onClick={() => setSelectedChatId(chat.id)}
@@ -76,25 +100,25 @@ function ChatPage() {
             </div>
 
             <div className="chat-window">
-                <header className="chat-header">{selectedChat.name}</header>
+                <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
                 <div className="chat-messages-wrapper">
-                    <Chat messages={messages} />
-                    <div className="message-input">
-                        <input
-                            type="text"
-                            className="message-text-input"
-                            placeholder="Type a message..."
-                        />
-                        <button className="send-message-button">
-                            <img src="/assets/images/white-arrow.png" alt="Send" />
-                        </button>
-                    </div>
+                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.type === 'group'} />
+                </div>
+                <div className="message-input">
+                    <input
+                        type="text"
+                        className="message-text-input"
+                        placeholder="Type a message..."
+                        value={messageInput}
+                        onChange={(e) => setMessageInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    />
+                    <button className="send-message-button" onClick={handleSendMessage}>
+                        <img src="/assets/images/white-arrow.png" alt="Send"/>
+                    </button>
+
                 </div>
             </div>
-
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap');
-            </style>
         </div>
     );
 }
