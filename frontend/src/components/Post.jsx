@@ -25,6 +25,17 @@ function Post() {
         //db request
     };
 
+    const isToday = (someDate) => {
+        const today = new Date();
+        const date = new Date(someDate);
+
+        return (
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear()
+        );
+    };
+
     return (
         <div className="posts-list">
             {posts.map(post => (
@@ -32,7 +43,11 @@ function Post() {
                     <div className="post-header">
                         <span className="post-author">{post.username}</span>
                         <span className="post-date">
-                            {new Date(post.date).toLocaleString()}
+                            {
+                                isToday(post.date)
+                                ?  new Date(post.date).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+                                :  new Date(post.date).toLocaleString([], { month: '2-digit', day: '2-digit' })
+                            }
                         </span>
                     </div>
 
