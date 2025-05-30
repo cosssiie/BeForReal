@@ -46,7 +46,7 @@ function Post() {
                             {
                                 isToday(post.date)
                                 ?  new Date(post.date).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
-                                :  new Date(post.date).toLocaleString([], { month: '2-digit', day: '2-digit' })
+                                :  new Date(post.date).toLocaleString([], { year: '2-digit', month: '2-digit', day: '2-digit' })
                             }
                         </span>
                     </div>
