@@ -105,7 +105,7 @@ function ChatPage({ userId }) {
             <div className="chat-window">
                 <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
                 <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={true} />
+                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} />
                 </div>
                 <div className="message-input">
                     <input

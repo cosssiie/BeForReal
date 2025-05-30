@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_socketio import emit
 
-from .models import User, Post, Chat, ChatUser, Message, Category
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 
@@ -13,6 +13,7 @@ views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
 
 
+#Posts:
 @views.route('/api/posts', methods=['GET'])
 def get_posts():
     posts = db.session.query(Post, User, Category). \
@@ -36,6 +37,7 @@ def get_posts():
     return jsonify(posts=result)
 
 
+#Chats:
 @views.route('/api/chats/<int:user_id>', methods=['GET'])
 def get_chats(user_id):
     chats = Chat.query.join(ChatUser).filter(ChatUser.user_id == user_id).all()

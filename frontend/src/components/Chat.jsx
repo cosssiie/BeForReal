@@ -22,7 +22,7 @@ const Chat = ({ messages, userId, isGroup }) => {
                             key={index}
                             className={`message ${isIncoming ? 'message-incoming' : 'message-outgoing'}`}
                         >
-                            {isGroup && isIncoming && (
+                            {isIncoming && (
                                 <>
                                     <div className="message-username">{msg.sender}</div>
                                 </>

@@ -91,8 +91,11 @@ def seed_chats_and_messages(users, n=5):
         chat = Chat(is_group=is_group)
         db.session.add(chat)
         db.session.commit()  # get chat.id
+        if is_group:
+            participants = random.sample(users, random.randint(3, 5))
+        else:
+            participants = random.sample(users, 2)
 
-        participants = random.sample(users, random.randint(2, 4))
         for user in participants:
             chat_user = ChatUser(chat_id=chat.id, user_id=user.id)
             db.session.add(chat_user)

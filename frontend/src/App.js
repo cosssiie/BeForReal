@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<HomePage />} />
-          <Route path="/chats" element={<ChatPage userId={1} />} />
+          <Route path="/chats" element={<ChatPage userId={2} />} />
           {/* <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />  */}
         </Routes>
