@@ -69,6 +69,8 @@ class Post(db.Model):
     reposts = db.relationship('Repost', backref='post', lazy=True)
     report_posts = db.relationship('ReportPost', backref='post', lazy=True)
 
+
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

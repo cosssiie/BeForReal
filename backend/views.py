@@ -1,4 +1,4 @@
-from _pydatetime import timezone
+from datetime import timezone
 
 from flask_socketio import SocketIO, emit
 
@@ -55,7 +55,7 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = f"Group Chat {chat_num}"  # або chat.group_name якщо є
+            name = ", ".join([user.username for user in other_users])  # або chat.group_name якщо є
             chat_num += 1
         else:
             name = other_user.username if other_user else f"Chat {chat_num}"
@@ -98,4 +98,39 @@ def send_message():
     db.session.commit()
 
     return jsonify({'success': True, 'messageId': message.id})
+
+
+@views.route('/api/posts/<int:post_id>/vote', methods=['POST'])
+def vote(post_id):
+    data = request.get_json()
+    print("Received data:", data)
+    delta = data.get('delta')
+    user_id = data.get('userId')
+
+    if user_id is None:
+        return jsonify({'error': 'User ID is required'}), 400
+    if delta is None:
+        return jsonify({'error': 'Vote delta is required'}), 400
+
+    try:
+        delta = int(delta)
+        if delta not in [-1, 1]:
+            return jsonify({'error': 'Delta must be -1 or 1'}), 400
+    except ValueError:
+        return jsonify({'error': 'Delta must be an integer'}), 400
+
+    post = Post.query.get_or_404(post_id)
+
+    if delta == -1:
+        post.karma -= 1;
+    else:
+        post.karma += 1;
+
+    db.session.commit()
+    return jsonify({"newKarma": post.karma})
+
+
+
+
+
 
