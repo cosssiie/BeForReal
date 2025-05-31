@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
+import React, {useEffect, useState} from 'react';
+import {ArrowUp, ArrowDown, MessageCircle} from 'lucide-react';
 
-function Post() {
+function Post({userId}) {
     const [posts, setPosts] = useState([]);
+    const [votes, setVotes] = useState({});
 
     useEffect(() => {
         fetch('/api/posts')
@@ -14,16 +15,36 @@ function Post() {
             .catch(err => console.error("Failed to load posts:", err));
     }, []);
 
-    const handleKarmaChange = (postId, delta) => {
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post.id === postId
-                    ? { ...post, karma: post.karma + delta }
-                    : post
-            )
-        );
-        //db request
+    const handleKarmaChange = (postId, delta, userId) => {
+        const currentVote = votes[postId] || 0;
+
+        // Якщо вже проголосував тим самим чином — нічого не робити
+        if (currentVote === delta) return;
+
+        fetch(`/api/posts/${postId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({delta: delta, userId: userId}), // просто передаємо новий голос
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to vote');
+                return res.json();
+            })
+            .then(data => {
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.id === postId
+                            ? {...post, karma: data.newKarma}
+                            : post
+                    )
+                );
+                setVotes(prev => ({...prev, [postId]: delta}));
+            })
+            .catch(err => console.error(err));
     };
+
 
     const isToday = (someDate) => {
         const today = new Date();
@@ -45,8 +66,12 @@ function Post() {
                         <span className="post-date">
                             {
                                 isToday(post.date)
-                                ?  new Date(post.date).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
-                                :  new Date(post.date).toLocaleString([], { year: '2-digit', month: '2-digit', day: '2-digit' })
+                                    ? new Date(post.date).toLocaleString([], {hour: '2-digit', minute: '2-digit'})
+                                    : new Date(post.date).toLocaleString([], {
+                                        year: '2-digit',
+                                        month: '2-digit',
+                                        day: '2-digit'
+                                    })
                             }
                         </span>
                     </div>
@@ -63,18 +88,18 @@ function Post() {
                             <div className="karma-container">
                                 <ArrowUp
                                     size={16}
-                                    className="karma-button"
-                                    onClick={() => handleKarmaChange(post.id, 1)}
+                                    className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
+                                    onClick={() => handleKarmaChange(post.id, 1, 5)}
                                 />
                                 <span className="karma-value">{post.karma}</span>
                                 <ArrowDown
                                     size={16}
-                                    className="karma-button"
-                                    onClick={() => handleKarmaChange(post.id, -1)}
+                                    className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
+                                    onClick={() => handleKarmaChange(post.id, -1, 5)}
                                 />
                             </div>
                             <div className="post-action">
-                                <MessageCircle size={16} /> {post.commentsCount}
+                                <MessageCircle size={16}/> {post.commentsCount}
                             </div>
                         </div>
                     </div>
