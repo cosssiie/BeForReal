@@ -1,9 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import date
-
+from datetime import date, timedelta
+from datetime import datetime
+import pytz
 from sqlalchemy import func
 
 db = SQLAlchemy()
+
+def utc_now():
+    return datetime.now(pytz.utc)
+
+#тимчасове рішення
+def utc_plus_3():
+    return datetime.now(pytz.utc) + timedelta(hours=3)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -12,7 +20,7 @@ class User(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     profile_picture = db.Column(db.String(1000), default="default_profile_photo.jpg")
     bio = db.Column(db.String(1500))
-    date_joined = db.Column(db.DateTime(timezone=True), default=func.now())
+    date_joined = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
     is_moderator = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)
@@ -52,7 +60,7 @@ class Post(db.Model):
     title = db.Column(db.String(100))
     post_text = db.Column(db.String(1500))
     picture = db.Column(db.String)
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
     is_temporary = db.Column(db.Boolean, default=False)
 
@@ -61,13 +69,15 @@ class Post(db.Model):
     reposts = db.relationship('Repost', backref='post', lazy=True)
     report_posts = db.relationship('ReportPost', backref='post', lazy=True)
 
+
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
     comment_text = db.Column(db.String(1500))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
@@ -83,12 +93,12 @@ class Repost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     is_group = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
     chat_users = db.relationship('ChatUser', backref='chat', lazy=True)
     messages = db.relationship('Message', backref='chat', lazy=True)
@@ -106,7 +116,7 @@ class Message(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
     message_text = db.Column(db.String(1500))
     picture = db.Column(db.String(1000))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
     is_read = db.Column(db.Boolean, default=False)
 
@@ -117,18 +127,18 @@ class ReportPost(db.Model):
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     reason = db.Column(db.String(1500))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
 class ReportComment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
     reason = db.Column(db.String(1500))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
 class ReportUser(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reason = db.Column(db.String(1500))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)

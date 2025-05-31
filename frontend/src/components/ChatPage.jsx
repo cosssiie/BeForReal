@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {Scrollbar} from 'react-scrollbars-custom';
+import React, { useState, useEffect } from 'react';
+import { Scrollbar } from 'react-scrollbars-custom';
 import Chat from './Chat';
 
-function ChatPage({userId}) {
+function ChatPage({ userId }) {
     const [chats, setChats] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -37,7 +37,10 @@ function ChatPage({userId}) {
 
         fetch(`/api/messages/${selectedChatId}`)
             .then(res => res.json())
-            .then(data => setMessages(data))
+            .then(data => {
+                setMessages(data);
+                console.log('Fetching messages for selected user:', data);
+            })
             .catch(err => console.error('Failed to load messages:', err));
     }, [selectedChatId]);
 
@@ -54,7 +57,7 @@ function ChatPage({userId}) {
 
         fetch('/api/messages', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         })
             .then(res => {
@@ -102,7 +105,7 @@ function ChatPage({userId}) {
             <div className="chat-window">
                 <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
                 <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.type === 'group'} />
+                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} />
                 </div>
                 <div className="message-input">
                     <input
@@ -114,7 +117,7 @@ function ChatPage({userId}) {
                         onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     />
                     <button className="send-message-button" onClick={handleSendMessage}>
-                        <img src="/assets/images/white-arrow.png" alt="Send"/>
+                        <img src="/assets/images/white-arrow.png" alt="Send" />
                     </button>
 
                 </div>
