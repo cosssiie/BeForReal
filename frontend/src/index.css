@@ -4,6 +4,8 @@
 @import './styles/ChatPage.css';
 @import './styles/Chat.css';
 @import './styles/CreateNewPost.css';
+@import './styles/Login.css';
+
 
 body,
 html {
