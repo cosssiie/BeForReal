@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import timezone, datetime
 
 from flask_socketio import SocketIO, emit
 
@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from flask_socketio import emit
 from werkzeug.security import check_password_hash
 
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 
@@ -49,6 +49,62 @@ def get_posts():
             'commentsCount': comments_count
         })
     return jsonify(posts=result)
+
+@views.route('/api/categories', methods=['GET'])
+def get_categories():
+    categories = Category.query.all()
+    return jsonify({
+        "categories": [
+            {"id": cat.id, "name": cat.name} for cat in categories
+        ]
+    })
+
+
+@views.route('/api/posts', methods=['POST'])
+def create_post():
+    data = request.get_json()
+
+    user_id = data.get('userId')
+    content = data.get('content')
+    category_id = data.get('category')
+
+    if not user_id or not content:
+        return jsonify({'error': 'Missing userId or content'}), 400
+
+    category = None
+
+    if category_id:
+        category = Category.query.get(category_id)
+        if not category:
+            return jsonify({'error': 'Category not found'}), 404
+
+    new_post = Post(
+        user_id=user_id,
+        category_id=category.id if category else None,
+        title=None,
+        post_text=content,
+        picture=None,
+        date=datetime.utcnow(),
+        karma=0,
+        is_temporary=False
+    )
+
+    db.session.add(new_post)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Post created',
+        'post': {
+            'id': new_post.id,
+            'username': 'You',
+            'date': new_post.date.isoformat(),
+            'content': new_post.post_text,
+            'category': category.name if category else None,
+            'karma': new_post.karma,
+            'commentsCount': 0
+        }
+    }), 201
+
 
 
 #Chats:
@@ -141,7 +197,45 @@ def vote(post_id):
     db.session.commit()
     return jsonify({"newKarma": post.karma})
 
+@views.route('/api/posts/<int:post_id>/react', methods=['POST'])
+def react_post(post_id):
+    data = request.get_json()
+    user_id = data.get('userId')
+    emoji = data.get('emoji')
 
+    if not user_id or not emoji:
+        return jsonify({'error': 'Missing userId or emoji'}), 400
+
+    # Перевірка поста
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    # Знайти реакцію користувача на цей пост
+    reaction = Reaction.query.filter_by(post_id=post_id, user_id=user_id).first()
+
+    if reaction:
+        # Оновити emoji
+        reaction.emoji = emoji
+    else:
+        # Створити нову реакцію
+        reaction = Reaction(user_id=user_id, post_id=post_id, emoji=emoji)
+        db.session.add(reaction)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Reaction saved'}), 200
+
+@views.route('/api/posts/<int:post_id>/reactions', methods=['GET'])
+def get_reactions(post_id):
+    reactions = Reaction.query.filter_by(post_id=post_id).all()
+
+    # Підрахунок кількості кожного emoji
+    counts = {}
+    for r in reactions:
+        counts[r.emoji] = counts.get(r.emoji, 0) + 1
+
+    return jsonify({'reactions': counts})
 
 
 
