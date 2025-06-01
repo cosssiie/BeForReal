@@ -21,7 +21,7 @@ def get_posts():
     posts = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
-        order_by(Post.date.desc()).limit(10).all()
+        order_by(Post.date.desc()).all()
 
     result = []
     for post, user, category in posts:

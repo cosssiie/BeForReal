@@ -5,6 +5,7 @@
 @import './styles/Chat.css';
 @import './styles/CreateNewPost.css';
 @import './styles/Login.css';
+@import './styles/Pagination.css';
 
 
 body,
