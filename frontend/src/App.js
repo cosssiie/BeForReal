@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import ChatPage from './components/ChatPage';
@@ -10,40 +10,56 @@ import Login from './components/Login';
 // import Settings from './components/SettingsPage';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [userRole, setUserRole] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    //const [userId, setUserId] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-  const handleLogin = (role) => {
-    setIsLoggedIn(true);
-    // setUserRole(role);
-  };
+    useEffect(() => {
+        const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const storedUserId = localStorage.getItem('userId');
+        if (loggedIn && storedUserId) {
+            setIsLoggedIn(true);
+            setCurrentUserId(parseInt(storedUserId));
+        }
+    }, []);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    // setUserRole(null);
-  };
-  return (
-    <Router>
-      {isLoggedIn && <Navigation onLogout={handleLogout} />}
+    const handleLogin = (userId) => {
+        setIsLoggedIn(true);
+        setCurrentUserId(userId);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', userId);
+    };
 
-      <div className="App" style={{ paddingTop: isLoggedIn ? '70px' : '0' }}>
-        <Routes>
-          {!isLoggedIn ? (
-            <>
-              <Route path="*" element={<Login onLogin={handleLogin} />} />
-            </>
-          ) : (
-            <>
-              <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/chats" element={<ChatPage userId={2} />} />
-              <Route path="/login" element={<Navigate to="/home" />} />
-            </>
-          )}
-        </Routes>
-      </div>
-    </Router>
-  );
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        setCurrentUserId(null);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+    };
+
+    return (
+        <Router>
+            {isLoggedIn && <Navigation onLogout={handleLogout}/>}
+
+            <div className="App" style={{paddingTop: isLoggedIn ? '70px' : '0'}}>
+                <Routes>
+                    {!isLoggedIn ? (
+                        <>
+                            <Route path="*" element={<Login onLogin={handleLogin}/>}/>
+                        </>
+                    ) : (
+                        <>
+                            <Route path="/" element={<Navigate to="/home"/>}/>
+                            <Route path="/home" element={<HomePage userId={currentUserId}/>}/>
+                            <Route path="/chats" element={<ChatPage userId={currentUserId}/>}/>
+                            <Route path="/login" element={<Navigate to="/home"/>}/>
+                        </>
+                    )}
+                </Routes>
+            </div>
+        </Router>
+    );
 }
 
 export default App;

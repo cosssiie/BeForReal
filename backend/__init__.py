@@ -1,8 +1,7 @@
-
 from flask import Flask
 from flask_cors import CORS
 from backend.models import db
-from backend.views import views  # твій Blueprint
+from backend.views import views # твій Blueprint
 
 
 def create_app():

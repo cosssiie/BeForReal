@@ -1,11 +1,11 @@
 import React from 'react';
 import Post from './Post';
 
-function HomePage() {
+function HomePage({ userId }) {
 
     return (
         <div className="home-container">
-            <Post />
+            <Post userId={userId} />
         </div>
     )
 }

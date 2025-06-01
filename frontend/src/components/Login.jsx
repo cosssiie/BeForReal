@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 
-function Login({ onLogin }) {
+function Login({onLogin}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -10,13 +10,26 @@ function Login({ onLogin }) {
     const handleLoginClick = async (e) => {
         e.preventDefault();
         try {
-            onLogin();
-            navigate('/home');
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password}),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                onLogin(data.user_id);  // ← передай userId
+                navigate('/home');
+            } else {
+                setError(data.message || 'Invalid login or password.');
+            }
         } catch (err) {
-            setError('Invalid login or password. Please try again.');
-            console.error('Login error:', err);
+            setError('Login failed. Please try again.');
+            console.error(err);
         }
     };
+
 
     return (
         <div className="login-wrapper">
@@ -39,7 +52,7 @@ function Login({ onLogin }) {
                         Log In
                     </button>
                 </form>
-                {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+                {error && <p style={{color: 'red', marginTop: '10px'}}>{error}</p>}
             </div>
         </div>
     );
