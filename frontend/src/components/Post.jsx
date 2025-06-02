@@ -1,11 +1,11 @@
-import React from 'react';
+import { useState } from 'react';
 import CreateNewPost from './CreateNewPost';
 import PostItem from './PostItem';
 
 function Post({ currentPosts, votes, handleKarmaChange, userId }) {
+
     return (
         <div className="posts-list">
-            <CreateNewPost />
             {currentPosts.map(post => (
                 <PostItem
                     key={post.id}

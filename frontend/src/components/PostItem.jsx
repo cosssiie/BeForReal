@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
 
+//Just an appearance of post
 function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false }) {
     const navigate = useNavigate();
 

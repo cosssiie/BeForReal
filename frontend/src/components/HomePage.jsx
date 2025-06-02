@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
+import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
 function HomePage({ userId }) {
@@ -7,6 +8,11 @@ function HomePage({ userId }) {
     const [votes, setVotes] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const POSTS_PER_PAGE = 10;
+
+    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+    const indexOfLast = currentPage * POSTS_PER_PAGE;
+    const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
+    const currentPosts = posts.slice(indexOfFirst, indexOfLast);
 
     useEffect(() => {
         fetch('/api/posts')
@@ -52,13 +58,13 @@ function HomePage({ userId }) {
             .catch(err => console.error(err));
     };
 
-    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-    const indexOfLast = currentPage * POSTS_PER_PAGE;
-    const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
-    const currentPosts = posts.slice(indexOfFirst, indexOfLast);
+    const handleCreatePost = (newPost) => {
+        setPosts(prevPosts => [newPost, ...prevPosts]);
+    };
 
     return (
         <div className="home-container">
+            <CreateNewPost onCreate={handleCreatePost} />
             <Post
                 currentPosts={currentPosts}
                 votes={votes}
