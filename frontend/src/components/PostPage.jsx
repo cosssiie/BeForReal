@@ -29,7 +29,7 @@ function PostPage() {
 
             <div className="comments">
                 {comments.length === 0 ? (
-                    <p>No comments yet.</p>
+                    <p className="no-comments">No comments yet.</p>
                 ) : (
                     comments.map(comment => (
                         <div className="comment" key={comment.id}>
