@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import ChatPage from './components/ChatPage';
 import Login from './components/Login';
+import PostPage from './components/PostPage';
 
 
 // import Profile from './components/ProfilePage';
@@ -35,9 +36,10 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/home" element={<HomePage userId={2}/>} />
               <Route path="/chats" element={<ChatPage userId={2} />} />
               <Route path="/login" element={<Navigate to="/home" />} />
+              <Route path="/posts/:postId" element={<PostPage />} />
             </>
           )}
         </Routes>

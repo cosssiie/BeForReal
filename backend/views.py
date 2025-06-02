@@ -39,6 +39,78 @@ def get_posts():
     return jsonify(posts=result)
 
 
+@views.route('/api/posts/<int:post_id>', methods=['GET'])
+def get_post(post_id):
+    post_data = db.session.query(Post, User, Category). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(Post.id == post_id).first()
+
+    if not post_data:
+        return jsonify({'error': 'Post not found'}), 404
+
+    post, user, category = post_data
+    comments_count = len(post.comments)
+
+    result = {
+        'id': post.id,
+        'title': post.title,
+        'content': post.post_text,
+        'date': post.date.isoformat(),
+        'username': user.username,
+        'category': category.name,
+        'karma': post.karma,
+        'commentsCount': comments_count
+    }
+
+    return jsonify(post=result)
+
+@views.route('/api/comments/<int:post_id>', methods=['GET'])
+def get_comments(post_id):
+    comments = Comment.query.filter_by(post_id=post_id).order_by(Comment.date.asc()).all()
+    return jsonify([
+        {
+            'id': c.id,
+            'text': c.comment_text,   
+            'author': c.user.username,
+            'date': c.date.isoformat(),
+            'karma': c.karma,          
+            'parent_id': c.parent_id 
+        }
+        for c in comments
+    ])
+
+
+@views.route('/api/posts/<int:post_id>/vote', methods=['POST'])
+def vote(post_id):
+    data = request.get_json()
+    print("Received data:", data)
+    delta = data.get('delta')
+    user_id = data.get('userId')
+
+    if user_id is None:
+        return jsonify({'error': 'User ID is required'}), 400
+    if delta is None:
+        return jsonify({'error': 'Vote delta is required'}), 400
+
+    try:
+        delta = int(delta)
+        if delta not in [-1, 1]:
+            return jsonify({'error': 'Delta must be -1 or 1'}), 400
+    except ValueError:
+        return jsonify({'error': 'Delta must be an integer'}), 400
+
+    post = Post.query.get_or_404(post_id)
+
+    if delta == -1:
+        post.karma -= 1;
+    else:
+        post.karma += 1;
+
+    db.session.commit()
+    return jsonify({"newKarma": post.karma})
+
+
 #Chats:
 @views.route('/api/chats/<int:user_id>', methods=['GET'])
 def get_chats(user_id):
@@ -98,36 +170,6 @@ def send_message():
     db.session.commit()
 
     return jsonify({'success': True, 'messageId': message.id})
-
-
-@views.route('/api/posts/<int:post_id>/vote', methods=['POST'])
-def vote(post_id):
-    data = request.get_json()
-    print("Received data:", data)
-    delta = data.get('delta')
-    user_id = data.get('userId')
-
-    if user_id is None:
-        return jsonify({'error': 'User ID is required'}), 400
-    if delta is None:
-        return jsonify({'error': 'Vote delta is required'}), 400
-
-    try:
-        delta = int(delta)
-        if delta not in [-1, 1]:
-            return jsonify({'error': 'Delta must be -1 or 1'}), 400
-    except ValueError:
-        return jsonify({'error': 'Delta must be an integer'}), 400
-
-    post = Post.query.get_or_404(post_id)
-
-    if delta == -1:
-        post.karma -= 1;
-    else:
-        post.karma += 1;
-
-    db.session.commit()
-    return jsonify({"newKarma": post.karma})
 
 
 
