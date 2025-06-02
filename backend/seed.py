@@ -1,8 +1,8 @@
 import random
 from faker import Faker
-from backend import app
-from models import db
-from models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message
+
+from backend import app, db
+from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message, PostVote
 
 fake = Faker()
 
@@ -119,25 +119,13 @@ if __name__ == '__main__':
         print("Creating all tables...")
         db.create_all()
 
-        print("Seeding users...")
+        # Run your seeding functions here
         users = seed_users(10)
-
-        print("Seeding categories...")
         categories = seed_categories()
-
-        print("Seeding posts...")
         posts = seed_posts(users, categories, 20)
-
-        print("Seeding comments...")
         seed_comments(users, posts, 50)
-
-        print("Seeding reactions...")
         seed_reactions(users, posts, 50)
-
-        print("Seeding reposts...")
         seed_reposts(users, posts, 20)
-
-        print("Seeding chats and messages...")
         seed_chats_and_messages(users, 5)
 
         print("Seeding completed!")
