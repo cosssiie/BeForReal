@@ -74,6 +74,9 @@
 }
 
 .karma-container {
+  background-color: rgb(235, 235, 235);
+  border-radius: 15px;
+  padding: 5px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -115,10 +118,13 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  font-weight: bold;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  background-color: rgb(235, 235, 235);
+  border-radius: 15px;
+  padding: 8px;
   color: inherit;
 }
 
