@@ -17,7 +17,8 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.post-header, .comment-header {
+.post-header,
+.comment-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
@@ -27,7 +28,7 @@
 
 .post-category {
   display: block;
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
   color: #4b5563;
 }
 
@@ -50,7 +51,8 @@
   color: #6b7280;
 }
 
-.post-author, .comment-author {
+.post-author,
+.comment-author {
   font-weight: 500;
 }
 
@@ -90,6 +92,23 @@
   font-weight: bold;
   min-width: 24px;
   text-align: center;
+}
+
+.reaction-badge {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.reaction-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.reaction-btn.selected {
+  border-bottom: 2px solid blue;
 }
 
 .comment-button {

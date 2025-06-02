@@ -1,30 +1,53 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 function CreateNewPost({ onCreate }) {
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
-    const categories = ['Some categories'];
+    const [categories, setCategories] = useState([]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        fetch('/api/categories')
+            .then(res => res.json())
+            .then(data => {
+                setCategories(data.categories); // 👈 твій бек повинен повертати { categories: [...] }
+            })
+            .catch(err => {
+                console.error('Failed to load categories:', err);
+            });
+    }, []);
 
-        if (!content.trim() || !category) return;
+    const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const newPost = {
-            id: Date.now(),
-            username: 'You',
-            date: new Date().toISOString(),
-            content,
-            category,
-            karma: 0,
-            commentsCount: 0,
-        };
+    if (!content.trim() || !category) return;
 
-        onCreate?.(newPost);
+    const userId = localStorage.getItem("userId");
 
-        setContent('');
-        setCategory('');
-    };
+    try {
+        const res = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                content,
+                category
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            onCreate?.(data.post);
+            setContent('');
+            setCategory('');
+        } else {
+            alert(data.error || 'Failed to create post');
+        }
+    } catch (err) {
+        console.error('Error creating post:', err);
+    }
+};
+
 
     return (
         <form onSubmit={handleSubmit} className="post create-post">
@@ -40,14 +63,14 @@ function CreateNewPost({ onCreate }) {
                         className="select"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        required
+
                     >
                         <option value="" disabled>
                             select category
                         </option>
                         {categories.map((cat) => (
-                            <option key={cat} value={cat}>
-                                {cat}
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
                             </option>
                         ))}
                     </select>

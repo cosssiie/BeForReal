@@ -11,18 +11,34 @@ import PostPage from './components/PostPage';
 // import Settings from './components/SettingsPage';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [userRole, setUserRole] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    //const [userId, setUserId] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-  const handleLogin = (role) => {
-    setIsLoggedIn(true);
-    // setUserRole(role);
-  };
+    useEffect(() => {
+        const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const storedUserId = localStorage.getItem('userId');
+        if (loggedIn && storedUserId) {
+            setIsLoggedIn(true);
+            setCurrentUserId(parseInt(storedUserId));
+        }
+    }, []);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    // setUserRole(null);
-  };
+    const handleLogin = (userId) => {
+        setIsLoggedIn(true);
+        setCurrentUserId(userId);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', userId);
+    };
+
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        setCurrentUserId(null);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+    };
+
   return (
     <Router>
       {isLoggedIn && <Navigation onLogout={handleLogout} />}
