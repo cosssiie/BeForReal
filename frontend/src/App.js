@@ -52,8 +52,8 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<HomePage userId={2}/>} />
-              <Route path="/chats" element={<ChatPage userId={2} />} />
+              <Route path="/home" element={<HomePage userId={currentUserId}/>} />
+              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
               <Route path="/login" element={<Navigate to="/home" />} />
               <Route path="/posts/:postId" element={<PostPage />} />
             </>
