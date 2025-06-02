@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Heart } from 'lucide-react';
 
-//Just an appearance of post
+const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
+
 function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false }) {
     const navigate = useNavigate();
+    const [reactions, setReactions] = useState({});
+    const [userReaction, setUserReaction] = useState(null);
+    const [showReactions, setShowReactions] = useState(false);
 
     const isToday = (someDate) => {
         const today = new Date();
@@ -14,6 +18,40 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear()
         );
+    };
+
+    useEffect(() => {
+        fetch(`/api/posts/${post.id}/reactions`)
+            .then(res => res.json())
+            .then(data => {
+                setReactions(data.reactions || {});
+            })
+            .catch(err => {
+                console.error('Failed to load reactions:', err);
+            });
+    }, [post.id]);
+
+    const handleReaction = async (emoji) => {
+        try {
+            const res = await fetch(`/api/posts/${post.id}/react`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, emoji })
+            });
+
+            if (res.ok) {
+                const updated = await fetch(`/api/posts/${post.id}/reactions`);
+                const data = await updated.json();
+                setReactions(data.reactions);
+                setUserReaction(emoji);
+                setShowReactions(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to react');
+            }
+        } catch (error) {
+            console.error('Error reacting:', error);
+        }
     };
 
     return (
@@ -35,6 +73,14 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
             </div>
 
             <div className="post-footer">
+                <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
+                    {Object.entries(reactions).map(([emoji, count]) => (
+                        <div className="display-reaction" key={emoji} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                            <span className="reaction-emoji">{emoji}</span>
+                            <span className="reaction-count">{count}</span>
+                        </div>
+                    ))}
+                </div>
                 <div className="post-actions">
                     <div className="karma-container">
                         <ArrowUp
@@ -49,6 +95,7 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
                             onClick={() => handleKarmaChange(post.id, -1, userId)}
                         />
                     </div>
+
                     {!isSingle && (
                         <div className="post-action">
                             <button
@@ -60,6 +107,31 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
                             </button>
                         </div>
                     )}
+
+                    <div
+                        className="reactions-container"
+                        onMouseEnter={() => setShowReactions(true)}
+                        onMouseLeave={() => setShowReactions(false)}
+                        style={{ position: 'relative' }}
+                    >
+                        <button className="reaction-button">
+                            <Heart size={18} />
+                        </button>
+
+                        {showReactions && (
+                            <div className="reactions-popup">
+                                {availableEmojis.map((emoji) => (
+                                    <span
+                                        key={emoji}
+                                        className="reaction-emoji"
+                                        onClick={() => handleReaction(emoji)}
+                                    >
+                                        {emoji}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
