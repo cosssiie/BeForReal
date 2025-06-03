@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 function SignUp() {
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,7 +13,7 @@ function SignUp() {
         setError('');
         setSuccess('');
 
-        if (!email || !password || !confirmPassword) {
+        if (!username || !email || !password || !confirmPassword) {
             setError('Please fill in all fields.');
             return;
         }
@@ -25,6 +26,7 @@ function SignUp() {
         //звернення до сервера
 
         setSuccess('Registration successful!');
+        setUsername('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
@@ -35,6 +37,14 @@ function SignUp() {
             <div className="sign-up-container">
                 <h2>Create Account</h2>
                 <form onSubmit={handleSubmit}>
+
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
 
                     <input
                         type="email"
