@@ -4,13 +4,13 @@ from flask_socketio import SocketIO, emit
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from flask_socketio import emit
+from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
 
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
-
+from .sockets import socketio
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
@@ -264,6 +264,15 @@ def send_message():
     message = Message(user_id=user_id, chat_id=chat_id, message_text=text)
     db.session.add(message)
     db.session.commit()
+
+    # Emit to chat room
+    socketio.emit('new_message', {
+        'userId': user_id,
+        'chatId': chat_id,
+        'sender': message.user.username,
+        'text': text,
+        'time': message.date.isoformat()
+    }, room=f'chat_{chat_id}')
 
     return jsonify({'success': True, 'messageId': message.id})
 
