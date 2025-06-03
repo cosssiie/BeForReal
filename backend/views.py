@@ -15,18 +15,7 @@ from .sockets import socketio
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
 
-@views.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
-
-    if user and user.password == password:
-        return jsonify({'success': True, 'user_id': user.id}), 200
-    else:
-        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
 #Posts:
 @views.route('/api/posts', methods=['GET'])
 def get_posts():
