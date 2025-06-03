@@ -1,19 +1,20 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function Login({onLogin}) {
+function Login({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
 
     const handleLoginClick = async (e) => {
         e.preventDefault();
         try {
             const res = await fetch('/api/login', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password}),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await res.json();
@@ -30,6 +31,9 @@ function Login({onLogin}) {
         }
     };
 
+    const handleCreateAccount = () => {
+        navigate('/sign up');
+    };
 
     return (
         <div className="login-wrapper">
@@ -49,10 +53,17 @@ function Login({onLogin}) {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <button className="submit-button" type="submit">
-                        Log In
+                        Sign In
+                    </button>
+                    <button
+                        className="create-account-button"
+                        type="button"
+                        onClick={handleCreateAccount}
+                    >
+                        Create an account
                     </button>
                 </form>
-                {error && <p style={{color: 'red', marginTop: '10px'}}>{error}</p>}
+                {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
             </div>
         </div>
     );

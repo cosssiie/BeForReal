@@ -1,4 +1,5 @@
-.login-wrapper {
+.login-wrapper,
+.sign-up-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -6,8 +7,9 @@
     background-color: #ffffff;
 }
 
-.login-container {
-    max-width: 350px;
+.login-container,
+.sign-up-container {
+    max-width: 400px;
     width: 100%;
     padding: 30px;
     border: 1px solid #ccc;
@@ -16,22 +18,37 @@
     background-color: #ffffff;
 }
 
-.login-container h2 {
-    margin-bottom: 20px;
-    color: #2d4fd6;
+.login-container form,
+.sign-up-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+.login-container h2,
+.sign-up-container h2 {
+    margin-bottom: 25px;
+    color: #2d4fd6;
+    font-weight: 700;
+}
+
+.login-container input,
+.sign-up-container input {
+    padding: 12px 15px;
     font-size: 16px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    transition: border-color 0.3s ease;
     box-sizing: border-box;
 }
 
-.login-container .submit-button {
+.login-container input:focus,
+.sign-up-container input:focus {
+    border-color: #2d4fd6;
+    outline: none;
+}
+
+.login-container .submit-button, .sign-up-container .submit-button {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -44,7 +61,44 @@
     transition: background-color 1.2s ease;
 }
 
-.submit-button:hover {
+.login-container .submit-button:hover, .sign-up-container .submit-button:hover  {
     background-color: #ffffff;
     color: #2d4fd6;
+}
+
+.create-account-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    color: #2d4fd6;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.create-account-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #2d4fd6;
+    transition: width 0.8s ease;
+}
+
+.create-account-button:hover::after {
+    width: 100%;
+}
+
+.error-message {
+    color: #e63946;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.success-message {
+    color: #2a9d8f;
+    margin-top: 15px;
+    font-weight: 600;
 }
