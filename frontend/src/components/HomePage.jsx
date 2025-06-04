@@ -5,6 +5,8 @@ import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
 function HomePage({ userId }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     const [posts, setPosts] = useState([]);
     const [votes, setVotes] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,20 +67,22 @@ function HomePage({ userId }) {
 
     return (
         <div className="home-layout">
-            <Sidebar />
-            <div className="home-container">
-                <CreateNewPost onCreate={handleCreatePost} />
-                <Post
-                    currentPosts={currentPosts}
-                    votes={votes}
-                    handleKarmaChange={handleKarmaChange}
-                    userId={userId}
-                />
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
+            <Sidebar isOpen={isSidebarOpen} />
+            <div className="home-content">
+                <div className="home-container">
+                    <CreateNewPost onCreate={handleCreatePost} />
+                    <Post
+                        currentPosts={currentPosts}
+                        votes={votes}
+                        handleKarmaChange={handleKarmaChange}
+                        userId={userId}
+                    />
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
             </div>
         </div>
     );

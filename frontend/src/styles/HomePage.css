@@ -1,7 +1,15 @@
 .home-layout {
     display: flex;
-    height: 90vh;
-    overflow-y: auto;
+    min-height: 100vh;
+    padding-top: 70px;
+    box-sizing: border-box;
+}
+
+.home-content {
+
+    flex: 1;
+    display: flex;
+    min-width: 0;
 }
 
 .home-container {
@@ -9,8 +17,8 @@
     padding: 16px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 20px;
     overflow-y: auto;
-    max-height: 90vh;
-    gap: 10px;
+    max-height: calc(100vh - 70px);
+    width: 100%;
 }
