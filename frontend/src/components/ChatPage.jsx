@@ -20,7 +20,9 @@ function ChatPage({ userId }) {
         }
         console.log('Fetching chats for userId:', userId);
 
-        fetch(`/api/chats/${userId}`)
+        fetch(`/api/chats/${userId}`, {
+            credentials: 'include'
+        })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
@@ -37,7 +39,9 @@ function ChatPage({ userId }) {
     useEffect(() => {
     if (!selectedChatId) return;
 
-    fetch(`/api/messages/${selectedChatId}`)
+    fetch(`/api/messages/${selectedChatId}`, {
+        credentials: 'include'
+    })
         .then(res => res.json())
         .then(data => setMessages(data))
         .catch(console.error);
@@ -84,6 +88,7 @@ function ChatPage({ userId }) {
         fetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(message),
         })
             .then(res => res.json())

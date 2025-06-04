@@ -16,7 +16,9 @@ function HomePage({ userId }) {
     const currentPosts = posts.slice(indexOfFirst, indexOfLast);
 
     useEffect(() => {
-        fetch('/api/posts')
+        fetch('/api/posts', {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setPosts(data.posts);
@@ -42,6 +44,7 @@ function HomePage({ userId }) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ delta, userId }),
         })
             .then(res => {

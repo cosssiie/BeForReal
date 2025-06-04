@@ -6,7 +6,9 @@ function CreateNewPost({ onCreate }) {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        fetch('/api/categories')
+        fetch('/api/categories', {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setCategories(data.categories); // 👈 твій бек повинен повертати { categories: [...] }
