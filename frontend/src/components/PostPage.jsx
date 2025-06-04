@@ -8,12 +8,16 @@ function PostPage() {
     const [comments, setComments] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/posts/${postId}`)
+        fetch(`/api/posts/${postId}`, {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => setPost(data.post))
             .catch(err => console.error("Error fetching post:", err));
 
-        fetch(`/api/comments/${postId}`)
+        fetch(`/api/comments/${postId}`, {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => setComments(data))
             .catch(err => console.error("Error fetching comments:", err));

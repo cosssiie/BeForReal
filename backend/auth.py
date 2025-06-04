@@ -1,6 +1,7 @@
 from datetime import timezone, datetime
 from sqlite3 import IntegrityError
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .models import User
@@ -43,8 +44,13 @@ def sign_up():
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
 
-@auth.route('/api/login', methods=['POST'])
+@auth.route('/api/login', methods=['GET', 'POST'])
 def login():
+
+    if request.method == 'GET':
+        # Якщо хтось хоче зайти на цю сторінку GET — повернути повідомлення
+        return jsonify({'message': 'Login via POST'}), 401
+
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -52,6 +58,13 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
+        login_user(user)
         return jsonify({'success': True, 'user_id': user.id}), 200
     else:
         return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+
+@auth.route('/api/logout')
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out'}), 200
