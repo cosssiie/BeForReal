@@ -15,18 +15,7 @@ from .sockets import socketio
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
 
-@views.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
-
-    if user and user.password == password:
-        return jsonify({'success': True, 'user_id': user.id}), 200
-    else:
-        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
 #Posts:
 @views.route('/api/posts', methods=['GET'])
 def get_posts():
@@ -116,7 +105,6 @@ def create_post():
         title=None,
         post_text=content,
         picture=None,
-        date=datetime.utcnow(),
         karma=0,
         is_temporary=False
     )
@@ -223,11 +211,10 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = ", ".join([user.username for user in other_users])  # або chat.group_name якщо є
-            chat_num += 1
+            name = chat.group_name if chat.group_name else ", ".join([user.username for user in other_users])
         else:
             name = other_user.username if other_user else f"Chat {chat_num}"
-            chat_num += 1
+        chat_num += 1
 
         chat_list.append({
             'id': chat.id,

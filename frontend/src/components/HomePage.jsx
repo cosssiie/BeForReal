@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
+import Sidebar from './Sidebar';
 import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
@@ -63,19 +64,22 @@ function HomePage({ userId }) {
     };
 
     return (
-        <div className="home-container">
-            <CreateNewPost onCreate={handleCreatePost} />
-            <Post
-                currentPosts={currentPosts}
-                votes={votes}
-                handleKarmaChange={handleKarmaChange}
-                userId={userId}
-            />
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-            />
+        <div className="home-layout">
+            <Sidebar />
+            <div className="home-container">
+                <CreateNewPost onCreate={handleCreatePost} />
+                <Post
+                    currentPosts={currentPosts}
+                    votes={votes}
+                    handleKarmaChange={handleKarmaChange}
+                    userId={userId}
+                />
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
         </div>
     );
 }
