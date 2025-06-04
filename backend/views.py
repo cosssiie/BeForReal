@@ -4,29 +4,18 @@ from flask_socketio import SocketIO, emit
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from flask_socketio import emit
+from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
 
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
-
+from .sockets import socketio
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
 
-@views.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
-
-    if user and user.password == password:
-        return jsonify({'success': True, 'user_id': user.id}), 200
-    else:
-        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
 #Posts:
 @views.route('/api/posts', methods=['GET'])
 def get_posts():
@@ -223,11 +212,10 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = ", ".join([user.username for user in other_users])  # або chat.group_name якщо є
-            chat_num += 1
+            name = chat.group_name if chat.group_name else ", ".join([user.username for user in other_users])
         else:
             name = other_user.username if other_user else f"Chat {chat_num}"
-            chat_num += 1
+        chat_num += 1
 
         chat_list.append({
             'id': chat.id,
@@ -264,6 +252,15 @@ def send_message():
     message = Message(user_id=user_id, chat_id=chat_id, message_text=text)
     db.session.add(message)
     db.session.commit()
+
+    # Emit to chat room
+    socketio.emit('new_message', {
+        'userId': user_id,
+        'chatId': chat_id,
+        'sender': message.user.username,
+        'text': text,
+        'time': message.date.isoformat()
+    }, room=f'chat_{chat_id}')
 
     return jsonify({'success': True, 'messageId': message.id})
 
