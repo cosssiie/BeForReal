@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';  // <-- Імпорт useNavigate
 
 function SignUp() {
     const [username, setUsername] = useState('');
@@ -7,6 +8,8 @@ function SignUp() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const navigate = useNavigate();  // <-- Ініціалізація навігатора
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -23,13 +26,34 @@ function SignUp() {
             return;
         }
 
-        //звернення до сервера
-
-        setSuccess('Registration successful!');
-        setUsername('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
+        fetch('/api/sign up', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password
+            })
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .then(({ status, body }) => {
+            if (status === 201) {
+                setSuccess(body.message);
+                setUsername('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                // Перенаправлення на home після успішної реєстрації
+                navigate('/home');
+            } else {
+                setError(body.error || 'Something went wrong.');
+            }
+        })
+        .catch(err => {
+            setError('Server error');
+        });
     };
 
     return (

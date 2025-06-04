@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from backend.models import db
 from backend.views import views # твій Blueprint
+from backend.auth import auth
 from flask_socketio import SocketIO
 from .sockets import socketio
 
@@ -21,6 +22,7 @@ def create_app():
 
     # Реєстрація Blueprint'ів
     app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(auth, url_prefix='/')
 
     # SocketIO та інші плагіни:
 
