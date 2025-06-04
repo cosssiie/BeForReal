@@ -212,11 +212,10 @@ def get_chats(user_id):
         last_message = Message.query.filter_by(chat_id=chat.id).order_by(Message.date.desc()).first()
 
         if chat.is_group:
-            name = ", ".join([user.username for user in other_users])  # або chat.group_name якщо є
-            chat_num += 1
+            name = chat.group_name if chat.group_name else ", ".join([user.username for user in other_users])
         else:
             name = other_user.username if other_user else f"Chat {chat_num}"
-            chat_num += 1
+        chat_num += 1
 
         chat_list.append({
             'id': chat.id,

@@ -98,6 +98,7 @@ class Repost(db.Model):
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     is_group = db.Column(db.Boolean, default=False)
+    group_name= db.Column(db.String(100))
     created_at = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
     chat_users = db.relationship('ChatUser', backref='chat', lazy=True)
