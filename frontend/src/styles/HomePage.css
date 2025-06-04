@@ -1,7 +1,16 @@
-.home-container {
+.home-layout {
+    display: flex;
     height: 90vh;
     overflow-y: auto;
+}
+
+.home-container {
+    flex: 1;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    align-items: center;
+    overflow-y: auto;
+    max-height: 90vh;
+    gap: 10px;
 }
