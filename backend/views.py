@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
 
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -274,5 +274,30 @@ def get_categories():
     })
 
 
+@views.route('/api/posts/<int:post_id>/repost', methods=['POST'])
+def repost_post(post_id):
+    data = request.get_json()
+    user_id = data.get('userId')
+    # Перевірка чи пост існує
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    # Перевірка чи вже є репост від цього користувача для цього поста
+    existing_repost = Repost.query.filter_by(user_id=user_id, post_id=post_id).first()
+    if existing_repost:
+        return jsonify({'error': 'Already reposted'}), 400
+
+    # Створення репоста
+    new_repost = Repost(user_id=user_id, post_id=post_id)
+    db.session.add(new_repost)
+    db.session.commit()
+
+    return jsonify({'message': 'Repost created successfully'}), 201
+
+@views.route('/api/posts/<int:post_id>/reposts', methods=['GET'])
+def get_reposts(post_id):
+    count = Repost.query.filter_by(post_id=post_id).count()
+    return jsonify({'repostCount': count})
 
 

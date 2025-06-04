@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart } from 'lucide-react';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {ArrowUp, ArrowDown, MessageCircle, Heart} from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
-function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false }) {
+function PostItem({
+                      post, votes = {}, userId, handleKarmaChange = () => {
+    }, isSingle = false
+                  }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
     const [showReactions, setShowReactions] = useState(false);
+    const [repostCount, setRepostCount] = useState(post.repostCount || 0);
+    const [hasReposted, setHasReposted] = useState(false);
+
 
     const isToday = (someDate) => {
         const today = new Date();
@@ -31,12 +37,22 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
             });
     }, [post.id]);
 
+    useEffect(() => {
+        fetch(`/api/posts/${post.id}/reposts`)
+            .then(res => res.json())
+            .then(data => {
+                setRepostCount(data.repostCount || 0);
+            })
+            .catch(err => console.error('Failed to load repost count', err));
+    }, [post.id]);
+
+
     const handleReaction = async (emoji) => {
         try {
             const res = await fetch(`/api/posts/${post.id}/react`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, emoji })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userId, emoji})
             });
 
             if (res.ok) {
@@ -54,6 +70,26 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
         }
     };
 
+    const handleRepost = async () => {
+        try {
+            const res = await fetch(`/api/posts/${post.id}/repost`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userId}) // якщо потрібен userId
+            });
+            if (res.ok) {
+                setRepostCount(prev => prev + 1);
+                setHasReposted(true);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to repost');
+            }
+        } catch (error) {
+            console.error('Error reposting:', error);
+        }
+    };
+
+
     const formatPostDate = (dateStr) => {
         const now = new Date();
         const date = new Date(dateStr);
@@ -62,7 +98,7 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-            return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            return `${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
         } else if (diffDays === 1) {
             return 'вчора';
         } else if (diffDays < 5) {
@@ -90,9 +126,10 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
             </div>
 
             <div className="post-footer">
-                <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
+                <div className="reactions-display" style={{display: 'flex', gap: '8px', marginLeft: '10px'}}>
                     {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <div className="display-reaction" key={emoji}
+                             style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <span className="reaction-emoji">{emoji}</span>
                             <span className="reaction-count">{count}</span>
                         </div>
@@ -113,13 +150,23 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
                         />
                     </div>
 
+                    <button
+                        className={`repost-button ${hasReposted ? 'reposted' : ''}`}
+                        onClick={handleRepost}
+                        disabled={hasReposted}
+                        title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
+                    >
+                        🔁 {repostCount}
+                    </button>
+
+
                     {!isSingle && (
                         <div className="post-action">
                             <button
                                 className="comment-button"
                                 onClick={() => navigate(`/posts/${post.id}`)}
                             >
-                                <MessageCircle size={16} />
+                                <MessageCircle size={16}/>
                                 <span>{post.commentsCount}</span>
                             </button>
                         </div>
@@ -129,10 +176,10 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
                         className="reactions-container"
                         onMouseEnter={() => setShowReactions(true)}
                         onMouseLeave={() => setShowReactions(false)}
-                        style={{ position: 'relative' }}
+                        style={{position: 'relative'}}
                     >
                         <button className="reaction-button">
-                            <Heart size={18} />
+                            <Heart size={18}/>
                         </button>
 
                         {showReactions && (
