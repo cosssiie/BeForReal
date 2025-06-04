@@ -1,18 +1,23 @@
 import random
 from faker import Faker
+from werkzeug.security import generate_password_hash  # <== додано
 
 from backend import app, db
-from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message, PostVote
+from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message
 
 fake = Faker()
 
 def seed_users(n=10):
     users = []
     for _ in range(n):
+        username = fake.unique.user_name()
+        email = f"{username}@ukma.edu.ua"
+        password = generate_password_hash(f"{username}1234")  # Формула + хешування
+
         user = User(
-            email=fake.unique.email(),
-            password=fake.password(),
-            username=fake.unique.user_name(),
+            email=email,
+            password=password,
+            username=username,
             bio=fake.text(max_nb_chars=100),
             karma=random.randint(0, 1000),
             is_moderator=random.choice([True, False])
@@ -89,12 +94,14 @@ def seed_chats_and_messages(users, n=5):
     for _ in range(n):
         is_group = random.choice([True, False])
         chat = Chat(is_group=is_group)
-        db.session.add(chat)
-        db.session.commit()  # get chat.id
+
         if is_group:
             participants = random.sample(users, random.randint(3, 5))
         else:
             participants = random.sample(users, 2)
+
+        db.session.add(chat)
+        db.session.commit()  # get chat.id
 
         for user in participants:
             chat_user = ChatUser(chat_id=chat.id, user_id=user.id)
@@ -108,6 +115,7 @@ def seed_chats_and_messages(users, n=5):
                 picture=fake.image_url() if random.choice([True, False]) else None
             )
             db.session.add(msg)
+
         db.session.commit()
         chats.append(chat)
     return chats
@@ -119,7 +127,6 @@ if __name__ == '__main__':
         print("Creating all tables...")
         db.create_all()
 
-        # Run your seeding functions here
         users = seed_users(10)
         categories = seed_categories()
         posts = seed_posts(users, categories, 20)
