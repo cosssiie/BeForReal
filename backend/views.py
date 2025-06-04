@@ -105,7 +105,6 @@ def create_post():
         title=None,
         post_text=content,
         picture=None,
-        date=datetime.utcnow(),
         karma=0,
         is_temporary=False
     )

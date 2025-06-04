@@ -54,14 +54,31 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
         }
     };
 
+    const formatPostDate = (dateStr) => {
+        const now = new Date();
+        const date = new Date(dateStr);
+
+        const diffTime = now - date;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+            return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (diffDays === 1) {
+            return 'вчора';
+        } else if (diffDays < 5) {
+            return `${diffDays} дні(в) тому`;
+        } else {
+            return date.toLocaleDateString(); // наприклад: 04.06.2025
+        }
+    };
+
+
     return (
         <div className="post">
             <div className="post-header">
                 <span className="post-author">{post.username}</span>
                 <span className="post-date">
-                    {isToday(post.date)
-                        ? new Date(post.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : new Date(post.date).toLocaleDateString()}
+                    {formatPostDate(post.date)}
                 </span>
             </div>
 

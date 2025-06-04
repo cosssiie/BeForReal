@@ -51,7 +51,7 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    if user and user.password == password:
+    if user and check_password_hash(user.password, password):
         return jsonify({'success': True, 'user_id': user.id}), 200
     else:
         return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
