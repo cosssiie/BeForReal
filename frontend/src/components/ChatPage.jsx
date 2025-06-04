@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
 import Chat from './Chat';
+import io from 'socket.io-client';
+
+const socket = io();
 
 function ChatPage({ userId }) {
     const [chats, setChats] = useState([]);
@@ -17,7 +20,9 @@ function ChatPage({ userId }) {
         }
         console.log('Fetching chats for userId:', userId);
 
-        fetch(`/api/chats/${userId}`)
+        fetch(`/api/chats/${userId}`, {
+            credentials: 'include'
+        })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
@@ -31,54 +36,78 @@ function ChatPage({ userId }) {
     }, [userId]);
 
 
-    // Завантажуємо повідомлення для вибраного чату
     useEffect(() => {
-        if (!selectedChatId) return;
+    if (!selectedChatId) return;
 
-        fetch(`/api/messages/${selectedChatId}`)
-            .then(res => res.json())
-            .then(data => {
-                setMessages(data);
-                console.log('Fetching messages for selected user:', data);
-            })
-            .catch(err => console.error('Failed to load messages:', err));
-    }, [selectedChatId]);
+    fetch(`/api/messages/${selectedChatId}`, {
+        credentials: 'include'
+    })
+        .then(res => res.json())
+        .then(data => setMessages(data))
+        .catch(console.error);
 
-    const selectedChat = chats.find(chat => chat.id === selectedChatId);
+    const room = `chat_${selectedChatId}`;
+    socket.emit('join', room);
+
+    const handleNewMessage = (newMessage) => {
+        if (String(newMessage.chatId) === String(selectedChatId)) {
+            setMessages(prev => [...prev, newMessage]);
+        }
+
+        setChats(prevChats =>
+            prevChats.map(chat =>
+                chat.id === newMessage.chatId
+                    ? {
+                        ...chat,
+                        lastMessage: newMessage.text
+                    }
+                    : chat
+            )
+        );
+    };
+
+    socket.on('new_message', handleNewMessage);
+
+    return () => {
+        socket.emit('leave', room);
+        socket.off('new_message', handleNewMessage);
+    };
+}, [selectedChatId]);
+
 
     const handleSendMessage = () => {
         if (!messageInput.trim()) return;
 
-        const payload = {
-            userId: userId,
+        const message = {
+            userId,
             chatId: selectedChatId,
             text: messageInput.trim(),
         };
 
+        // Надсилання через API для збереження в базу
         fetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            credentials: 'include',
+            body: JSON.stringify(message),
         })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to send message');
-                return res.json();
-            })
-            .then(() => {
-                // Очищаємо поле вводу
+            .then(res => res.json())
+            .then(savedMessage => {
                 setMessageInput('');
 
-                // Оновлюємо повідомлення
-                fetch(`/api/messages/${selectedChatId}`)
-                    .then(res => res.json())
-                    .then(data => setMessages(data));
+                // Socket: надсилаємо в кімнату
+                const room = `chat_${selectedChatId}`;
+                socket.emit('new_message', { ...savedMessage, room });
 
+                // Оновлюємо список чатів
                 fetch(`/api/chats/${userId}`)
                     .then(res => res.json())
                     .then(data => setChats(data));
             })
-            .catch(err => console.error(err));
+            .catch(console.error);
     };
+
+    const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
 
     return (

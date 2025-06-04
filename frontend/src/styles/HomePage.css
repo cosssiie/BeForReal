@@ -1,7 +1,24 @@
+.home-layout {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px;
+    box-sizing: border-box;
+}
+
+.home-content {
+
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
 .home-container {
-    height: 90vh;
-    overflow-y: auto;
+    flex: 1;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    gap: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 70px);
+    width: 100%;
 }

@@ -6,7 +6,9 @@ function CreateNewPost({ onCreate }) {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        fetch('/api/categories')
+        fetch('/api/categories', {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setCategories(data.categories); // 👈 твій бек повинен повертати { categories: [...] }
@@ -53,7 +55,6 @@ function CreateNewPost({ onCreate }) {
         <form onSubmit={handleSubmit} className="post create-post">
             <div className="post-header">
                 <span className="post-author">You</span>
-                <span className="post-date">{new Date().toLocaleString()}</span>
             </div>
 
             <div className="post-content">

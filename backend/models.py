@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, timedelta
 from datetime import datetime
@@ -13,7 +14,7 @@ def utc_now():
 def utc_plus_3():
     return datetime.now(pytz.utc) + timedelta(hours=3)
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
@@ -98,6 +99,7 @@ class Repost(db.Model):
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     is_group = db.Column(db.Boolean, default=False)
+    group_name= db.Column(db.String(100))
     created_at = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
     chat_users = db.relationship('ChatUser', backref='chat', lazy=True)
