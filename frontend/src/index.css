@@ -1,4 +1,5 @@
 @import './styles/Post.css';
+@import './styles/PostPage.css';
 @import './styles/HomePage.css';
 @import './styles/Navigation.css';
 @import './styles/ChatPage.css';
@@ -11,7 +12,12 @@
 body,
 html {
   overflow: hidden;
+  background-color: rgb(255, 255, 255);
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+button {
+  font-family: 'Radio Canada', sans-serif;
 }
