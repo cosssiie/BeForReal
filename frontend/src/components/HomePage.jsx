@@ -73,10 +73,6 @@ function HomePage({ userId }) {
             .catch(err => console.error(err));
     };
 
-    const handleCreatePost = (newPost) => {
-        setPosts(prevPosts => [newPost, ...prevPosts]);
-    };
-
     if (isLoading) {
         return <div className="loading">Loading posts...</div>;
     }
@@ -86,7 +82,6 @@ function HomePage({ userId }) {
             <Sidebar isOpen={isSidebarOpen} />
             <div className="home-content">
                 <div className="home-container">
-                    <CreateNewPost onCreate={handleCreatePost} />
                     <Post
                         currentPosts={currentPosts}
                         votes={votes}
