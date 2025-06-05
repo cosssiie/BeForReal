@@ -27,7 +27,9 @@ function PostItem({
     };
 
     useEffect(() => {
-        fetch(`/api/posts/${post.id}/reactions`)
+        fetch(`/api/posts/${post.id}/reactions`, {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setReactions(data.reactions || {});
@@ -56,7 +58,9 @@ function PostItem({
             });
 
             if (res.ok) {
-                const updated = await fetch(`/api/posts/${post.id}/reactions`);
+                const updated = await fetch(`/api/posts/${post.id}/reactions`, {
+                    credentials: 'include'
+                });
                 const data = await updated.json();
                 setReactions(data.reactions);
                 setUserReaction(emoji);
@@ -126,10 +130,9 @@ function PostItem({
             </div>
 
             <div className="post-footer">
-                <div className="reactions-display" style={{display: 'flex', gap: '8px', marginLeft: '10px'}}>
+                <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
                     {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji}
-                             style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                        <div className="display-reaction" key={emoji} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                             <span className="reaction-emoji">{emoji}</span>
                             <span className="reaction-count">{count}</span>
                         </div>
@@ -150,23 +153,13 @@ function PostItem({
                         />
                     </div>
 
-                    <button
-                        className={`repost-button ${hasReposted ? 'reposted' : ''}`}
-                        onClick={handleRepost}
-                        disabled={hasReposted}
-                        title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
-                    >
-                        🔁 {repostCount}
-                    </button>
-
-
                     {!isSingle && (
                         <div className="post-action">
                             <button
                                 className="comment-button"
                                 onClick={() => navigate(`/posts/${post.id}`)}
                             >
-                                <MessageCircle size={16}/>
+                                <MessageCircle size={16} />
                                 <span>{post.commentsCount}</span>
                             </button>
                         </div>
@@ -176,10 +169,10 @@ function PostItem({
                         className="reactions-container"
                         onMouseEnter={() => setShowReactions(true)}
                         onMouseLeave={() => setShowReactions(false)}
-                        style={{position: 'relative'}}
+                        style={{ position: 'relative' }}
                     >
                         <button className="reaction-button">
-                            <Heart size={18}/>
+                            <Heart size={18} />
                         </button>
 
                         {showReactions && (

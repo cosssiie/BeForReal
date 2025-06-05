@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
+import Sidebar from './Sidebar';
 import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
@@ -15,7 +16,9 @@ function HomePage({ userId }) {
     const currentPosts = posts.slice(indexOfFirst, indexOfLast);
 
     useEffect(() => {
-        fetch('/api/posts')
+        fetch('/api/posts', {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setPosts(data.posts);
@@ -41,6 +44,7 @@ function HomePage({ userId }) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ delta, userId }),
         })
             .then(res => {
@@ -63,19 +67,22 @@ function HomePage({ userId }) {
     };
 
     return (
-        <div className="home-container">
-            <CreateNewPost onCreate={handleCreatePost} />
-            <Post
-                currentPosts={currentPosts}
-                votes={votes}
-                handleKarmaChange={handleKarmaChange}
-                userId={userId}
-            />
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-            />
+        <div className="home-layout">
+            <Sidebar />
+            <div className="home-container">
+                <CreateNewPost onCreate={handleCreatePost} />
+                <Post
+                    currentPosts={currentPosts}
+                    votes={votes}
+                    handleKarmaChange={handleKarmaChange}
+                    userId={userId}
+                />
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
         </div>
     );
 }

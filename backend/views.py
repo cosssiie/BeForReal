@@ -18,6 +18,7 @@ months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July"
 
 #Posts:
 @views.route('/api/posts', methods=['GET'])
+@login_required
 def get_posts():
     posts = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
@@ -41,6 +42,7 @@ def get_posts():
 
 
 @views.route('/api/posts/<int:post_id>', methods=['GET'])
+@login_required
 def get_post(post_id):
     post_data = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
@@ -67,6 +69,7 @@ def get_post(post_id):
     return jsonify(post=result)
 
 @views.route('/api/comments/<int:post_id>', methods=['GET'])
+@login_required
 def get_comments(post_id):
     comments = Comment.query.filter_by(post_id=post_id).order_by(Comment.date.asc()).all()
     return jsonify([
@@ -82,10 +85,11 @@ def get_comments(post_id):
     ])
 
 @views.route('/api/posts', methods=['POST'])
+@login_required
 def create_post():
     data = request.get_json()
 
-    user_id = data.get('userId')
+    user_id = current_user.id
     content = data.get('content')
     category_id = data.get('category')
 
@@ -127,11 +131,12 @@ def create_post():
 
 
 @views.route('/api/posts/<int:post_id>/vote', methods=['POST'])
+@login_required
 def vote(post_id):
     data = request.get_json()
     print("Received data:", data)
     delta = data.get('delta')
-    user_id = data.get('userId')
+    user_id = current_user.id
 
     if user_id is None:
         return jsonify({'error': 'User ID is required'}), 400
@@ -156,9 +161,10 @@ def vote(post_id):
     return jsonify({"newKarma": post.karma})
 
 @views.route('/api/posts/<int:post_id>/react', methods=['POST'])
+@login_required
 def react_post(post_id):
     data = request.get_json()
-    user_id = data.get('userId')
+    user_id = current_user.id
     emoji = data.get('emoji')
 
     if not user_id or not emoji:
@@ -185,6 +191,7 @@ def react_post(post_id):
     return jsonify({'message': 'Reaction saved'}), 200
 
 @views.route('/api/posts/<int:post_id>/reactions', methods=['GET'])
+@login_required
 def get_reactions(post_id):
     reactions = Reaction.query.filter_by(post_id=post_id).all()
 
@@ -197,6 +204,7 @@ def get_reactions(post_id):
 
 #Chats:
 @views.route('/api/chats/<int:user_id>', methods=['GET'])
+@login_required
 def get_chats(user_id):
     chats = Chat.query.join(ChatUser).filter(ChatUser.user_id == user_id).all()
     chat_list = []
@@ -227,6 +235,7 @@ def get_chats(user_id):
 
 
 @views.route('/api/messages/<int:chat_id>', methods=['GET'])
+@login_required
 def get_messages(chat_id):
     messages = Message.query.filter_by(chat_id=chat_id).order_by(Message.date).all()
     message_list = [{
@@ -239,9 +248,10 @@ def get_messages(chat_id):
 
 
 @views.route('/api/messages', methods=['POST'])
+@login_required
 def send_message():
     data = request.get_json()
-    user_id = data.get('userId')
+    user_id = current_user.id
     chat_id = data.get('chatId')
     text = data.get('text')
 
@@ -263,8 +273,8 @@ def send_message():
 
     return jsonify({'success': True, 'messageId': message.id})
 
-
 @views.route('/api/categories', methods=['GET'])
+@login_required
 def get_categories():
     categories = Category.query.all()
     return jsonify({
