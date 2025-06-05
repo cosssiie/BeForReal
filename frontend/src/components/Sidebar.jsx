@@ -23,7 +23,7 @@ function Sidebar({ isOpen }) {
 
                     </div>
                 </div>
-                <div className="menu">
+                {/* <div className="menu">
                     <div className="menu-title">Links</div>
                     <Link to="/" className="menu-link">
                         <img src="/assets/images/settings.png" alt="icon" className="icon" />
@@ -33,7 +33,7 @@ function Sidebar({ isOpen }) {
                         <img src="/assets/images/settings.png" alt="icon" className="icon" />
                         <span className="label">Something</span>
                     </Link>
-                </div>
+                </div> */}
             </div>
         </div>
     );
