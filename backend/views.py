@@ -278,5 +278,5 @@ def get_categories():
     })
 
 
-
-
+def socketio():
+    return None

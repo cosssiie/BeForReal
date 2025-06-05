@@ -1,7 +1,7 @@
 .home-layout {
     display: flex;
     min-height: 100vh;
-    padding-top: 70px;
+    padding-top: 0px;
     box-sizing: border-box;
 }
 
