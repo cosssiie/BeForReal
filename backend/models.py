@@ -70,7 +70,13 @@ class Post(db.Model):
     reposts = db.relationship('Repost', backref='post', lazy=True)
     report_posts = db.relationship('ReportPost', backref='post', lazy=True)
 
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    value = db.Column(db.Integer, nullable=False)  # 1 або -1
 
+    __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='unique_vote'),)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

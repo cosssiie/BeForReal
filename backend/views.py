@@ -65,6 +65,70 @@ def get_post(post_id):
 
     return jsonify(post=result)
 
+@views.route('/api/posts/by_category', methods=['GET'])
+@login_required
+def get_posts_by_category():
+    category_id = request.args.get('category_id', type=int)
+
+    if not category_id:
+        return jsonify({'error': 'Missing category_id'}), 400
+
+    query = db.session.query(Post, User, Category). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(Post.category_id == category_id). \
+        order_by(Post.date.desc())
+
+    posts = query.all()
+
+    result = []
+    for post, user, category in posts:
+        comments_count = len(post.comments)
+        result.append({
+            'id': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'username': user.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(posts=result)
+
+@views.route('/api/posts/by_user', methods=['GET'])
+@login_required
+def get_posts_by_user():
+    user_id = request.args.get('user_id', type=int)
+
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    posts = db.session.query(Post, User, Category). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(User.id == user_id). \
+        order_by(Post.date.desc()).all()
+
+    result = []
+    for post, user, category in posts:
+        comments_count = len(post.comments)
+        result.append({
+            'id': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'username': user.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(posts=result)
+
+
+
 @views.route('/api/comments/<int:post_id>', methods=['GET'])
 @login_required
 def get_comments(post_id):
@@ -303,10 +367,46 @@ def repost_post(post_id):
 
     return jsonify({'message': 'Repost created successfully'}), 201
 
+
 @views.route('/api/posts/<int:post_id>/reposts', methods=['GET'])
 @login_required
 def get_reposts(post_id):
     count = Repost.query.filter_by(post_id=post_id).count()
     return jsonify({'repostCount': count})
+
+
+@views.route('/api/reposts/by_user', methods=['GET'])
+@login_required
+def get_reposts_by_user():
+    user_id = request.args.get('user_id', type=int)
+
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    reposts = db.session.query(Repost, Post, User, Category). \
+        join(Post, Repost.post_id == Post.id). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(Repost.user_id == user_id). \
+        order_by(Repost.timestamp.desc()).all()
+
+    result = []
+    for repost, post, post_author, category in reposts:
+        comments_count = len(post.comments)
+        result.append({
+            'repostId': repost.id,
+            'postId': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'repostDate': repost.timestamp.isoformat(),
+            'originalAuthor': post_author.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(reposts=result)
+
 
 
