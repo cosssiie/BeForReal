@@ -34,6 +34,7 @@ function Login({ onLogin }) {
 
     const handleCreateAccount = () => {
         navigate('/sign up');
+        console.log('TEST');
     };
 
     return (
