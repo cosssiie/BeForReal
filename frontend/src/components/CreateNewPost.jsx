@@ -11,12 +11,11 @@ function CreateNewPost({ onCreate }) {
         })
             .then(res => res.json())
             .then(data => {
-                console.log('Fetched categories response:', data); // 🔍 логування
                 if (Array.isArray(data.categories)) {
                     setCategories(data.categories);
                 } else {
                     console.error('Invalid categories format:', data);
-                    setCategories([]); // fallback
+                    setCategories([]);
                 }
             })
             .catch(err => {
