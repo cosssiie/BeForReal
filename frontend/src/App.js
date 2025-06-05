@@ -43,7 +43,7 @@ function App() {
     <Router>
       {isLoggedIn && <Navigation onLogout={handleLogout} />}
 
-      <div className="App" style={{ paddingTop: isLoggedIn ? '70px' : '0' }}>
+      <div className="App" style={{ marginTop: isLoggedIn ? '70px' : '0' }}>
         <Routes>
           {!isLoggedIn ? (
             <>

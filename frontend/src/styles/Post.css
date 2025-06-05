@@ -98,7 +98,8 @@
 }
 
 .comment-button,
-.reaction-button {
+.reaction-button,
+.repost-button {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -113,8 +114,19 @@
 }
 
 .comment-button:hover,
-.reaction-button:hover {
+.reaction-button:hover,
+.repost-button:hover {
   color: #007bff;
+}
+
+.repost-button.reposted {
+  background-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.repost-button.reposted:hover {
+  color: #999;
 }
 
 .reactions-popup {

@@ -5,25 +5,36 @@ import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
 function HomePage({ userId }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [votes, setVotes] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
     const POSTS_PER_PAGE = 10;
 
-    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+    const totalPages = Math.ceil((posts?.length || 0) / POSTS_PER_PAGE);
     const indexOfLast = currentPage * POSTS_PER_PAGE;
     const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
-    const currentPosts = posts.slice(indexOfFirst, indexOfLast);
+    const currentPosts = posts?.slice(indexOfFirst, indexOfLast) || [];
 
     useEffect(() => {
+        setIsLoading(true);
         fetch('/api/posts', {
             credentials: 'include'
         })
-            .then(res => res.json())
-            .then(data => {
-                setPosts(data.posts);
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to load posts");
+                return res.json();
             })
-            .catch(err => console.error("Failed to load posts:", err));
+            .then(data => {
+                setPosts(data.posts || []);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error("Failed to load posts:", err);
+                setPosts([]);
+                setIsLoading(false);
+            });
     }, []);
 
     useEffect(() => {
@@ -62,26 +73,29 @@ function HomePage({ userId }) {
             .catch(err => console.error(err));
     };
 
-    const handleCreatePost = (newPost) => {
-        setPosts(prevPosts => [newPost, ...prevPosts]);
-    };
+    if (isLoading) {
+        return <div className="loading">Loading posts...</div>;
+    }
 
     return (
         <div className="home-layout">
-            <Sidebar />
-            <div className="home-container">
-                <CreateNewPost onCreate={handleCreatePost} />
-                <Post
-                    currentPosts={currentPosts}
-                    votes={votes}
-                    handleKarmaChange={handleKarmaChange}
-                    userId={userId}
-                />
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
+            <Sidebar isOpen={isSidebarOpen} />
+            <div className="home-content">
+                <div className="home-container">
+                    <Post
+                        currentPosts={currentPosts}
+                        votes={votes}
+                        handleKarmaChange={handleKarmaChange}
+                        userId={userId}
+                    />
+                    {posts.length > 0 && (
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
