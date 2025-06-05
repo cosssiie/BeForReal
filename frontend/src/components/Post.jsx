@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import CreateNewPost from './CreateNewPost';
 import PostItem from './PostItem';
 
 function Post({ currentPosts, votes, handleKarmaChange, userId }) {
     const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        setPosts(currentPosts);
+    }, [currentPosts]);
 
     const handleCreatePost = (newPost) => {
         setPosts(prevPosts => [newPost, ...prevPosts]);
@@ -12,7 +16,7 @@ function Post({ currentPosts, votes, handleKarmaChange, userId }) {
         <div className="posts-list">
             <CreateNewPost onCreate={handleCreatePost} />
 
-            {currentPosts.map(post => (
+            {posts.map(post => (
                 <PostItem
                     key={post.id}
                     post={post}
