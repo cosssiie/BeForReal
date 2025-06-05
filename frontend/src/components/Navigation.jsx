@@ -17,11 +17,6 @@ function Navigation() {
                 <img src="/assets/images/user.png" alt="Profile" className="icon" />
                 {/* <span>Profile</span> */}
             </Link>
-
-            <Link to="/settings" className="header-btn">
-                <img src="/assets/images/setting.png" alt="Settings" className="icon" />
-                {/* <span>Settings</span> */}
-            </Link>
         </header>
     );
 }

@@ -8,11 +8,8 @@ import SignUp from './components/SignUp';
 import PostPage from './components/PostPage';
 import ProfilePage from './components/ProfilePage';
 
-// import Settings from './components/SettingsPage';
-
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  //const [userId, setUserId] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
