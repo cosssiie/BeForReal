@@ -3,6 +3,8 @@
 # PyCharm
 .idea/
 
+instance/*.db
+
 __pycache__
 
 # Node / Webpack
