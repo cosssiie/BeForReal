@@ -4,11 +4,16 @@ import { ArrowUp, ArrowDown, MessageCircle, Heart } from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
-function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false }) {
+function PostItem({
+                      post, votes = {}, userId, handleKarmaChange = () => {
+    }, isSingle = false
+                  }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
     const [showReactions, setShowReactions] = useState(false);
+    const [repostCount, setRepostCount] = useState(post.repostCount || 0);
+    const [hasReposted, setHasReposted] = useState(false);
 
     const isToday = (someDate) => {
         const today = new Date();
@@ -21,7 +26,9 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
     };
 
     useEffect(() => {
-        fetch(`/api/posts/${post.id}/reactions`)
+        fetch(`/api/posts/${post.id}/reactions`, {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 setReactions(data.reactions || {});
@@ -31,16 +38,28 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
             });
     }, [post.id]);
 
+    useEffect(() => {
+        fetch(`/api/posts/${post.id}/reposts`)
+            .then(res => res.json())
+            .then(data => {
+                setRepostCount(data.repostCount || 0);
+            })
+            .catch(err => console.error('Failed to load repost count', err));
+    }, [post.id]);
+
     const handleReaction = async (emoji) => {
         try {
             const res = await fetch(`/api/posts/${post.id}/react`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, emoji })
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({userId, emoji})
             });
 
             if (res.ok) {
-                const updated = await fetch(`/api/posts/${post.id}/reactions`);
+                const updated = await fetch(`/api/posts/${post.id}/reactions`, {
+                    credentials: 'include'
+                });
                 const data = await updated.json();
                 setReactions(data.reactions);
                 setUserReaction(emoji);
@@ -54,6 +73,26 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
         }
     };
 
+    const handleRepost = async () => {
+        try {
+            const res = await fetch(`/api/posts/${post.id}/repost`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({userId}) // якщо потрібен userId
+            });
+            if (res.ok) {
+                setRepostCount(prev => prev + 1);
+                setHasReposted(true);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to repost');
+            }
+        } catch (error) {
+            console.error('Error reposting:', error);
+        }
+    };
+
     const formatPostDate = (dateStr) => {
         const now = new Date();
         const date = new Date(dateStr);
@@ -62,7 +101,7 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-            return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            return `${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
         } else if (diffDays === 1) {
             return 'вчора';
         } else if (diffDays < 5) {
@@ -112,6 +151,15 @@ function PostItem({ post, votes = {}, userId, handleKarmaChange = () => { }, isS
                             onClick={() => handleKarmaChange(post.id, -1, userId)}
                         />
                     </div>
+
+                    <button
+                        className={`repost-button ${hasReposted ? 'reposted' : ''}`}
+                        onClick={handleRepost}
+                        disabled={hasReposted}
+                        title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
+                    >
+                        🔁 {repostCount}
+                    </button>
 
                     {!isSingle && (
                         <div className="post-action">
