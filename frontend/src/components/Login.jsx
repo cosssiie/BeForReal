@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [animate, setAnimate] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const timer = setTimeout(() => setAnimate(true), 50); // невелика затримка
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleLoginClick = async (e) => {
         e.preventDefault();
@@ -21,7 +26,7 @@ function Login({ onLogin }) {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                onLogin(data.user_id);  // ← передай userId
+                onLogin(data.user_id);
                 navigate('/home');
             } else {
                 setError(data.message || 'Invalid login or password.');
@@ -37,34 +42,44 @@ function Login({ onLogin }) {
     };
 
     return (
-        <div className="login-wrapper">
-            <div className="login-container">
-                <h2>Login</h2>
-                <form onSubmit={handleLoginClick}>
+        <div className="login-page">
+            <div className="bg-elements">
+                <div className="floating-shape shape-1"></div>
+                <div className="floating-shape shape-2"></div>
+                <div className="floating-shape shape-3"></div>
+                <div className="floating-shape shape-4"></div>
+            </div>
+
+            <div className={`login-container ${animate ? 'animate-in' : ''}`}>
+                <div className="login-header">
+                    <h2 className="login-title">Вхід</h2>
+                    <p className="login-subtitle">Увійдіть, щоб продовжити</p>
+                </div>
+                <form className="login-form" onSubmit={handleLoginClick}>
                     <input
                         type="text"
+                        className="form-input"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
                         type="password"
-                        placeholder="Password"
+                        className="form-input"
+                        placeholder="Пароль"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <button className="submit-button" type="submit">
-                        Sign In
-                    </button>
+                    <button className="login-btn" type="submit">Увійти</button>
                     <button
                         className="create-account-button"
                         type="button"
                         onClick={handleCreateAccount}
                     >
-                        Create an account
+                        Створити акаунт
                     </button>
                 </form>
-                {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+                {error && <p className="error-message">{error}</p>}
             </div>
         </div>
     );

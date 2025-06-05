@@ -8,13 +8,15 @@
 .post {
   width: 100%;
   max-width: 600px;
-  background-color: #ffffff;
-  border: 1px solid #a6adbf;
   border-radius: 12px;
-  padding: 16px;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(3, 18, 46, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .post-header,
