@@ -10,6 +10,10 @@
 @import './styles/ProfilePage.css';
 @import './styles/Sidebar.css';
 
+html {
+  scroll-behavior: smooth;
+}
+
 body,
 html {
   overflow: hidden;
@@ -20,5 +24,9 @@ html {
 }
 
 button {
+  font-family: 'Radio Canada', sans-serif;
+}
+
+input {
   font-family: 'Radio Canada', sans-serif;
 }
