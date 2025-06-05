@@ -41,21 +41,20 @@ function App() {
 
   return (
     <Router>
-      {isLoggedIn && <Navigation onLogout={handleLogout} />}
+      {isLoggedIn && <Navigation />}
 
       <div className="App" style={{ marginTop: isLoggedIn ? '70px' : '0' }}>
         <Routes>
           {!isLoggedIn ? (
             <>
               <Route path="*" element={<Login onLogin={handleLogin} />} />
-              <Route path="/sign up" element={<SignUp/>} />
+              <Route path="/sign up" element={<SignUp />} />
             </>
           ) : (
             <>
               <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<HomePage userId={currentUserId} />} />
-              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
-              <Route path="/profile" element={<ProfilePage onLogout={handleLogout} />} />
+              <Route path="/home" element={<HomePage userId={currentUserId} onLogout={handleLogout} />} />              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/login" element={<Navigate to="/home" />} />
               <Route path="/posts/:postId" element={<PostPage />} />
             </>

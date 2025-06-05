@@ -1,8 +1,8 @@
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, LogOut } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Sidebar({ isOpen }) {
+function Sidebar({ isOpen, onLogout }) {
     return (
         <div className={`sidebar-container ${isOpen ? 'open' : ''}`}>
             <div className="custom-sidebar">
@@ -22,18 +22,17 @@ function Sidebar({ isOpen }) {
                         <span className="label">Filter</span>
 
                     </div>
+                    <div className="logout-container">
+                        <button
+                            className="logout-button"
+                            onClick={onLogout}
+                        >
+                            <LogOut size={25} />
+                        </button>
+                    </div>
                 </div>
-                {/* <div className="menu">
-                    <div className="menu-title">Links</div>
-                    <Link to="/" className="menu-link">
-                        <img src="/assets/images/settings.png" alt="icon" className="icon" />
-                        <span className="label">Something</span>
-                    </Link>
-                    <Link to="/" className="menu-link">
-                        <img src="/assets/images/settings.png" alt="icon" className="icon" />
-                        <span className="label">Something</span>
-                    </Link>
-                </div> */}
+
+
             </div>
         </div>
     );
