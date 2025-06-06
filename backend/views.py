@@ -383,30 +383,32 @@ def get_reposts_by_user():
     if not user_id:
         return jsonify({'error': 'Missing user_id'}), 400
 
-    reposts = db.session.query(Repost, Post, User, Category). \
-        join(Post, Repost.post_id == Post.id). \
+    # Знаходимо репости користувача
+    reposts = db.session.query(Repost).filter_by(user_id=user_id).order_by(Repost.date.desc()).all()
+    posts = [repost.post for repost in reposts]
+
+    posts = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
-        filter(Repost.user_id == user_id). \
-        order_by(Repost.timestamp.desc()).all()
+        filter(User.id == user_id). \
+        order_by(Post.date.desc()).all()
 
     result = []
-    for repost, post, post_author, category in reposts:
+    for post, user, category in posts:
         comments_count = len(post.comments)
         result.append({
-            'repostId': repost.id,
-            'postId': post.id,
+            'id': post.id,
             'title': post.title,
             'content': post.post_text,
             'date': post.date.isoformat(),
-            'repostDate': repost.timestamp.isoformat(),
-            'originalAuthor': post_author.username,
+            'username': user.username,
             'category': category.name,
             'karma': post.karma,
             'commentsCount': comments_count
         })
 
     return jsonify(reposts=result)
+
 
 
 
