@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 function ProfilePage() {
+    const [activeTab, setActiveTab] = useState('posts');
+
     return (
         <div className="profile-container">
             <div className="profile">
@@ -10,23 +12,38 @@ function ProfilePage() {
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
-                            <span className="nickname">Someone</span>
+                            <span className="nickname">Username</span>
                             <div className="profile-buttons">
                                 <button className="change-profile">Change Profile</button>
                                 <button className="change-profile">Change Profile</button>
                             </div>
                         </div>
                         <div className="statistics">
-
+                       
                         </div>
                     </div>
                 </div>
                 <div className="profile-posts">
-                    <nav>
-                        <ul>
-
+                    <nav className="tab-nav">
+                        <ul className="tab-list">
+                            <li
+                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('posts')}
+                            >
+                                Posts
+                            </li>
+                            <li
+                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('reposts')}
+                            >
+                                Reposts
+                            </li>
                         </ul>
                     </nav>
+                    <div className="tab-content">
+                        {activeTab === 'posts' && <div>User's posts...</div>}
+                        {activeTab === 'reposts' && <div>User's reposts..</div>}
+                    </div>
                 </div>
             </div>
         </div>

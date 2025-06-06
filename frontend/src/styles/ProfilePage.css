@@ -23,15 +23,16 @@
 .profile-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 20px;
     border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 20px;
+    height: 150px;
+    padding-bottom: 15px;
 }
 
 .profile-photo {
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
     background-color: #b09eba;
     overflow: hidden;
@@ -51,6 +52,8 @@
     flex-direction: column;
     flex: 1;
     gap: 15px;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .personal-info,
@@ -61,6 +64,7 @@
     width: 100%;
     padding: 0 10px;
     gap: 20px;
+    height: 50%;
 }
 
 .personal-info span,
@@ -79,44 +83,69 @@
     display: flex;
     gap: 10px;
     width: 50%;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .change-profile {
-    background-color: #673ab7;
+    background-color: #2d4fd6;
     color: white;
-    border: none;
+    border: 1px solid #2d4fd6;
     border-radius: 8px;
     padding: 6px 12px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.9s ease;
 }
 
 .change-profile:hover {
-    background-color: #5e35b1;
+    background-color: #ffffff;
+    color: #2d4fd6;
 }
 
 .profile-posts {
     margin-top: 20px;
 }
 
-.profile-posts nav ul {
-    list-style-type: none;
+.tab-nav {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.tab-list {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    gap: 10px;
 }
 
-.profile-posts nav ul li {
-    background-color: #f0f0f0;
-    padding: 10px 14px;
-    border-radius: 10px;
+.tab-item {
+    padding: 10px 0;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    position: relative;
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
-.profile-posts nav ul li:hover {
-    background-color: #ddd;
+.tab-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #2d4fd6;
+    transition: width 0.4s ease;
+}
+
+.tab-item:hover::after {
+    width: 100%;
+}
+
+.tab-item.active {
+    color: #2d4fd6;
+}
+
+.tab-content {
+    padding: 10px 0;
 }
