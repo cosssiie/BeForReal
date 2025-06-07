@@ -53,7 +53,7 @@ function CreateNewPost({ onCreate }) {
                 onCreate?.(data.post);
                 setContent('');
                 setCategory('');
-                setImages(null);
+                setImages([]);
             } else {
                 alert(data.error || 'Failed to create post');
             }

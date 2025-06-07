@@ -8,6 +8,9 @@ from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reac
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
@@ -148,17 +151,15 @@ def get_comments(post_id):
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
-    data = request.get_json()
-
     user_id = current_user.id
-    content = data.get('content')
-    category_id = data.get('category')
+    content = request.form.get('content')
+    category_id = request.form.get('category')
+    images = request.files.getlist('images[]')
 
     if not user_id or not content:
         return jsonify({'error': 'Missing userId or content'}), 400
 
     category = None
-
     if category_id:
         category = Category.query.get(category_id)
         if not category:
@@ -173,9 +174,26 @@ def create_post():
         karma=0,
         is_temporary=False
     )
-
     db.session.add(new_post)
     db.session.commit()
+
+    upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+    #upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', str(new_post.id))
+    os.makedirs(upload_folder, exist_ok=True)
+
+    image_urls = []
+    for img in images:
+        filename = secure_filename(img.filename)
+        file_path = os.path.join(upload_folder, filename)
+        img.save(file_path)
+
+        relative_path = f'/static/uploads'
+        #relative_path = f'/static/uploads/{new_post.id}/{filename}'
+        image_urls.append(relative_path)
+
+    if image_urls:
+        new_post.picture = image_urls[0]
+        db.session.commit()
 
     return jsonify({
         'message': 'Post created',
@@ -186,7 +204,9 @@ def create_post():
             'content': new_post.post_text,
             'category': category.name if category else None,
             'karma': new_post.karma,
-            'commentsCount': 0
+            'commentsCount': 0,
+            'picture': new_post.picture,
+            'images': image_urls
         }
     }), 201
 
