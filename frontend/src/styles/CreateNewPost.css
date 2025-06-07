@@ -34,3 +34,36 @@
     background-color: #115293;
     color: white;
 }
+
+.image-add {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.post-image-label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.post-image-input {
+    display: none;
+}
+
+.custom-file-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #115293;
+    color: white;
+    font-size: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-label:hover {
+    background-color: #0d3c72;
+}
