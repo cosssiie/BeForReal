@@ -85,6 +85,41 @@ body, html, #root {
     animation-duration: 8s;
 }
 
+.logo-wrapper {
+    position: absolute; /*  relative */
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%); /* Центрує по горизонталі */
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    animation: slideInDown 0.8s ease-out;
+}
+
+.site-logo {
+    max-width: 160px;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+
+.login-container {
+    margin-top: 40px;
+}
+
+/* Анімація зверху */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
 /* Container */
 .login-container {
     background: rgba(255, 255, 255, 0.85);

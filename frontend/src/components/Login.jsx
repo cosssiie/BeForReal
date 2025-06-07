@@ -42,13 +42,19 @@ function Login({ onLogin }) {
     };
 
     return (
+
         <div className="login-page">
+
             <div className="bg-elements">
                 <div className="floating-shape shape-1"></div>
                 <div className="floating-shape shape-2"></div>
                 <div className="floating-shape shape-3"></div>
                 <div className="floating-shape shape-4"></div>
             </div>
+
+              <div className="logo-wrapper">
+                  <img src="/logo_2.png" alt="Site Logo " className="site-logo"  />
+             </div>
 
             <div className={`login-container ${animate ? 'animate-in' : ''}`}>
                 <div className="login-header">
