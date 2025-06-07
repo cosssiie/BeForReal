@@ -4,10 +4,13 @@ import PostItem from './PostItem';
 import Pagination from './Pagination';
 
 function ProfilePage() {
-    const [activeTab, setActiveTab] = useState('posts');
+    const [userId, setUserId] = useState(null);
+    const [username, setUsername] = useState('');
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
-    const userId = 1;
+    const [activeTab, setActiveTab] = useState('posts');
+
+
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,17 +24,37 @@ function ProfilePage() {
         : reposts.slice(indexOfFirst, indexOfLast);
 
     useEffect(() => {
+        axios.get('/api/current_user')
+            .then(response => {
+                setUserId(response.data.id);
+                setUsername(response.data.username);
+            })
+            .catch(error => {
+                console.error('Error getting current user:', error);
+            });
+    }, []);
+
+    
+    useEffect(() => {
+        if (!userId) return;
+
         setCurrentPage(1);
         if (activeTab === 'posts') {
-            axios.get(`/api/posts/by_user`, { params: { user_id: userId } })
-                .then(response => setPosts(response.data.posts))
+            axios.get('/api/posts/by_user', { params: { user_id: userId } })
+                .then(response => {
+                    setPosts(response.data.posts);
+                    // console.log('response.data.posts ', response.data.posts);
+                })
                 .catch(error => console.error(error));
         } else if (activeTab === 'reposts') {
-            axios.get(`/api/reposts/by_user`, { params: { user_id: userId } })
-                .then(response => setReposts(response.data.reposts))
+            axios.get('/api/reposts/by_user', { params: { user_id: userId } })
+                .then(response => {
+                    setReposts(response.data.reposts);
+                    // console.log('response.data.reposts ', response.data.reposts);
+                })
                 .catch(error => console.error(error));
         }
-    }, [activeTab]);
+    }, [activeTab, userId]);
 
     return (
         <div className="profile-container">
@@ -42,7 +65,7 @@ function ProfilePage() {
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
-                            <span className="nickname">Username</span>
+                            <span className="nickname">{username}</span>
                             <div className="profile-buttons">
                                 <button className="change-profile">Change Profile</button>
                                 <button className="change-profile">Change Profile</button>
