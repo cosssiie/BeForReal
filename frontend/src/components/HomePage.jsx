@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import Sidebar from './Sidebar';
-import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
 function HomePage({ userId, onLogout  }) {
