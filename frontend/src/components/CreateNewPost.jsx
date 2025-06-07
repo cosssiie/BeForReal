@@ -53,13 +53,17 @@ function CreateNewPost({ onCreate }) {
                 onCreate?.(data.post);
                 setContent('');
                 setCategory('');
-                setImages(null);
+                setImages([]);
             } else {
                 alert(data.error || 'Failed to create post');
             }
         } catch (err) {
             console.error('Error creating post:', err);
         }
+    };
+
+    const handleRemoveImage = (indexToRemove) => {
+        setImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
     };
 
     return (
@@ -112,18 +116,29 @@ function CreateNewPost({ onCreate }) {
                     />
 
                     {images.length > 0 && (
-                        <div style={{ marginTop: '8px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                            {images.map((img, index) => (
-                                <img
-                                    key={index}
-                                    src={URL.createObjectURL(img)}
-                                    alt={`preview-${index}`}
-                                    style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'cover', borderRadius: '8px' }}
-                                />
-                            ))}
-                        </div>
-                    )}
+                        <div className="image-preview-outer">
+                            <div className="image-preview-container">
+                                {images.map((img, index) => (
+                                    <div key={index} className="image-preview-wrapper">
+                                        <img
+                                            src={URL.createObjectURL(img)}
+                                            alt={`preview-${index}`}
+                                            className="image-preview"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="image-remove-button"
+                                            aria-label="Remove image"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>)}
                 </div>
+
             </div>
 
             <div className="post-footer">
