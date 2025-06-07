@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag } from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
@@ -15,6 +15,7 @@ function PostItem({
     const [showReactions, setShowReactions] = useState(false);
     const [repostCount, setRepostCount] = useState(post.repostCount || 0);
     const [hasReposted, setHasReposted] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
 
     const isToday = (someDate) => {
         const today = new Date();
@@ -24,6 +25,10 @@ function PostItem({
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear()
         );
+    };
+
+    const toggleOptions = () => {
+        setShowOptions(prev => !prev);
     };
 
     useEffect(() => {
@@ -115,18 +120,25 @@ function PostItem({
         }
     };
 
-
     return (
         <div className="post">
-            <div className="post-header">
+            <div className="post-header" style={{ position: 'relative' }}>
                 <div className="username-date">
                     <span className="post-author">{post.username}</span>
-                    <span className="post-date">
-                        {formatPostDate(post.date)}
-                    </span>
+                    <span className="post-date">{formatPostDate(post.date)}</span>
                 </div>
-                <button className="additional-button">
-                    <EllipsisVertical size={16} /></button>
+
+                <button className="additional-button" onClick={toggleOptions}>
+                    <EllipsisVertical size={16} />
+                </button>
+
+                {showOptions && (
+                    <div className="options-popup">
+                        <button className="flag-button">
+                            <Flag size={16}/>
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="post-content">
