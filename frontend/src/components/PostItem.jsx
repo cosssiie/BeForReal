@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical } from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
@@ -119,10 +119,14 @@ function PostItem({
     return (
         <div className="post">
             <div className="post-header">
-                <span className="post-author">{post.username}</span>
-                <span className="post-date">
-                    {formatPostDate(post.date)}
-                </span>
+                <div className="username-date">
+                    <span className="post-author">{post.username}</span>
+                    <span className="post-date">
+                        {formatPostDate(post.date)}
+                    </span>
+                </div>
+                <button className="additional-button">
+                    <EllipsisVertical size={16} /></button>
             </div>
 
             <div className="post-content">
