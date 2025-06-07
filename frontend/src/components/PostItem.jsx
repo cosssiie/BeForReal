@@ -40,17 +40,15 @@ function PostItem({
     }, [post.id]);
 
     useEffect(() => {
-        const isReposted = localStorage.getItem(`reposted_${post.id}`) === 'true';
-        setHasReposted(isReposted);
-    }, [post.id]);
-
-    useEffect(() => {
-        fetch(`/api/posts/${post.id}/reposts`)
+        fetch(`/api/posts/${post.id}/reposts`, {
+            credentials: 'include',
+        })
             .then(res => res.json())
             .then(data => {
                 setRepostCount(data.repostCount || 0);
+                setHasReposted(data.hasReposted);
             })
-            .catch(err => console.error('Failed to load repost count', err));
+            .catch(err => console.error('Failed to load repost info', err));
     }, [post.id]);
 
     const handleReaction = async (emoji) => {
@@ -90,7 +88,6 @@ function PostItem({
             if (res.ok) {
                 setRepostCount(prev => prev + 1);
                 setHasReposted(true);
-                localStorage.setItem(`reposted_${post.id}`, 'true');
             } else {
                 const err = await res.json();
                 alert(err.error || 'Failed to repost');

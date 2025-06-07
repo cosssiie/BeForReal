@@ -372,7 +372,11 @@ def repost_post(post_id):
 @login_required
 def get_reposts(post_id):
     count = Repost.query.filter_by(post_id=post_id).count()
-    return jsonify({'repostCount': count})
+    user_reposted = Repost.query.filter_by(post_id=post_id, user_id=current_user.id).first() is not None
+    return jsonify({
+        'repostCount': count,
+        'hasReposted': user_reposted
+    })
 
 
 @views.route('/api/reposts/by_user', methods=['GET'])
