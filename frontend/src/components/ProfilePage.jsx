@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostItem from './PostItem';
+import Pagination from './Pagination';
 
 function ProfilePage() {
     const [activeTab, setActiveTab] = useState('posts');
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
-    const userId = 1; // <-- заміни на реальний userId з auth
+    const userId = 1;
+
+    const POSTS_PER_PAGE = 3;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalItems = activeTab === 'posts' ? posts.length : reposts.length;
+    const totalPages = Math.ceil(totalItems / POSTS_PER_PAGE);
+    const indexOfLast = currentPage * POSTS_PER_PAGE;
+    const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
+    const currentItems = activeTab === 'posts'
+        ? posts.slice(indexOfFirst, indexOfLast)
+        : reposts.slice(indexOfFirst, indexOfLast);
 
     useEffect(() => {
+        setCurrentPage(1);
         if (activeTab === 'posts') {
             axios.get(`/api/posts/by_user`, { params: { user_id: userId } })
                 .then(response => setPosts(response.data.posts))
@@ -36,7 +49,7 @@ function ProfilePage() {
                             </div>
                         </div>
                         <div className="statistics">
-                       
+
                         </div>
                     </div>
                 </div>
@@ -58,21 +71,19 @@ function ProfilePage() {
                         </ul>
                     </nav>
                     <div className="tab-content">
-                        {activeTab === 'posts' && (
-                        <div>
-                            {posts.map(post => (
-                                <PostItem key={post.postId || post.id} post={post} />
+                        <div className="posts-list">
+                            {currentItems.map(item => (
+                                <PostItem key={item.postId || item.id} post={item} />
                             ))}
                         </div>
-                    )}
 
-                    {activeTab === 'reposts' && (
-                        <div>
-                            {reposts.map(repost => (
-                                <PostItem key={repost.postId} post={repost} />
-                            ))}
-                        </div>
-                    )}
+                        {totalPages > 1 && (
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
