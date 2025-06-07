@@ -7,6 +7,7 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import PostPage from './components/PostPage';
 import ProfilePage from './components/ProfilePage';
+import AdminPage from './components/AdminPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -52,7 +53,7 @@ function App() {
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<HomePage userId={currentUserId} onLogout={handleLogout} />} />              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/login" element={<Navigate to="/home" />} />
+              <Route path="/admin-panel" element={<AdminPage />} />
               <Route path="/posts/:postId" element={<PostPage />} />
             </>
           )}

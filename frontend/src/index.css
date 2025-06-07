@@ -8,6 +8,7 @@
 @import './styles/Login.css';
 @import './styles/Pagination.css';
 @import './styles/ProfilePage.css';
+@import './styles/AdminPage.css';
 @import './styles/Sidebar.css';
 
 html {
