@@ -12,13 +12,31 @@ import AdminPage from './components/AdminPage';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const storedUserId = localStorage.getItem('userId');
-    if (loggedIn && storedUserId) {
+
+    if (loggedIn) {
       setIsLoggedIn(true);
-      setCurrentUserId(parseInt(storedUserId));
+
+      fetch('/api/current_user')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch current user');
+          return res.json();
+        })
+        .then(data => {
+          setCurrentUserId(data.id);
+          setUser(data);
+        })
+        .catch(err => {
+          console.error('Failed to fetch current user:', err);
+          setIsLoggedIn(false);
+          setUser(null);
+          setCurrentUserId(null);
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('userId');
+        });
     }
   }, []);
 
@@ -27,19 +45,25 @@ function App() {
     setCurrentUserId(userId);
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('userId', userId);
-  };
 
+    // Після логіну можна також завантажити user info
+    fetch('/api/current_user')
+      .then(res => res.json())
+      .then(data => setUser(data))
+      .catch(() => setUser(null));
+  };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUserId(null);
+    setUser(null);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userId');
   };
 
   return (
     <Router>
-      {isLoggedIn && <Navigation />}
+      {isLoggedIn && <Navigation user={user} />}
 
       <div className="App" style={{ marginTop: isLoggedIn ? '70px' : '0' }}>
         <Routes>
@@ -51,9 +75,15 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<HomePage userId={currentUserId} onLogout={handleLogout} />} />              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
+              <Route path="/home" element={<HomePage userId={currentUserId} onLogout={handleLogout} />} />
+              <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/admin-panel" element={<AdminPage />} />
+
+              <Route
+                path="/admin-panel"
+                element={user?.is_moderator ? <AdminPage /> : <Navigate to="/home" />}
+              />
+
               <Route path="/posts/:postId" element={<PostPage />} />
             </>
           )}

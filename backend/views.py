@@ -439,8 +439,15 @@ def get_reposts_by_user():
 def get_current_user():
     return jsonify({
         'id': current_user.id,
-        'username': current_user.username
+        'username': current_user.username,
+        'email': current_user.email,
+        'is_moderator': current_user.is_moderator,
+        'profile_picture': current_user.profile_picture,
+        'karma': current_user.karma,
+        'bio': current_user.bio,
+        'date_joined': current_user.date_joined.isoformat()
     })
+
 
 
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { UserRound, MessageCircleMore, House, Headset} from 'lucide-react';
 
-function Navigation() {
+function Navigation({ user }) {
     return (
         <header className="header-nav">
             <Link to="/home" className="header-btn">
@@ -16,10 +16,11 @@ function Navigation() {
                 <UserRound alt="Profile" className="icon" />
             </Link>
 
-            {/* moderator */}
-            <Link to="/admin-panel" className="header-btn">
-                <Headset alt="Admin" className="icon" />
-            </Link>
+            {user?.is_moderator && (
+                <Link to="/admin-panel" className="header-btn">
+                    <Headset alt="Admin" className="icon" />
+                </Link>
+            )}
         </header>
     );
 }
