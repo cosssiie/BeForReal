@@ -10,11 +10,41 @@ function HomePage({ userId, onLogout  }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const POSTS_PER_PAGE = 10;
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
 
     const totalPages = Math.ceil((posts?.length || 0) / POSTS_PER_PAGE);
     const indexOfLast = currentPage * POSTS_PER_PAGE;
     const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
     const currentPosts = posts?.slice(indexOfFirst, indexOfLast) || [];
+
+    const handleCategorySelect = (categoryId) => {
+    setIsLoading(true);
+    setSelectedCategory(categoryId);
+
+    const url = categoryId
+        ? `/api/posts/by_category?category_id=${categoryId}`
+        : '/api/posts';
+
+    fetch(url, {
+        credentials: 'include'
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to load filtered posts");
+            return res.json();
+        })
+        .then(data => {
+            setPosts(data.posts || data); // API може повертати `posts: [...]` або просто `[...]`
+            setCurrentPage(1); // скидаємо до першої сторінки
+            setIsLoading(false);
+        })
+        .catch(err => {
+            console.error("Error fetching filtered posts:", err);
+            setPosts([]);
+            setIsLoading(false);
+        });
+};
+
 
     useEffect(() => {
         setIsLoading(true);
@@ -78,7 +108,7 @@ function HomePage({ userId, onLogout  }) {
 
     return (
         <div className="home-layout">
-            <Sidebar isOpen={isSidebarOpen} onLogout={onLogout} />            
+            <Sidebar isOpen={isSidebarOpen} onLogout={onLogout} onCategorySelect={handleCategorySelect} />
             <div className="home-content">
                 <div className="home-container">
                     <Post
