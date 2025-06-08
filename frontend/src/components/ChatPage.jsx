@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
 import Chat from './Chat';
 import io from 'socket.io-client';
+import { useParams, useLocation } from 'react-router-dom';
 
 const socket = io();
 
 function ChatPage({ userId }) {
+    const { chatId } = useParams();
     const [chats, setChats] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [messageInput, setMessageInput] = useState('');
-
+    const location = useLocation();
+    const selectedChatIdFromLocation = location.state?.selectedChat || null;
 
     // Завантажуємо чати користувача
     useEffect(() => {
@@ -34,6 +37,14 @@ function ChatPage({ userId }) {
             })
             .catch(err => console.error('Failed to load chats:', err));
     }, [userId]);
+
+    useEffect(() => {
+        if (chatId && chats.length > 0) {
+            setSelectedChatId(Number(chatId));
+        } else if (chats.length > 0 && selectedChatId === null) {
+            setSelectedChatId(selectedChatIdFromLocation || chats[0].id);
+        }
+    }, [chatId, chats, selectedChatIdFromLocation, selectedChatId]);
 
 
     useEffect(() => {

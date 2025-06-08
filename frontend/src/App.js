@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import ChatPage from './components/ChatPage';
+import Chat from './components/Chat';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import PostPage from './components/PostPage';
@@ -78,6 +79,8 @@ function App() {
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<HomePage userId={currentUserId} onLogout={handleLogout} />} />
               <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
+              <Route path="/chats/:chatId?" element={<ChatPage userId={currentUserId} />} />
+              <Route path="/chats/:id" element={<Chat userId={currentUserId} />} />
               <Route path="/profile" element={<ProfilePage />} />
 
               <Route

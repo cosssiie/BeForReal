@@ -474,6 +474,44 @@ def get_user_by_id(id):
         'karma': user.karma
     })
 
+@views.route('/api/chats/start', methods=['POST'])
+@login_required
+def start_private_chat():
+    data = request.get_json()
+    other_user_id = data.get('user_id')
 
+    if not other_user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    if other_user_id == current_user.id:
+        return jsonify({'error': 'Cannot start chat with yourself'}), 400
+
+    # Перевірити, чи вже існує приватний чат між цими двома користувачами
+    existing_chat = Chat.query\
+        .join(ChatUser, Chat.id == ChatUser.chat_id)\
+        .filter(
+            Chat.is_group == False,
+            ChatUser.user_id.in_([current_user.id, other_user_id])
+        )\
+        .group_by(Chat.id)\
+        .having(db.func.count(ChatUser.user_id) == 2)\
+        .first()
+
+    if existing_chat:
+        return jsonify({'chat_id': existing_chat.id, 'messages': 0})
+
+    # Створити новий чат
+    new_chat = Chat(is_group=False)
+    db.session.add(new_chat)
+    db.session.flush()  # Щоб отримати id до коміту
+
+    db.session.add_all([
+        ChatUser(chat_id=new_chat.id, user_id=current_user.id),
+        ChatUser(chat_id=new_chat.id, user_id=other_user_id)
+    ])
+
+    db.session.commit()
+
+    return jsonify({'chat_id': new_chat.id, 'messages': 0})
 
 

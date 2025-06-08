@@ -11,7 +11,7 @@ const Chat = ({ messages, userId, isGroup }) => {
 
     return (
         <div className="chat-messages">
-            {messages.length === 0 ? (
+            {!messages || messages.length === 0 ? (
                 <p className="empty-chat">No messages yet.</p>
             ) : (
                 messages.map((msg, index) => {

@@ -17,6 +17,7 @@ function OtherUserProfile() {
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
+    const [selectedChat, setSelectedChat] = useState(null);
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,8 +58,19 @@ function OtherUserProfile() {
     }, [activeTab, id]);
 
     const handleStartChat = () => {
-        navigate(`/chat/${userData.id}`);
-    };
+    axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
+        .then(response => {
+            const chatId = response.data.chat_id;
+            setSelectedChat(chatId); // Оновлюємо selectedChat новим chatId
+            navigate(`/chats/${chatId}`); // Перенаправляємо на новий чат (якщо URL з id)
+        })
+        .catch(error => {
+            console.error('Failed to start chat:', error);
+        });
+};
+
+
+
 
     return (
         <div className="profile-container">
