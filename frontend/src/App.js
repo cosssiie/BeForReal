@@ -8,6 +8,7 @@ import SignUp from './components/SignUp';
 import PostPage from './components/PostPage';
 import ProfilePage from './components/ProfilePage';
 import AdminPage from './components/AdminPage';
+import OtherUserProfile from './components/OtherUserProfile';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -85,6 +86,7 @@ function App() {
               />
 
               <Route path="/posts/:postId" element={<PostPage />} />
+              <Route path="/profile/:id" element={<OtherUserProfile />} />
             </>
           )}
         </Routes>

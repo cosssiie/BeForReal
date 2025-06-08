@@ -35,7 +35,8 @@ def get_posts():
             'username': user.username,
             'category': category.name,
             'karma': post.karma,
-            'commentsCount': comments_count
+            'commentsCount': comments_count,
+            'picture': post.picture,
         })
     return jsonify(posts=result)
 
@@ -62,7 +63,8 @@ def get_post(post_id):
         'username': user.username,
         'category': category.name,
         'karma': post.karma,
-        'commentsCount': comments_count
+        'commentsCount': comments_count,
+        'picture': post.picture,
     }
 
     return jsonify(post=result)
@@ -94,7 +96,8 @@ def get_posts_by_category():
             'username': user.username,
             'category': category.name,
             'karma': post.karma,
-            'commentsCount': comments_count
+            'commentsCount': comments_count,
+            'picture': post.picture,
         })
 
     return jsonify(posts=result)
@@ -124,7 +127,8 @@ def get_posts_by_user():
             'username': user.username,
             'category': category.name,
             'karma': post.karma,
-            'commentsCount': comments_count
+            'commentsCount': comments_count,
+            'picture': post.picture,
         })
 
     return jsonify(posts=result)
@@ -432,6 +436,35 @@ def get_current_user():
         'bio': current_user.bio,
         'karma': current_user.karma
     })
+
+
+@views.route('/api/users/search', methods=['GET'])
+@login_required
+def search_users():
+    q = request.args.get('q', '', type=str).strip()
+    if not q:
+        return jsonify({'error': 'Missing query'}), 400
+
+    users = User.query.filter(User.username.ilike(f'{q}%')).all()
+    return jsonify([{
+        'id': user.id,
+        'username': user.username,
+        'profile_picture': user.profile_picture,
+        'bio': user.bio,
+    } for user in users])
+
+@views.route('/api/users/<int:id>', methods=['GET'])
+@login_required
+def get_user_by_id(id):
+    user = User.query.get_or_404(id)
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'profile_picture': user.profile_picture,
+        'bio': user.bio,
+        'karma': user.karma
+    })
+
 
 
 
