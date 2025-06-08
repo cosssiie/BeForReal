@@ -8,6 +8,8 @@ from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reac
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
+import os
+from werkzeug.utils import secure_filename
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
@@ -65,6 +67,70 @@ def get_post(post_id):
 
     return jsonify(post=result)
 
+@views.route('/api/posts/by_category', methods=['GET'])
+@login_required
+def get_posts_by_category():
+    category_id = request.args.get('category_id', type=int)
+
+    if not category_id:
+        return jsonify({'error': 'Missing category_id'}), 400
+
+    query = db.session.query(Post, User, Category). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(Post.category_id == category_id). \
+        order_by(Post.date.desc())
+
+    posts = query.all()
+
+    result = []
+    for post, user, category in posts:
+        comments_count = len(post.comments)
+        result.append({
+            'id': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'username': user.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(posts=result)
+
+@views.route('/api/posts/by_user', methods=['GET'])
+@login_required
+def get_posts_by_user():
+    user_id = request.args.get('user_id', type=int)
+
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    posts = db.session.query(Post, User, Category). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(User.id == user_id). \
+        order_by(Post.date.desc()).all()
+
+    result = []
+    for post, user, category in posts:
+        comments_count = len(post.comments)
+        result.append({
+            'id': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'username': user.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(posts=result)
+
+
+
 @views.route('/api/comments/<int:post_id>', methods=['GET'])
 @login_required
 def get_comments(post_id):
@@ -84,28 +150,34 @@ def get_comments(post_id):
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
-    data = request.get_json()
-
+    content = request.form.get('content')
+    category_id = request.form.get('category')
     user_id = current_user.id
-    content = data.get('content')
-    category_id = data.get('category')
 
     if not user_id or not content:
         return jsonify({'error': 'Missing userId or content'}), 400
 
     category = None
-
     if category_id:
         category = Category.query.get(category_id)
         if not category:
             return jsonify({'error': 'Category not found'}), 404
+
+    image_files = request.files.getlist('images[]')
+    image_file = image_files[0] if image_files else None
+
+    filename = None
+    if image_file:
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join('static/uploads', filename)
+        image_file.save(image_path)
 
     new_post = Post(
         user_id=user_id,
         category_id=category.id if category else None,
         title=None,
         post_text=content,
-        picture=None,
+        picture=filename,
         karma=0,
         is_temporary=False
     )
@@ -117,12 +189,13 @@ def create_post():
         'message': 'Post created',
         'post': {
             'id': new_post.id,
-            'username': 'You',
+            'username': current_user.username,
             'date': new_post.date.isoformat(),
             'content': new_post.post_text,
             'category': category.name if category else None,
             'karma': new_post.karma,
-            'commentsCount': 0
+            'commentsCount': 0,
+            'picture': filename,
         }
     }), 201
 
@@ -303,10 +376,62 @@ def repost_post(post_id):
 
     return jsonify({'message': 'Repost created successfully'}), 201
 
+
 @views.route('/api/posts/<int:post_id>/reposts', methods=['GET'])
 @login_required
 def get_reposts(post_id):
     count = Repost.query.filter_by(post_id=post_id).count()
-    return jsonify({'repostCount': count})
+    user_reposted = Repost.query.filter_by(post_id=post_id, user_id=current_user.id).first() is not None
+    return jsonify({
+        'repostCount': count,
+        'hasReposted': user_reposted
+    })
+
+
+@views.route('/api/reposts/by_user', methods=['GET'])
+@login_required
+def get_reposts_by_user():
+    user_id = request.args.get('user_id', type=int)
+
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    reposts = db.session.query(Repost). \
+        join(Post, Repost.post_id == Post.id). \
+        join(User, Post.user_id == User.id). \
+        join(Category, Post.category_id == Category.id). \
+        filter(Repost.user_id == user_id). \
+        order_by(Repost.date.desc()).all()
+
+    result = []
+    for repost in reposts:
+        post = repost.post
+        user = post.user
+        category = post.category
+        comments_count = len(post.comments)
+
+        result.append({
+            'id': post.id,
+            'title': post.title,
+            'content': post.post_text,
+            'date': post.date.isoformat(),
+            'username': user.username,
+            'category': category.name,
+            'karma': post.karma,
+            'commentsCount': comments_count
+        })
+
+    return jsonify(reposts=result)
+
+@views.route('/api/current_user')
+@login_required
+def get_current_user():
+    return jsonify({
+        'id': current_user.id,
+        'username': current_user.username,
+        'bio': current_user.bio,
+        'karma': current_user.karma
+    })
+
 
 

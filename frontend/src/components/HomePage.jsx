@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import Sidebar from './Sidebar';
-import CreateNewPost from './CreateNewPost';
 import Pagination from './Pagination';
 
-function HomePage({ userId }) {
+function HomePage({ userId, onLogout  }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [votes, setVotes] = useState({});
@@ -79,7 +78,7 @@ function HomePage({ userId }) {
 
     return (
         <div className="home-layout">
-            <Sidebar isOpen={isSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} onLogout={onLogout} />            
             <div className="home-content">
                 <div className="home-container">
                     <Post

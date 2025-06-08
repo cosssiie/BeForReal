@@ -3,7 +3,7 @@ from faker import Faker
 from werkzeug.security import generate_password_hash  # <== додано
 
 from backend import app, db
-from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message
+from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message, Vote
 
 fake = Faker()
 
@@ -120,6 +120,30 @@ def seed_chats_and_messages(users, n=5):
         chats.append(chat)
     return chats
 
+def seed_votes(users, posts, n=50):
+    used = set()
+    count = 0
+
+    while count < n:
+        user = random.choice(users)
+        post = random.choice(posts)
+        key = (user.id, post.id)
+        if key in used:
+            continue  # вже голосував
+
+        vote = Vote(
+            user_id=user.id,
+            post_id=post.id,
+            value=random.choice([-1, 1])
+        )
+        post.karma += vote.value  # оновити карму поста відповідно до голосу
+        db.session.add(vote)
+        used.add(key)
+        count += 1
+
+    db.session.commit()
+
+
 if __name__ == '__main__':
     with app.app_context():
         print("Dropping all tables...")
@@ -130,6 +154,7 @@ if __name__ == '__main__':
         users = seed_users(10)
         categories = seed_categories()
         posts = seed_posts(users, categories, 20)
+        seed_votes(users, posts, 50)
         seed_comments(users, posts, 50)
         seed_reactions(users, posts, 50)
         seed_reposts(users, posts, 20)

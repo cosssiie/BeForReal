@@ -1,30 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag } from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-    post, votes = {}, userId, handleKarmaChange = () => {
-    }, isSingle = false
+    post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false
 }) {
-
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
     const [showReactions, setShowReactions] = useState(false);
     const [repostCount, setRepostCount] = useState(post.repostCount || 0);
     const [hasReposted, setHasReposted] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
+    const optionsRef = useRef(null);
 
-    const isToday = (someDate) => {
-        const today = new Date();
-        const date = new Date(someDate);
-        return (
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
-        );
+    const toggleOptions = () => {
+        setShowOptions(prev => !prev);
     };
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+                setShowOptions(false);
+            }
+        }
+
+        if (showOptions) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showOptions]);
 
     useEffect(() => {
         fetch(`/api/posts/${post.id}/reactions`, {
@@ -40,17 +50,15 @@ function PostItem({
     }, [post.id]);
 
     useEffect(() => {
-        const isReposted = localStorage.getItem(`reposted_${post.id}`) === 'true';
-        setHasReposted(isReposted);
-    }, [post.id]);
-
-    useEffect(() => {
-        fetch(`/api/posts/${post.id}/reposts`)
+        fetch(`/api/posts/${post.id}/reposts`, {
+            credentials: 'include',
+        })
             .then(res => res.json())
             .then(data => {
                 setRepostCount(data.repostCount || 0);
+                setHasReposted(data.hasReposted);
             })
-            .catch(err => console.error('Failed to load repost count', err));
+            .catch(err => console.error('Failed to load repost info', err));
     }, [post.id]);
 
     const handleReaction = async (emoji) => {
@@ -90,7 +98,6 @@ function PostItem({
             if (res.ok) {
                 setRepostCount(prev => prev + 1);
                 setHasReposted(true);
-                localStorage.setItem(`reposted_${post.id}`, 'true');
             } else {
                 const err = await res.json();
                 alert(err.error || 'Failed to repost');
@@ -103,10 +110,8 @@ function PostItem({
     const formatPostDate = (dateStr) => {
         const now = new Date();
         const date = new Date(dateStr);
-
         const diffTime = now - date;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
         if (diffDays === 0) {
             return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         } else if (diffDays === 1) {
@@ -114,18 +119,29 @@ function PostItem({
         } else if (diffDays < 5) {
             return `${diffDays} дні(в) тому`;
         } else {
-            return date.toLocaleDateString(); // наприклад: 04.06.2025
+            return date.toLocaleDateString();
         }
     };
 
-
     return (
         <div className="post">
-            <div className="post-header">
-                <span className="post-author">{post.username}</span>
-                <span className="post-date">
-                    {formatPostDate(post.date)}
-                </span>
+            <div className="post-header" style={{ position: 'relative' }}>
+                <div className="username-date">
+                    <span className="post-author">{post.username}</span>
+                    <span className="post-date">{formatPostDate(post.date)}</span>
+                </div>
+
+                <button className="additional-button" onClick={toggleOptions}>
+                    <EllipsisVertical size={16} />
+                </button>
+
+                {showOptions && (
+                    <div className="options-popup" ref={optionsRef}>
+                        <button className="flag-button">
+                            <Flag size={16} />
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="post-content">
@@ -171,10 +187,7 @@ function PostItem({
 
                     {!isSingle && (
                         <div className="post-action">
-                            <button
-                                className="comment-button"
-                                onClick={() => navigate(`/posts/${post.id}`)}
-                            >
+                            <button className="comment-button" onClick={() => navigate(`/posts/${post.id}`)}>
                                 <MessageCircle size={16} />
                                 <span>{post.commentsCount}</span>
                             </button>

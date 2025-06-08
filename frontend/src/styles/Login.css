@@ -9,7 +9,8 @@ html,
 }
 
 /* Wrapper */
-.login-page, .sign-up-page  {
+.login-page,
+.sign-up-page {
     position: relative;
     height: 100vh;
     background: linear-gradient(135deg, #EBF2FF 0%, #DEE8FF 50%, #CCD4DE 100%);
@@ -109,14 +110,16 @@ html,
 }
 
 /* Header */
-.login-header, .sign-up-header {
+.login-header,
+.sign-up-header {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 40px;
 }
 
-.login-title, .sign-up-title {
+.login-title,
+.sign-up-title {
     font-size: 32px;
     font-weight: 700;
     background: linear-gradient(135deg, #03122E 0%, #062159 100%);
@@ -127,7 +130,8 @@ html,
 }
 
 /* Container */
-.login-container, .sign-up-container {
+.login-container,
+.sign-up-container {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     border-radius: 24px;
@@ -168,7 +172,8 @@ html,
 }
 
 /* Form */
-.login-form, .sign-up-form {
+.login-form,
+.sign-up-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -198,7 +203,8 @@ html,
 }
 
 /* Button */
-.login-btn, .sign-up-btn {
+.login-btn,
+.sign-up-btn {
     background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
     color: white;
     border: none;
@@ -212,7 +218,8 @@ html,
     position: relative;
 }
 
-.login-btn:hover, .sign-up-btn:hover {
+.login-btn:hover,
+.sign-up-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 28px rgba(6, 33, 89, 0.4);
 }

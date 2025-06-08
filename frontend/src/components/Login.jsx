@@ -44,6 +44,7 @@ function Login({ onLogin }) {
     return (
 
         <div className="login-page">
+
             <div className="bg-elements">
                 <div className="floating-shape shape-1"></div>
                 <div className="floating-shape shape-2"></div>
@@ -51,12 +52,14 @@ function Login({ onLogin }) {
                 <div className="floating-shape shape-4"></div>
             </div>
 
+              <div className="logo-wrapper">
+                  <img src="/logo_2.png" alt="Site Logo " className="site-logo"  />
+             </div>
+
             <div className={`login-container ${animate ? 'animate-in' : ''}`}>
-                <div className="logo-wrapper">
-                    <img src="/assets/images/logo_2.png" alt="Site Logo" className="site-logo" />
-                </div>
                 <div className="login-header">
-                    <h2 className="login-title">Login</h2>
+                    <h2 className="login-title">Вхід</h2>
+                    <p className="login-subtitle">Увійдіть, щоб продовжити</p>
                 </div>
                 <form className="login-form" onSubmit={handleLoginClick}>
                     <input
@@ -69,17 +72,17 @@ function Login({ onLogin }) {
                     <input
                         type="password"
                         className="form-input"
-                        placeholder="Password"
+                        placeholder="Пароль"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <button className="login-btn" type="submit">Log In</button>
+                    <button className="login-btn" type="submit">Увійти</button>
                     <button
                         className="create-account-button"
                         type="button"
                         onClick={handleCreateAccount}
                     >
-                        Create new account
+                        Створити акаунт
                     </button>
                 </form>
                 {error && <p className="error-message">{error}</p>}

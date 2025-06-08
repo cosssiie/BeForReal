@@ -1,13 +1,113 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import PostItem from './PostItem';
+import Pagination from './Pagination';
 
-function ProfilePage({ onLogout }) {
+function ProfilePage() {
+    const [userData, setUserData] = useState({
+        id: null,
+        username: '',
+        bio: '',
+        karma: 0
+    });
+    const [posts, setPosts] = useState([]);
+    const [reposts, setReposts] = useState([]);
+    const [activeTab, setActiveTab] = useState('posts');
+
+    const POSTS_PER_PAGE = 3;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalItems = activeTab === 'posts' ? posts.length : reposts.length;
+    const totalPages = Math.ceil(totalItems / POSTS_PER_PAGE);
+    const indexOfLast = currentPage * POSTS_PER_PAGE;
+    const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
+    const currentItems = activeTab === 'posts'
+        ? posts.slice(indexOfFirst, indexOfLast)
+        : reposts.slice(indexOfFirst, indexOfLast);
+
+    axios.get('/api/current_user')
+        .then(response => {
+            setUserData(response.data);
+        })
+        .catch(error => {
+            console.error('Error getting current user:', error);
+        });
+
+
+    useEffect(() => {
+        if (!userData.id) return;
+
+        setCurrentPage(1);
+        if (activeTab === 'posts') {
+            axios.get('/api/posts/by_user', { params: { user_id: userData.id } })
+                .then(response => {
+                    setPosts(response.data.posts);
+                })
+                .catch(error => console.error(error));
+        } else if (activeTab === 'reposts') {
+            axios.get('/api/reposts/by_user', { params: { user_id: userData.id } })
+                .then(response => {
+                    setReposts(response.data.reposts);
+                })
+                .catch(error => console.error(error));
+        }
+    }, [activeTab, userData.id]);
+
     return (
         <div className="profile-container">
-            <h2>Your Profile</h2>
+            <div className="profile">
+                <div className="profile-header">
+                    <div className="profile-photo">
+                        <img src="" alt="" />
+                    </div>
+                    <div className="profile-info">
+                        <div className="personal-info">
+                            <span className="nickname">{userData.username}</span>
+                            <div className="profile-buttons">
+                                <button className="change-profile">Change Profile</button>
+                                <button className="change-profile">Change Profile</button>
+                            </div>
+                        </div>
+                        <div className="statistics">
+                            <p className="bio">{userData.bio}</p>
+                            <p className="karma">Karma: {userData.karma}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="profile-posts">
+                    <nav className="tab-nav">
+                        <ul className="tab-list">
+                            <li
+                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('posts')}
+                            >
+                                Posts
+                            </li>
+                            <li
+                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('reposts')}
+                            >
+                                Reposts
+                            </li>
+                        </ul>
+                    </nav>
+                    <div className="tab-content">
+                        <div className="posts-list">
+                            {currentItems.map(item => (
+                                <PostItem key={item.postId || item.id} post={item} />
+                            ))}
+                        </div>
 
-            <button onClick={onLogout} className="logout-button">
-                Logout
-            </button>
+                        {totalPages > 1 && (
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
