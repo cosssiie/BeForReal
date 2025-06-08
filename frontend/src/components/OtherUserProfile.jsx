@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useParams, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
 
 function OtherUserProfile() {
-    const { id } = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState({
@@ -17,6 +17,8 @@ function OtherUserProfile() {
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -32,20 +34,26 @@ function OtherUserProfile() {
     useEffect(() => {
         if (!id) return;
 
+        setIsLoading(true); // ДОДАНО
+
         axios.get(`/api/users/${id}`)
             .then(response => setUserData(response.data))
-            .catch(error => console.error('Error fetching user data:', error));
+            .catch(error => console.error('Error fetching user data:', error))
+            .finally(() => setIsLoading(false)); // ДОДАНО
     }, [id]);
+
 
     useEffect(() => {
         if (!id) return;
 
         setCurrentPage(1);
+        setIsLoading(true); // ДОДАНО
+
         const url = activeTab === 'posts'
             ? '/api/posts/by_user'
             : '/api/reposts/by_user';
 
-        axios.get(url, { params: { user_id: id } })
+        axios.get(url, {params: {user_id: id}})
             .then(response => {
                 if (activeTab === 'posts') {
                     setPosts(response.data.posts);
@@ -53,12 +61,17 @@ function OtherUserProfile() {
                     setReposts(response.data.reposts);
                 }
             })
-            .catch(error => console.error(error));
+            .catch(error => console.error(error))
+            .finally(() => setIsLoading(false)); // ДОДАНО
     }, [activeTab, id]);
+
 
     const handleStartChat = () => {
         navigate(`/chat/${userData.id}`);
     };
+    if (isLoading) {
+        return <div className="loading">Loading profile...</div>;
+    }
 
     return (
         <div className="profile-container">
@@ -102,7 +115,7 @@ function OtherUserProfile() {
                     <div className="tab-content">
                         <div className="posts-list">
                             {currentItems.map(item => (
-                                <PostItem key={item.postId || item.id} post={item} />
+                                <PostItem key={item.postId || item.id} post={item}/>
                             ))}
                         </div>
 
