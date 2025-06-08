@@ -176,8 +176,17 @@ def create_post():
 
     filename = None
     if image_file:
+        from werkzeug.utils import secure_filename
+        import os
+
         filename = secure_filename(image_file.filename)
-        image_path = os.path.join('static/uploads', filename)
+        upload_folder = 'static/uploads'
+        image_path = os.path.join(upload_folder, filename)
+
+        # Створюємо папку, якщо її немає
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
         image_file.save(image_path)
 
     new_post = Post(
