@@ -1,5 +1,7 @@
 /* Основні стилі */
-body, html, #root {
+body,
+html,
+#root {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -7,7 +9,7 @@ body, html, #root {
 }
 
 /* Wrapper */
-.login-page {
+.login-page, .sign-up-page  {
     position: relative;
     height: 100vh;
     background: linear-gradient(135deg, #EBF2FF 0%, #DEE8FF 50%, #CCD4DE 100%);
@@ -20,7 +22,8 @@ body, html, #root {
 /* Background Shapes */
 .bg-elements {
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
@@ -37,9 +40,11 @@ body, html, #root {
     0% {
         transform: translate(0, 0) rotate(0deg);
     }
+
     50% {
         transform: translate(35px, -40px) rotate(180deg);
     }
+
     100% {
         transform: translate(0, 0) rotate(360deg);
     }
@@ -85,26 +90,56 @@ body, html, #root {
     animation-duration: 8s;
 }
 
+/* Logo */
 .logo-wrapper {
-    position: absolute; /*  relative */
-    top: 40px;
-    left: 50%;
-    transform: translateX(-50%); /* Центрує по горизонталі */
-    z-index: 10;
+    z-index: 100;
+    position: absolute;
+    top: -5px;
+    left: 10px;
     display: flex;
-    justify-content: center;
+    align-items: center;
     animation: slideInDown 0.8s ease-out;
 }
 
 .site-logo {
-    max-width: 160px;
+    max-width: 140px;
+    /* Adjusted for better fit in top-left corner */
     height: auto;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
+/* Header */
+.login-header, .sign-up-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+}
 
-.login-container {
-    margin-top: 40px;
+.login-title, .sign-up-title {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #03122E 0%, #062159 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+/* Container */
+.login-container, .sign-up-container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(3, 18, 46, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 10;
+    position: relative;
+    /* Ensure logo positioning works */
+    animation: slideInUp 0.8s ease-out;
 }
 
 /* Анімація зверху */
@@ -113,25 +148,11 @@ body, html, #root {
         opacity: 0;
         transform: translateY(-40px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-
-/* Container */
-.login-container {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(3, 18, 46, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    z-index: 10;
-    animation: slideInUp 0.8s ease-out;
 }
 
 @keyframes slideInUp {
@@ -139,34 +160,15 @@ body, html, #root {
         opacity: 0;
         transform: translateY(40px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* Header */
-.login-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.login-title {
-    font-size: 32px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #03122E 0%, #062159 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.login-subtitle {
-    color: #70738B;
-    font-size: 16px;
-}
-
 /* Form */
-.login-form {
+.login-form, .sign-up-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -196,7 +198,7 @@ body, html, #root {
 }
 
 /* Button */
-.login-btn {
+.login-btn, .sign-up-btn {
     background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
     color: white;
     border: none;
@@ -210,7 +212,7 @@ body, html, #root {
     position: relative;
 }
 
-.login-btn:hover {
+.login-btn:hover, .sign-up-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 28px rgba(6, 33, 89, 0.4);
 }
