@@ -10,7 +10,6 @@ from sqlalchemy import desc, and_, or_ # can descending order the oder_by databa
 from .sockets import socketio
 import os
 from werkzeug.utils import secure_filename
-from flask import current_app
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
@@ -151,10 +150,9 @@ def get_comments(post_id):
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
-    user_id = current_user.id
     content = request.form.get('content')
     category_id = request.form.get('category')
-    images = request.files.getlist('images[]')
+    user_id = current_user.id
 
     if not user_id or not content:
         return jsonify({'error': 'Missing userId or content'}), 400
@@ -165,48 +163,39 @@ def create_post():
         if not category:
             return jsonify({'error': 'Category not found'}), 404
 
+    image_files = request.files.getlist('images[]')
+    image_file = image_files[0] if image_files else None
+
+    filename = None
+    if image_file:
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join('static/uploads', filename)
+        image_file.save(image_path)
+
     new_post = Post(
         user_id=user_id,
         category_id=category.id if category else None,
         title=None,
         post_text=content,
-        picture=None,
+        picture=filename,
         karma=0,
         is_temporary=False
     )
+
     db.session.add(new_post)
     db.session.commit()
-
-    upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
-    #upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', str(new_post.id))
-    os.makedirs(upload_folder, exist_ok=True)
-
-    image_urls = []
-    for img in images:
-        filename = secure_filename(img.filename)
-        file_path = os.path.join(upload_folder, filename)
-        img.save(file_path)
-
-        relative_path = f'/static/uploads'
-        #relative_path = f'/static/uploads/{new_post.id}/{filename}'
-        image_urls.append(relative_path)
-
-    if image_urls:
-        new_post.picture = image_urls[0]
-        db.session.commit()
 
     return jsonify({
         'message': 'Post created',
         'post': {
             'id': new_post.id,
-            'username': 'You',
+            'username': current_user.username,
             'date': new_post.date.isoformat(),
             'content': new_post.post_text,
             'category': category.name if category else None,
             'karma': new_post.karma,
             'commentsCount': 0,
-            'picture': new_post.picture,
-            'images': image_urls
+            'picture': filename,
         }
     }), 201
 
@@ -440,14 +429,9 @@ def get_current_user():
     return jsonify({
         'id': current_user.id,
         'username': current_user.username,
-        'email': current_user.email,
-        'is_moderator': current_user.is_moderator,
-        'profile_picture': current_user.profile_picture,
-        'karma': current_user.karma,
         'bio': current_user.bio,
-        'date_joined': current_user.date_joined.isoformat()
+        'karma': current_user.karma
     })
-
 
 
 
