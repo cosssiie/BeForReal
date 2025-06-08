@@ -8,6 +8,8 @@ from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reac
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
+import os
+from werkzeug.utils import secure_filename
 
 views = Blueprint('views', __name__)
 months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
@@ -148,28 +150,34 @@ def get_comments(post_id):
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
-    data = request.get_json()
-
+    content = request.form.get('content')
+    category_id = request.form.get('category')
     user_id = current_user.id
-    content = data.get('content')
-    category_id = data.get('category')
 
     if not user_id or not content:
         return jsonify({'error': 'Missing userId or content'}), 400
 
     category = None
-
     if category_id:
         category = Category.query.get(category_id)
         if not category:
             return jsonify({'error': 'Category not found'}), 404
+
+    image_files = request.files.getlist('images[]')
+    image_file = image_files[0] if image_files else None
+
+    filename = None
+    if image_file:
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join('static/uploads', filename)
+        image_file.save(image_path)
 
     new_post = Post(
         user_id=user_id,
         category_id=category.id if category else None,
         title=None,
         post_text=content,
-        picture=None,
+        picture=filename,
         karma=0,
         is_temporary=False
     )
@@ -181,12 +189,13 @@ def create_post():
         'message': 'Post created',
         'post': {
             'id': new_post.id,
-            'username': 'You',
+            'username': current_user.username,
             'date': new_post.date.isoformat(),
             'content': new_post.post_text,
             'category': category.name if category else None,
             'karma': new_post.karma,
-            'commentsCount': 0
+            'commentsCount': 0,
+            'picture': filename,
         }
     }), 201
 

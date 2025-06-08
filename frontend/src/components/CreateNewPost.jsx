@@ -29,14 +29,11 @@ function CreateNewPost({ onCreate }) {
 
         if (!content.trim() || !category) return;
 
-        const userId = localStorage.getItem("userId");
-
         const formData = new FormData();
-        formData.append("userId", userId);
         formData.append("content", content);
         formData.append("category", category);
 
-        images.forEach((img, index) => {
+        images.forEach((img) => {
             formData.append("images[]", img);
         });
 
@@ -107,10 +104,12 @@ function CreateNewPost({ onCreate }) {
                         type="file"
                         accept="image/*"
                         multiple
+                        name="images[]"
                         onChange={(e) => {
                             const newFiles = Array.from(e.target.files);
                             setImages(prevImages => [...prevImages, ...newFiles]);
-                            e.target.value = null;
+                            e.target.type = '';
+                            e.target.type = 'file';
                         }}
                         className="post-image-input"
                     />
@@ -138,7 +137,6 @@ function CreateNewPost({ onCreate }) {
                             </div>
                         </div>)}
                 </div>
-
             </div>
 
             <div className="post-footer">
