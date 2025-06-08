@@ -1,6 +1,7 @@
+import uuid
 from datetime import timezone, datetime
 from flask_socketio import SocketIO, emit
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
@@ -179,8 +180,8 @@ def create_post():
         from werkzeug.utils import secure_filename
         import os
 
-        filename = secure_filename(image_file.filename)
-        upload_folder = 'static/uploads'
+        filename = f"{uuid.uuid4().hex}_{secure_filename(image_file.filename)}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
         image_path = os.path.join(upload_folder, filename)
 
         # Створюємо папку, якщо її немає
