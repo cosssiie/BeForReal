@@ -14,7 +14,8 @@ function ProfilePage() {
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,21 +28,27 @@ function ProfilePage() {
         ? posts.slice(indexOfFirst, indexOfLast)
         : reposts.slice(indexOfFirst, indexOfLast);
 
+    // Завантаження даних користувача
     useEffect(() => {
+        setIsLoadingUser(true);
         axios.get('/api/current_user')
             .then(response => {
                 setUserData(response.data);
             })
             .catch(error => {
                 console.error('Error getting current user:', error);
+            })
+            .finally(() => {
+                setIsLoadingUser(false);
             });
     }, []);
 
+    // Завантаження постів або репостів в залежності від активної вкладки
     useEffect(() => {
         if (!userData.id) return;
 
         const fetchData = async () => {
-            setIsLoading(true);
+            setIsLoadingContent(true);
             setCurrentPage(1);
             try {
                 if (activeTab === 'posts') {
@@ -58,12 +65,16 @@ function ProfilePage() {
             } catch (error) {
                 console.error('Error loading posts/reposts:', error);
             } finally {
-                setIsLoading(false);
+                setIsLoadingContent(false);
             }
         };
 
         fetchData();
     }, [activeTab, userData.id]);
+
+    if (isLoadingUser) {
+        return <div className="loading">Loading user...</div>;
+    }
 
     return (
         <div className="profile-container">
@@ -104,8 +115,8 @@ function ProfilePage() {
                         </ul>
                     </nav>
                     <div className="tab-content">
-                        {isLoading ? (
-                            <p>Loading...</p>
+                        {isLoadingContent ? (
+                            <p>Loading posts...</p>
                         ) : (
                             <>
                                 <div className="posts-list">

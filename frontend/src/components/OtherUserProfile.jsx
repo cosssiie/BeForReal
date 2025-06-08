@@ -1,25 +1,27 @@
-import React, {useState, useEffect} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
 
 function OtherUserProfile() {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState({
         id: null,
         username: '',
         bio: '',
-        karma: 0
+        karma: 0,
+        profile_picture: ''
     });
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
     const [selectedChat, setSelectedChat] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
 
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,64 +37,58 @@ function OtherUserProfile() {
     useEffect(() => {
         if (!id) return;
 
-        setIsLoading(true); // ДОДАНО
-
+        setIsLoadingUser(true);
         axios.get(`/api/users/${id}`)
-            .then(response => setUserData(response.data))
-            .catch(error => console.error('Error fetching user data:', error))
-            .finally(() => setIsLoading(false)); // ДОДАНО
+            .then(res => setUserData(res.data))
+            .catch(err => console.error('Error loading user:', err))
+            .finally(() => setIsLoadingUser(false));
     }, [id]);
 
-
     useEffect(() => {
-        if (!id) return;
+        if (!userData.id) return;
 
+        setIsLoadingContent(true);
         setCurrentPage(1);
-        setIsLoading(true); // ДОДАНО
 
-        const url = activeTab === 'posts'
-            ? '/api/posts/by_user'
-            : '/api/reposts/by_user';
-
-        axios.get(url, {params: {user_id: id}})
-            .then(response => {
-                if (activeTab === 'posts') {
-                    setPosts(response.data.posts);
-                } else {
-                    setReposts(response.data.reposts);
-                }
-            })
-            .catch(error => console.error(error))
-            .finally(() => setIsLoading(false)); // ДОДАНО
-    }, [activeTab, id]);
-
+        axios.get(
+            activeTab === 'posts'
+                ? '/api/posts/by_user'
+                : '/api/reposts/by_user',
+            { params: { user_id: userData.id } }
+        )
+        .then(response => {
+            if (activeTab === 'posts') {
+                setPosts(response.data.posts);
+            } else {
+                setReposts(response.data.reposts);
+            }
+        })
+        .catch(error => console.error('Error loading content:', error))
+        .finally(() => setIsLoadingContent(false));
+    }, [activeTab, userData.id]);
 
     const handleStartChat = () => {
-        navigate(`/chat/${userData.id}`);
+        setIsLoadingContent(true);  // Можна окремий стан, але для простоти так
+        axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
+            .then(response => {
+                const chatId = response.data.chat_id;
+                setSelectedChat(chatId);
+                navigate(`/chats/${chatId}`);
+            })
+            .catch(error => console.error('Failed to start chat:', error))
+            .finally(() => setIsLoadingContent(false));
+    };
 
-    if (isLoading) {
-        return <div className="loading">Loading profile...</div>;
+    if (isLoadingUser) {
+        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>Loading profile...</div>;
     }
-    axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
-        .then(response => {
-            const chatId = response.data.chat_id;
-            setSelectedChat(chatId); // Оновлюємо selectedChat новим chatId
-            navigate(`/chats/${chatId}`); // Перенаправляємо на новий чат (якщо URL з id)
-        })
-        .catch(error => {
-            console.error('Failed to start chat:', error);
-        });
-};
-
-
-
 
     return (
         <div className="profile-container">
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src={`/static/profile_pictures/${userData.profile_picture}`}/>
+                        <img src={`/static/profile_pictures/${userData.profile_picture}`} alt="Profile" />
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
@@ -127,18 +123,24 @@ function OtherUserProfile() {
                         </ul>
                     </nav>
                     <div className="tab-content">
-                        <div className="posts-list">
-                            {currentItems.map(item => (
-                                <PostItem key={item.postId || item.id} post={item}/>
-                            ))}
-                        </div>
+                        {isLoadingContent ? (
+                            <p>Loading posts...</p>
+                        ) : (
+                            <>
+                                <div className="posts-list">
+                                    {currentItems.map(item => (
+                                        <PostItem key={item.postId || item.id} post={item} />
+                                    ))}
+                                </div>
 
-                        {totalPages > 1 && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
