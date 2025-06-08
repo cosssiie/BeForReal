@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Scrollbar } from 'react-scrollbars-custom';
-import Chat from './Chat';
-import io from 'socket.io-client';
 
-const socket = io();
+// Mock socket for demonstration
+const socket = {
+    emit: (event, data) => console.log('Socket emit:', event, data),
+    on: (event, callback) => console.log('Socket on:', event),
+    off: (event, callback) => console.log('Socket off:', event)
+};
 
 function ChatPage({ userId }) {
     const [chats, setChats] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [messageInput, setMessageInput] = useState('');
-
 
     // Завантажуємо чати користувача
     useEffect(() => {
@@ -35,45 +36,43 @@ function ChatPage({ userId }) {
             .catch(err => console.error('Failed to load chats:', err));
     }, [userId]);
 
-
     useEffect(() => {
-    if (!selectedChatId) return;
+        if (!selectedChatId) return;
 
-    fetch(`/api/messages/${selectedChatId}`, {
-        credentials: 'include'
-    })
-        .then(res => res.json())
-        .then(data => setMessages(data))
-        .catch(console.error);
+        fetch(`/api/messages/${selectedChatId}`, {
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => setMessages(data))
+            .catch(console.error);
 
-    const room = `chat_${selectedChatId}`;
-    socket.emit('join', room);
+        const room = `chat_${selectedChatId}`;
+        socket.emit('join', room);
 
-    const handleNewMessage = (newMessage) => {
-        if (String(newMessage.chatId) === String(selectedChatId)) {
-            setMessages(prev => [...prev, newMessage]);
-        }
+        const handleNewMessage = (newMessage) => {
+            if (String(newMessage.chatId) === String(selectedChatId)) {
+                setMessages(prev => [...prev, newMessage]);
+            }
 
-        setChats(prevChats =>
-            prevChats.map(chat =>
-                chat.id === newMessage.chatId
-                    ? {
-                        ...chat,
-                        lastMessage: newMessage.text
-                    }
-                    : chat
-            )
-        );
-    };
+            setChats(prevChats =>
+                prevChats.map(chat =>
+                    chat.id === newMessage.chatId
+                        ? {
+                            ...chat,
+                            lastMessage: newMessage.text
+                        }
+                        : chat
+                )
+            );
+        };
 
-    socket.on('new_message', handleNewMessage);
+        socket.on('new_message', handleNewMessage);
 
-    return () => {
-        socket.emit('leave', room);
-        socket.off('new_message', handleNewMessage);
-    };
-}, [selectedChatId]);
-
+        return () => {
+            socket.emit('leave', room);
+            socket.off('new_message', handleNewMessage);
+        };
+    }, [selectedChatId]);
 
     const handleSendMessage = () => {
         if (!messageInput.trim()) return;
@@ -109,46 +108,61 @@ function ChatPage({ userId }) {
 
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
-
     return (
-        <div className="chat-container">
-            <div className="chat-sidebar">
-                <Scrollbar className="custom-scroll-wrapper">
-                    <div className="scroll-inner">
-                        <ul className="chat-list">
-                            {chats.map(chat => (
-                                <li
-                                    key={chat.id}
-                                    onClick={() => setSelectedChatId(chat.id)}
-                                    className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
-                                >
-                                    <strong>{chat.name}</strong>
-                                    <p className="chat-preview">{chat.lastMessage}</p>
-                                </li>
-                            ))}
-                        </ul>
+        <div className="app-container">
+            {/* Top Navigation */}
+
+            <div className="main-content">
+                {/* Sidebar */}
+                <aside className="sidebar">
+                    <ul className="chat-groups">
+                        {chats.map(chat => (
+                            <li
+                                key={chat.id}
+                                onClick={() => setSelectedChatId(chat.id)}
+                                className={`chat-group ${chat.id === selectedChatId ? 'selected' : ''}`}
+                            >
+                                <div className="chat-group-name">{chat.name}</div>
+                                <div className="chat-group-desc">{chat.lastMessage}</div>
+                            </li>
+                        ))}
+                    </ul>
+                </aside>
+
+                {/* Chat Section */}
+                <div className="chat-section">
+                    <div className="chat-header">
+                        {selectedChat ? selectedChat.name : 'Select a chat'}
                     </div>
-                </Scrollbar>
-            </div>
 
-            <div className="chat-window">
-                <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
-                <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} />
-                </div>
-                <div className="message-input">
-                    <input
-                        type="text"
-                        className="message-text-input"
-                        placeholder="Type a message..."
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                    />
-                    <button className="send-message-button" onClick={handleSendMessage}>
-                        <img src="/assets/images/white-arrow.png" alt="Send" />
-                    </button>
+                    <div className="chat-messages">
+                        {messages.map((message, index) => (
+                            <div
+                                key={index}
+                                className={`message ${message.userId === userId ? 'sent' : 'received'}`}
+                            >
+                                <div>{message.text}</div>
+                                {message.timestamp && (
+                                    <div className="message-time">
+                                        {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
 
+                    <div className="chat-input">
+                        <input
+                            type="text"
+                            placeholder="Type a message..."
+                            value={messageInput}
+                            onChange={(e) => setMessageInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        />
+                        <button className="send-btn" onClick={handleSendMessage}>
+                            →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
