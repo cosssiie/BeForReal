@@ -8,13 +8,16 @@ function ProfilePage() {
         id: null,
         username: '',
         bio: '',
-        karma: 0
+        karma: 0,
+        posts: 0,
+        views: 0
     });
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
+    const [activities, setActivities] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
 
-    const POSTS_PER_PAGE = 3;
+    const POSTS_PER_PAGE = 2;
     const [currentPage, setCurrentPage] = useState(1);
 
     const totalItems = activeTab === 'posts' ? posts.length : reposts.length;
@@ -25,14 +28,19 @@ function ProfilePage() {
         ? posts.slice(indexOfFirst, indexOfLast)
         : reposts.slice(indexOfFirst, indexOfLast);
 
-    axios.get('/api/current_user')
-        .then(response => {
-            setUserData(response.data);
-        })
-        .catch(error => {
-            console.error('Error getting current user:', error);
-        });
-
+    useEffect(() => {
+        axios.get('/api/current_user')
+            .then(response => {
+                setUserData({
+                    ...response.data,
+                    posts: 24, // Mock data
+                    views: 156  // Mock data
+                });
+            })
+            .catch(error => {
+                console.error('Error getting current user:', error);
+            });
+    }, []);
 
     useEffect(() => {
         if (!userData.id) return;
@@ -53,61 +61,101 @@ function ProfilePage() {
         }
     }, [activeTab, userData.id]);
 
-    return (
-        <div className="profile-container">
-            <div className="profile">
-                <div className="profile-header">
-                    <div className="profile-photo">
-                        <img src="" alt="" />
-                    </div>
-                    <div className="profile-info">
-                        <div className="personal-info">
-                            <span className="nickname">{userData.username}</span>
-                            <div className="profile-buttons">
-                                <button className="change-profile">Change Profile</button>
-                                <button className="change-profile">Change Profile</button>
-                            </div>
-                        </div>
-                        <div className="statistics">
-                            <p className="bio">{userData.bio}</p>
-                            <p className="karma">Karma: {userData.karma}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="profile-posts">
-                    <nav className="tab-nav">
-                        <ul className="tab-list">
-                            <li
-                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('posts')}
-                            >
-                                Posts
-                            </li>
-                            <li
-                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('reposts')}
-                            >
-                                Reposts
-                            </li>
-                        </ul>
-                    </nav>
-                    <div className="tab-content">
-                        <div className="posts-list">
-                            {currentItems.map(item => (
-                                <PostItem key={item.postId || item.id} post={item} />
-                            ))}
-                        </div>
 
-                        {totalPages > 1 && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
+    const switchTab = (tabName) => {
+        setActiveTab(tabName);
+        setCurrentPage(1);
+    };
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'posts':
+                return (
+                    <div className="posts-grid">
+                        {currentItems.map(item => (
+                            <PostItem key={item.postId || item.id} post={item} />
+                        ))}
+                        {currentItems.length === 0 && (
+                            <div className="empty-state">Публікацій поки немає</div>
                         )}
                     </div>
+                );
+            case 'reposts':
+                return (
+                    <div className="posts-grid">
+                        {currentItems.map(item => (
+                            <PostItem key={item.postId || item.id} post={item} />
+                        ))}
+                        {currentItems.length === 0 && (
+                            <div className="empty-state">Репостів поки немає</div>
+                        )}
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="app-container">
+
+            {/* Main Content */}
+            <main className="main-content">
+                <div className="profile-container">
+                    {/* Profile Header */}
+                    <div className="profile-header">
+                        <div className="profile-avatar"></div>
+                        <div className="profile-info">
+                            <h1 className="profile-name">{userData.username}</h1>
+                            <p className="profile-bio">{userData.bio}</p>
+                            <div className="profile-stats">
+                                <div className="stat-item">
+                                    <div className="stat-number">{userData.karma}</div>
+                                    <div className="stat-label">Karma</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-number">{userData.posts}</div>
+                                    <div className="stat-label">Posts</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-number">{userData.views}</div>
+                                    <div className="stat-label">Views</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="profile-actions">
+                            <button className="btn btn-primary">Редагувати профіль</button>
+                            <button className="btn btn-secondary">Поділитися</button>
+                        </div>
+                    </div>
+
+                    {/* Profile Content */}
+                    <div className="profile-content">
+                        {/* Tabs */}
+                        <div className="content-tabs">
+                            <button
+                                className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => switchTab('posts')}
+                            >
+                                Публікації
+                            </button>
+                            <button
+                                className={`tab-btn ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => switchTab('reposts')}
+                            >
+                                Репости
+                            </button>
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="tab-content active">
+                            {renderTabContent()}
+                        </div>
+
+
+                    </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

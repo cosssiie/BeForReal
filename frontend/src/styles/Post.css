@@ -29,7 +29,7 @@
 }
 
 .post-category {
-  display: block;
+  display: inline-block;
   margin-bottom: 10px;
   color: #4b5563;
 }
