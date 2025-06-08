@@ -3,9 +3,11 @@ from faker import Faker
 from werkzeug.security import generate_password_hash  # <== додано
 
 from backend import app, db
-from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message, Vote
+from backend.models import User, Category, Post, Comment, Reaction, Repost, Chat, ChatUser, Message, Vote, ReportUser, \
+    ReportComment, ReportPost
 
 fake = Faker()
+
 
 def seed_users(n=10):
     users = []
@@ -27,6 +29,7 @@ def seed_users(n=10):
     db.session.commit()
     return users
 
+
 def seed_categories():
     names = ['Tech', 'Science', 'Art', 'Gaming', 'Music', 'Sports']
     categories = []
@@ -36,6 +39,7 @@ def seed_categories():
         db.session.add(cat)
     db.session.commit()
     return categories
+
 
 def seed_posts(users, categories, n=20):
     posts = []
@@ -55,6 +59,7 @@ def seed_posts(users, categories, n=20):
     db.session.commit()
     return posts
 
+
 def seed_comments(users, posts, n=50):
     comments = []
     for _ in range(n):
@@ -69,6 +74,7 @@ def seed_comments(users, posts, n=50):
     db.session.commit()
     return comments
 
+
 def seed_reactions(users, posts, n=50):
     emojis = ['👍', '❤️', '😂', '😢', '🔥']
     for _ in range(n):
@@ -80,6 +86,7 @@ def seed_reactions(users, posts, n=50):
         db.session.add(reaction)
     db.session.commit()
 
+
 def seed_reposts(users, posts, n=20):
     for _ in range(n):
         repost = Repost(
@@ -88,6 +95,7 @@ def seed_reposts(users, posts, n=20):
         )
         db.session.add(repost)
     db.session.commit()
+
 
 def seed_chats_and_messages(users, n=5):
     chats = []
@@ -120,6 +128,7 @@ def seed_chats_and_messages(users, n=5):
         chats.append(chat)
     return chats
 
+
 def seed_votes(users, posts, n=50):
     used = set()
     count = 0
@@ -143,6 +152,70 @@ def seed_votes(users, posts, n=50):
 
     db.session.commit()
 
+def seed_reports(num=10):
+        reasons = [
+            "Спам",
+            "Образливий контент",
+            "Нецензурна лексика",
+            "Реклама",
+            "Порушення авторських прав",
+            "Фейковий акаунт",
+            "Порушення правил спільноти",
+            "Неправдива інформація"
+        ]
+
+        report_posts = []
+        report_comments = []
+        report_users = []
+
+        # Припустимо, що в базі є користувачі, пости та коментарі з id від 1 до 20
+        user_ids = list(range(1, 21))
+        post_ids = list(range(1, 21))
+        comment_ids = list(range(1, 21))
+
+        for _ in range(num):
+            # Рандомні айдішники для зв’язків
+            reporter_id = random.choice(user_ids)
+            post_id = random.choice(post_ids)
+            comment_id = random.choice(comment_ids)
+            reported_user_id = random.choice(user_ids)
+
+            # Для ReportPost
+            report_post = ReportPost(
+                reporter_id=reporter_id,
+                post_id=post_id,
+                reason=random.choice(reasons),
+                date=fake.date_object(),
+            )
+            report_posts.append(report_post)
+            db.session.add(report_post)
+
+            # Для ReportComment
+            report_comment = ReportComment(
+                reporter_id=reporter_id,
+                comment_id=comment_id,
+                reason=random.choice(reasons),
+                date=fake.date_object(),
+            )
+            report_comments.append(report_comment)
+            db.session.add(report_comment)
+
+            # Для ReportUser (щоб не репортував сам себе)
+            rep_user_id = reported_user_id
+            while rep_user_id == reporter_id:
+                rep_user_id = random.choice(user_ids)
+            report_user = ReportUser(
+                reporter_id=reporter_id,
+                reported_user_id=rep_user_id,
+                reason=random.choice(reasons),
+                date=fake.date_object(),
+            )
+            report_users.append(report_user)
+            db.session.add(report_user)
+
+        db.session.commit()
+        return report_posts, report_comments, report_users
+
 
 if __name__ == '__main__':
     with app.app_context():
@@ -159,5 +232,6 @@ if __name__ == '__main__':
         seed_reactions(users, posts, 50)
         seed_reposts(users, posts, 20)
         seed_chats_and_messages(users, 5)
+        seed_reports(10)
 
         print("Seeding completed!")

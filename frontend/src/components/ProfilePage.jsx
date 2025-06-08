@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
@@ -13,6 +13,8 @@ function ProfilePage() {
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const POSTS_PER_PAGE = 3;
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,32 +37,33 @@ function ProfilePage() {
             });
     }, []);
 
-
     useEffect(() => {
         if (!userData.id) return;
 
         const fetchData = async () => {
+            setIsLoading(true);
             setCurrentPage(1);
             try {
                 if (activeTab === 'posts') {
                     const response = await axios.get('/api/posts/by_user', {
-                        params: {user_id: userData.id}
+                        params: { user_id: userData.id }
                     });
                     setPosts(response.data.posts);
                 } else {
                     const response = await axios.get('/api/reposts/by_user', {
-                        params: {user_id: userData.id}
+                        params: { user_id: userData.id }
                     });
                     setReposts(response.data.reposts);
                 }
             } catch (error) {
                 console.error('Error loading posts/reposts:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchData();
     }, [activeTab, userData.id]);
-
 
     return (
         <div className="profile-container">
@@ -101,18 +104,24 @@ function ProfilePage() {
                         </ul>
                     </nav>
                     <div className="tab-content">
-                        <div className="posts-list">
-                            {currentItems.map(item => (
-                                <PostItem key={item.postId || item.id} post={item}/>
-                            ))}
-                        </div>
+                        {isLoading ? (
+                            <p>Loading...</p>
+                        ) : (
+                            <>
+                                <div className="posts-list">
+                                    {currentItems.map(item => (
+                                        <PostItem key={item.postId || item.id} post={item} />
+                                    ))}
+                                </div>
 
-                        {totalPages > 1 && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

@@ -1,10 +1,11 @@
+import uuid
 from datetime import timezone, datetime
 from flask_socketio import SocketIO, emit
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -176,8 +177,17 @@ def create_post():
 
     filename = None
     if image_file:
-        filename = secure_filename(image_file.filename)
-        image_path = os.path.join('static/uploads', filename)
+        from werkzeug.utils import secure_filename
+        import os
+
+        filename = f"{uuid.uuid4().hex}_{secure_filename(image_file.filename)}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+        image_path = os.path.join(upload_folder, filename)
+
+        # Створюємо папку, якщо її немає
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
         image_file.save(image_path)
 
     new_post = Post(
@@ -213,7 +223,6 @@ def create_post():
 @login_required
 def vote(post_id):
     data = request.get_json()
-    print("Received data:", data)
     delta = data.get('delta')
     user_id = current_user.id
 
@@ -230,14 +239,25 @@ def vote(post_id):
         return jsonify({'error': 'Delta must be an integer'}), 400
 
     post = Post.query.get_or_404(post_id)
+    vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
 
-    if delta == -1:
-        post.karma -= 1;
+    if vote is None:
+        # Користувач ще не голосував
+        vote = Vote(user_id=user_id, post_id=post_id, value=delta)
+        post.karma += delta
+        db.session.add(vote)
     else:
-        post.karma += 1;
+        if vote.value == delta:
+            # Голос такий самий – нічого не робити або можна скасувати (опційно)
+            return jsonify({"message": "Already voted with the same value", "newKarma": post.karma}), 200
+        else:
+            # Зміна голосу: -1 → +1 або +1 → -1 → змінюємо на 2 очки
+            post.karma += 1 * delta
+            vote.value = delta  # оновлюємо голос
 
     db.session.commit()
     return jsonify({"newKarma": post.karma})
+
 
 @views.route('/api/posts/<int:post_id>/react', methods=['POST'])
 @login_required

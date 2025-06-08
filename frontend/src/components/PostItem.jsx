@@ -157,6 +157,17 @@ function PostItem({
                 <p>{post.content}</p>
             </div>
 
+            {post.picture && (
+                <div className="post-image" style={{marginTop: '10px'}}>
+                    <img
+                        src={`/static/uploads/${post.picture}`}
+                        alt="Post"
+                        style={{maxWidth: '100%', borderRadius: '8px'}}
+                    />
+                </div>
+            )}
+
+
             <div className="post-footer">
                 <div className="reactions-display" style={{display: 'flex', gap: '8px', marginLeft: '10px'}}>
                     {Object.entries(reactions).map(([emoji, count]) => (
