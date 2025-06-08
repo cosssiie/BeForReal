@@ -69,7 +69,7 @@ function OtherUserProfile() {
 
     const handleStartChat = () => {
         navigate(`/chat/${userData.id}`);
-    };
+
     if (isLoading) {
         return <div className="loading">Loading profile...</div>;
     }
