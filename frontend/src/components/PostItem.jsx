@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag } from 'lucide-react';
+import React, {useEffect, useRef, useState} from 'react';
+import {useNavigate, Link} from 'react-router-dom';
+import {ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag} from 'lucide-react';
+
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-    post, votes = {}, userId, handleKarmaChange = () => { }, isSingle = false
-}) {
+                      post, votes = {}, userId, handleKarmaChange = () => {
+    }, isSingle = false
+                  }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -65,9 +67,9 @@ function PostItem({
         try {
             const res = await fetch(`/api/posts/${post.id}/react`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ userId, emoji })
+                body: JSON.stringify({userId, emoji})
             });
 
             if (res.ok) {
@@ -91,9 +93,9 @@ function PostItem({
         try {
             const res = await fetch(`/api/posts/${post.id}/repost`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({userId})
             });
             if (res.ok) {
                 setRepostCount(prev => prev + 1);
@@ -113,7 +115,7 @@ function PostItem({
         const diffTime = now - date;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         if (diffDays === 0) {
-            return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            return `${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
         } else if (diffDays === 1) {
             return 'вчора';
         } else if (diffDays < 5) {
@@ -125,20 +127,22 @@ function PostItem({
 
     return (
         <div className="post">
-            <div className="post-header" style={{ position: 'relative' }}>
+            <div className="post-header" style={{position: 'relative'}}>
                 <div className="username-date">
-                    <span className="post-author">{post.username}</span>
+                    <span className="post-author" style={{color: 'blue'}}>
+                        <Link to={`/profile/${post.userId}`}>{post.username}</Link>
+                    </span>
                     <span className="post-date">{formatPostDate(post.date)}</span>
                 </div>
 
                 <button className="additional-button" onClick={toggleOptions}>
-                    <EllipsisVertical size={16} />
+                    <EllipsisVertical size={16}/>
                 </button>
 
                 {showOptions && (
                     <div className="options-popup" ref={optionsRef}>
                         <button className="flag-button">
-                            <Flag size={16} />
+                            <Flag size={16}/>
                         </button>
                     </div>
                 )}
@@ -152,9 +156,10 @@ function PostItem({
             </div>
 
             <div className="post-footer">
-                <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
+                <div className="reactions-display" style={{display: 'flex', gap: '8px', marginLeft: '10px'}}>
                     {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <div className="display-reaction" key={emoji}
+                             style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <span className="reaction-emoji">{emoji}</span>
                             <span className="reaction-count">{count}</span>
                         </div>
@@ -181,14 +186,14 @@ function PostItem({
                         disabled={hasReposted}
                         title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
                     >
-                        <Repeat size={18} className="inline-icon" />
+                        <Repeat size={18} className="inline-icon"/>
                         <span>{repostCount}</span>
                     </button>
 
                     {!isSingle && (
                         <div className="post-action">
                             <button className="comment-button" onClick={() => navigate(`/posts/${post.id}`)}>
-                                <MessageCircle size={16} />
+                                <MessageCircle size={16}/>
                                 <span>{post.commentsCount}</span>
                             </button>
                         </div>
@@ -198,10 +203,10 @@ function PostItem({
                         className="reactions-container"
                         onMouseEnter={() => setShowReactions(true)}
                         onMouseLeave={() => setShowReactions(false)}
-                        style={{ position: 'relative' }}
+                        style={{position: 'relative'}}
                     >
                         <button className="reaction-button">
-                            <Heart size={18} />
+                            <Heart size={18}/>
                         </button>
 
                         {showReactions && (

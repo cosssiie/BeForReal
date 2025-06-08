@@ -37,6 +37,7 @@ def get_posts():
             'karma': post.karma,
             'commentsCount': comments_count,
             'picture': post.picture,
+            'userId': post.user_id,
         })
     return jsonify(posts=result)
 
@@ -65,6 +66,7 @@ def get_post(post_id):
         'karma': post.karma,
         'commentsCount': comments_count,
         'picture': post.picture,
+        'userId': post.user_id,
     }
 
     return jsonify(post=result)
@@ -98,6 +100,7 @@ def get_posts_by_category():
             'karma': post.karma,
             'commentsCount': comments_count,
             'picture': post.picture,
+            'userId': post.user_id,
         })
 
     return jsonify(posts=result)
@@ -129,6 +132,7 @@ def get_posts_by_user():
             'karma': post.karma,
             'commentsCount': comments_count,
             'picture': post.picture,
+            'userId': post.user_id,
         })
 
     return jsonify(posts=result)
@@ -200,6 +204,7 @@ def create_post():
             'karma': new_post.karma,
             'commentsCount': 0,
             'picture': filename,
+            'userId': new_post.user_id,
         }
     }), 201
 
@@ -433,8 +438,12 @@ def get_current_user():
     return jsonify({
         'id': current_user.id,
         'username': current_user.username,
+        'email': current_user.email,
+        'is_moderator': current_user.is_moderator,
+        'profile_picture': current_user.profile_picture,
+        'karma': current_user.karma,
         'bio': current_user.bio,
-        'karma': current_user.karma
+        'date_joined': current_user.date_joined.isoformat()
     })
 
 
