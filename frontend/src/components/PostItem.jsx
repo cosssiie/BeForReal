@@ -130,7 +130,9 @@ function PostItem({
             <div className="post-header" style={{position: 'relative'}}>
                 <div className="username-date">
                     <span className="post-author" style={{color: 'blue'}}>
-                        <Link to={`/profile/${post.userId}`}>{post.username}</Link>
+                        <Link to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}>
+        {post.username}
+    </Link>
                     </span>
                     <span className="post-date">{formatPostDate(post.date)}</span>
                 </div>

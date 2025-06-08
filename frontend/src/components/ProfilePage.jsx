@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
@@ -25,40 +25,49 @@ function ProfilePage() {
         ? posts.slice(indexOfFirst, indexOfLast)
         : reposts.slice(indexOfFirst, indexOfLast);
 
-    axios.get('/api/current_user')
-        .then(response => {
-            setUserData(response.data);
-        })
-        .catch(error => {
-            console.error('Error getting current user:', error);
-        });
+    useEffect(() => {
+        axios.get('/api/current_user')
+            .then(response => {
+                setUserData(response.data);
+            })
+            .catch(error => {
+                console.error('Error getting current user:', error);
+            });
+    }, []);
 
 
     useEffect(() => {
         if (!userData.id) return;
 
-        setCurrentPage(1);
-        if (activeTab === 'posts') {
-            axios.get('/api/posts/by_user', { params: { user_id: userData.id } })
-                .then(response => {
+        const fetchData = async () => {
+            setCurrentPage(1);
+            try {
+                if (activeTab === 'posts') {
+                    const response = await axios.get('/api/posts/by_user', {
+                        params: {user_id: userData.id}
+                    });
                     setPosts(response.data.posts);
-                })
-                .catch(error => console.error(error));
-        } else if (activeTab === 'reposts') {
-            axios.get('/api/reposts/by_user', { params: { user_id: userData.id } })
-                .then(response => {
+                } else {
+                    const response = await axios.get('/api/reposts/by_user', {
+                        params: {user_id: userData.id}
+                    });
                     setReposts(response.data.reposts);
-                })
-                .catch(error => console.error(error));
-        }
+                }
+            } catch (error) {
+                console.error('Error loading posts/reposts:', error);
+            }
+        };
+
+        fetchData();
     }, [activeTab, userData.id]);
+
 
     return (
         <div className="profile-container">
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src="" alt="" />
+                        <img src="" alt=""/>
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
@@ -94,7 +103,7 @@ function ProfilePage() {
                     <div className="tab-content">
                         <div className="posts-list">
                             {currentItems.map(item => (
-                                <PostItem key={item.postId || item.id} post={item} />
+                                <PostItem key={item.postId || item.id} post={item}/>
                             ))}
                         </div>
 
