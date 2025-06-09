@@ -6,9 +6,9 @@ import {ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-                      post, votes = {}, userId, handleKarmaChange = () => {
-    }, isSingle = false
-                  }) {
+                      post, votes = {}, userId, user
+                      , handleKarmaChange = () => {
+    }, isSingle = false, userIsModerator }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -181,7 +181,7 @@ function PostItem({
                         <button className="flag-button">
                             <Flag size={16}/>
                         </button>
-                        {userId === post.userId && (
+                        {(userId === post.userId || user?.is_moderator) && (
                             <button className="flag-button delete-button" onClick={handleDeletePost}>
                                 <Trash size={16} />
                             </button>
