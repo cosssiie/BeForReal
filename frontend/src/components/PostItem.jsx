@@ -4,16 +4,6 @@ import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Fla
 import ReportModal from './ReportModal';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
-const reportReasons = [
-    "Спам",
-    "Образливий контент",
-    "Нецензурна лексика",
-    "Реклама",
-    "Порушення авторських прав",
-    "Фейковий акаунт",
-    "Порушення правил спільноти",
-    "Неправдива інформація"
-];
 
 function PostItem({
     post, votes = {}, userId, handleKarmaChange = () => {
@@ -138,28 +128,6 @@ function PostItem({
             if (res.ok) {
                 alert('Скаргу надіслано');
                 setShowReport(false);
-                setShowOptions(false);
-            } else {
-                const err = await res.json();
-                alert(err.error || 'Не вдалося надіслати скаргу');
-            }
-        } catch (error) {
-            console.error('Error reporting post:', error);
-        }
-    };
-
-    const handleReport = async (reason) => {
-        try {
-            const res = await fetch(`/api/posts/${post.id}/report`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ reporterId: userId, reason })
-            });
-
-            if (res.ok) {
-                alert('Скаргу надіслано');
-                setShowReportReasons(false);
                 setShowOptions(false);
             } else {
                 const err = await res.json();
