@@ -121,7 +121,7 @@ function ProfilePage() {
                             <>
                                 <div className="posts-list">
                                     {currentItems.map(item => (
-                                        <PostItem key={item.postId || item.id} post={item} />
+                                        <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
                                     ))}
                                 </div>
 

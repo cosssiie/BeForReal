@@ -132,7 +132,6 @@
 .repost-button.reposted {
   background-color: #ddd;
   color: #999;
-  cursor: not-allowed;
 }
 
 .repost-button.reposted:hover {
@@ -191,6 +190,14 @@
 }
 
 .flag-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6b7280;
+}
+
+.delete-button {
   background: none;
   border: none;
   cursor: pointer;
