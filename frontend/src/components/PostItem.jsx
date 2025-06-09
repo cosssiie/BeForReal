@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, Link} from 'react-router-dom';
-import {ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag} from 'lucide-react';
+import {ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag, Trash } from 'lucide-react';
 
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
@@ -133,6 +133,33 @@ function PostItem({
         }
     };
 
+    const handleDeletePost = async () => {
+        if (!window.confirm('Ви впевнені, що хочете видалити пост?')) return;
+
+        try {
+            const res = await fetch(`/api/posts/${post.id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (res.ok) {
+                if (isSingle) {
+                    navigate('/'); // якщо перегляд окремого поста — перенаправити назад
+                } else {
+                    // якщо список постів — можна викликати callback або оновити список через батьківський компонент
+                    window.location.reload(); // простий варіант
+                }
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Не вдалося видалити пост');
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            alert('Сталася помилка при видаленні поста');
+        }
+    };
+
+
     return (
         <div className="post">
             <div className="post-header" style={{position: 'relative'}}>
@@ -154,6 +181,11 @@ function PostItem({
                         <button className="flag-button">
                             <Flag size={16}/>
                         </button>
+                        {userId === post.userId && (
+                            <button className="flag-button delete-button" onClick={handleDeletePost}>
+                                <Trash size={16} />
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
