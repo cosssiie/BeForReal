@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
+import UpdateProfileModal from './UpdateProfileModal';
 
 function ProfilePage() {
     const [userData, setUserData] = useState({
@@ -13,6 +14,7 @@ function ProfilePage() {
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
+    const [showModal, setShowModal] = useState(false);
 
     const [isLoadingUser, setIsLoadingUser] = useState(true);
     const [isLoadingContent, setIsLoadingContent] = useState(false);
@@ -76,19 +78,44 @@ function ProfilePage() {
         return <div className="loading">Loading user...</div>;
     }
 
+    const handleModalOpen = () => setShowModal(true);
+    const handleModalClose = () => setShowModal(false);
+
+    const handleProfileUpdate = async (updatedData) => {
+        console.log('Profile Changed');
+        // try {
+        //     const payload = {
+        //         id: userData.id,
+        //         username: updatedData.username,
+        //         bio: updatedData.bio
+        //     };
+
+        //     if (updatedData.password) {
+        //         payload.password = updatedData.password;
+        //     }
+
+        //     const response = await axios.post('/api/update_user', payload);
+        //     setUserData(response.data);
+        //     handleModalClose();
+        // } catch (error) {
+        //     console.error("Failed to update user", error);
+        // }
+    };
+
     return (
         <div className="profile-container">
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src="" alt=""/>
+                        <img src="" alt="" />
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
                             <span className="nickname">{userData.username}</span>
                             <div className="profile-buttons">
-                                <button className="change-profile">Change Profile</button>
-                                <button className="change-profile">Change Profile</button>
+                                <button className="change-profile" onClick={handleModalOpen}>
+                                    Change Profile
+                                </button>
                             </div>
                         </div>
                         <div className="statistics">
@@ -137,7 +164,15 @@ function ProfilePage() {
                     </div>
                 </div>
             </div>
+            {showModal && (
+                <UpdateProfileModal
+                    userData={userData}
+                    onClose={handleModalClose}
+                    onSubmit={handleProfileUpdate}
+                />
+            )}
         </div>
+
     );
 }
 
