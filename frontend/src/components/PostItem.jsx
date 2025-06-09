@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag, Trash } from 'lucide-react';
 import ReportModal from './ReportModal';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
@@ -21,12 +21,14 @@ function PostItem({
 
     const toggleOptions = () => {
         setShowOptions(prev => !prev);
+        setShowReport(false);
     };
 
     useEffect(() => {
         function handleClickOutside(event) {
             if (optionsRef.current && !optionsRef.current.contains(event.target)) {
                 setShowOptions(false);
+                setShowReport(false);
             }
         }
 
@@ -44,12 +46,8 @@ function PostItem({
             credentials: 'include'
         })
             .then(res => res.json())
-            .then(data => {
-                setReactions(data.reactions || {});
-            })
-            .catch(err => {
-                console.error('Failed to load reactions:', err);
-            });
+            .then(data => setReactions(data.reactions || {}))
+            .catch(err => console.error('Failed to load reactions:', err));
     }, [post.id]);
 
     useEffect(() => {
@@ -95,7 +93,7 @@ function PostItem({
             const method = hasReposted ? 'DELETE' : 'POST';
             const res = await fetch(`/api/posts/${post.id}/repost`, {
                 method,
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ userId })
             });
@@ -119,18 +117,25 @@ function PostItem({
 
     const handleReportSubmit = async (reason) => {
         console.log('Send on server');
-        // try {
-        //     await fetch(`/api/reports`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         credentials: 'include',
-        //         body: JSON.stringify({ post_id: post.id, reason })
-        //     });
-        // } catch (err) {
-        //     console.error('Error while reporting:', err);
-        // }
+        try {
+            const res = await fetch(`/api/posts/${post.id}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ reporterId: userId, reason })
+            });
+
+            if (res.ok) {
+                alert('Скаргу надіслано');
+                setShowReport(false);
+                setShowOptions(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Не вдалося надіслати скаргу');
+            }
+        } catch (error) {
+            console.error('Error reporting post:', error);
+        }
     };
 
     const formatPostDate = (dateStr) => {
@@ -309,7 +314,7 @@ function PostItem({
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 
