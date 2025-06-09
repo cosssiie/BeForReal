@@ -197,6 +197,29 @@
   color: #6b7280;
 }
 
+.report-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 12px;
+  z-index: 10;
+  border-radius: 6px;
+  width: 200px;
+}
+
+.report-popup h4 {
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.report-popup select {
+  width: 100%;
+  padding: 4px;
+}
+
+
 .delete-button {
   background: none;
   border: none;

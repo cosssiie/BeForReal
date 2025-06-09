@@ -93,9 +93,9 @@ function PostItem({
             const method = hasReposted ? 'DELETE' : 'POST';
             const res = await fetch(`/api/posts/${post.id}/repost`, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({userId})
             });
 
             if (!res.ok) {
@@ -208,10 +208,24 @@ function PostItem({
                         >
                             <Flag size={16} />
                         </button>
-                        {userId === post.userId && (
+                        {(userId === post.userId || user?.is_moderator) && (
                             <button className="flag-button delete-button" onClick={handleDeletePost}>
                                 <Trash size={16} />
                             </button>
+                        )}
+                        {showReportReasons && (
+                            <div className="report-reasons-popup">
+                                {reportReasons.map((reason) => (
+                                    <div
+                                        key={reason}
+                                        className="report-reason-item"
+                                        onClick={() => handleReport(reason)}
+                                        style={{ cursor: 'pointer', padding: '4px 6px' }}
+                                    >
+                                        {reason}
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 )}

@@ -68,6 +68,7 @@ def get_post(post_id):
         'commentsCount': comments_count,
         'picture': post.picture,
         'userId': post.user_id,
+        'isModerator':user.is_moderator,
     }
 
     return jsonify(post=result)
@@ -147,11 +148,13 @@ def get_comments(post_id):
     return jsonify([
         {
             'id': c.id,
-            'text': c.comment_text,   
+            'text': c.comment_text,
+            'userId': c.user.id,
+            'isModerator': c.user.is_moderator,
             'author': c.user.username,
             'date': c.date.isoformat(),
             'karma': c.karma,          
-            'parent_id': c.parent_id 
+            'parent_id': c.parent_id
         }
         for c in comments
     ])
@@ -185,6 +188,19 @@ def add_comment(post_id):
         'parent_id': comment.parent_id
     }), 201
 
+@views.route('/api/comments/<int:comment_id>', methods=['DELETE'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({'error': 'Comment not found'}), 404
+
+    if current_user.id != comment.user_id and not current_user.is_moderator:
+        return jsonify({'error': 'Permission denied'}), 403
+
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'message': 'Comment deleted'})
 @views.route('/api/posts/<int:post_id>/report', methods=['POST'])
 @login_required
 def report_post(post_id):
@@ -292,13 +308,17 @@ def create_post():
 @views.route('/api/posts/<int:post_id>', methods=['DELETE'])
 @login_required
 def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.user_id != current_user.id:
-        return jsonify({'error': 'Unauthorized'}), 403
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    if current_user.id != post.user_id and not current_user.is_moderator:
+        return jsonify({'error': 'Permission denied'}), 403
 
     db.session.delete(post)
     db.session.commit()
-    return jsonify({'message': 'Post deleted successfully'})
+    return jsonify({'message': 'Post deleted'})
+
 
 
 @views.route('/api/posts/<int:post_id>/vote', methods=['POST'])

@@ -14,6 +14,7 @@ import OtherUserProfile from './components/OtherUserProfile';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [userIsModerator, setUserIsModerator] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ function App() {
         })
         .then(data => {
           setCurrentUserId(data.id);
+          setUserIsModerator(data.is_moderator);
           setUser(data);
         })
         .catch(err => {
@@ -88,7 +90,7 @@ function App() {
                 element={user?.is_moderator ? <AdminPage /> : <Navigate to="/home" />}
               />
 
-              <Route path="/posts/:postId" element={<PostPage />} />
+              <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user}/>} />
               <Route path="/profile/:id" element={<OtherUserProfile />} />
             </>
           )}
