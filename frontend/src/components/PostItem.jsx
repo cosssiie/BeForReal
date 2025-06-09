@@ -15,9 +15,9 @@ const reportReasons = [
 ];
 
 function PostItem({
-                      post, votes = {}, userId, user
+                      post, votes = {}, userId, isModerator
                       , handleKarmaChange = () => {
-    }, isSingle = false, userIsModerator }) {
+    }, isSingle = false }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -193,7 +193,7 @@ function PostItem({
         }
     };
 
-
+    {console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator)}
     return (
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
@@ -215,7 +215,7 @@ function PostItem({
                         <button className="flag-button" onClick={toggleReportReasons}>
                             <Flag size={16} />
                         </button>
-                        {(userId === post.userId || user?.is_moderator) && (
+                        {(userId === post.userId || isModerator) && (
                             <button className="flag-button delete-button" onClick={handleDeletePost}>
                                 <Trash size={16} />
                             </button>
