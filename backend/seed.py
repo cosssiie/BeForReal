@@ -169,20 +169,24 @@ def seed_reports(num=10):
         report_users = []
 
         # Припустимо, що в базі є користувачі, пости та коментарі з id від 1 до 20
-        user_ids = list(range(1, 21))
+        user_ids = [u.id for u in db.session.query(User.id).all()]  # реальні id
         post_ids = list(range(1, 21))
         comment_ids = list(range(1, 21))
 
         for _ in range(num):
-            # Рандомні айдішники для зв’язків
             reporter_id = random.choice(user_ids)
+            reporter = db.session.get(User, reporter_id)
+            if reporter is None:
+                continue
+            reporter_username = reporter.username
+
             post_id = random.choice(post_ids)
             comment_id = random.choice(comment_ids)
             reported_user_id = random.choice(user_ids)
 
-            # Для ReportPost
             report_post = ReportPost(
                 reporter_id=reporter_id,
+                reporter_username=reporter_username,
                 post_id=post_id,
                 reason=random.choice(reasons),
                 date=fake.date_object(),
@@ -190,9 +194,8 @@ def seed_reports(num=10):
             report_posts.append(report_post)
             db.session.add(report_post)
 
-            # Для ReportComment
             report_comment = ReportComment(
-                reporter_id=reporter_id,
+                reporter_id=reporter.id,
                 comment_id=comment_id,
                 reason=random.choice(reasons),
                 date=fake.date_object(),
@@ -200,12 +203,11 @@ def seed_reports(num=10):
             report_comments.append(report_comment)
             db.session.add(report_comment)
 
-            # Для ReportUser (щоб не репортував сам себе)
             rep_user_id = reported_user_id
             while rep_user_id == reporter_id:
                 rep_user_id = random.choice(user_ids)
             report_user = ReportUser(
-                reporter_id=reporter_id,
+                reporter_id=reporter.id,
                 reported_user_id=rep_user_id,
                 reason=random.choice(reasons),
                 date=fake.date_object(),
