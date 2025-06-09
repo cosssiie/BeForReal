@@ -8,7 +8,7 @@ from .sockets import socketio
 from flask_login import LoginManager
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
 
     # Конфігурація
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.db'

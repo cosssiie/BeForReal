@@ -10,6 +10,8 @@
 @import './styles/ProfilePage.css';
 @import './styles/AdminPage.css';
 @import './styles/Sidebar.css';
+@import './styles/ReportModal.css';
+@import './styles/UpdatePrifileModal.css';
 
 html {
   scroll-behavior: smooth;

@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
-import UpdateProfileModal from './UpdateProfileModal';
 
-function ProfilePage() {
+function OtherUserProfile() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [userData, setUserData] = useState({
         id: null,
         username: '',
         bio: '',
-        karma: 0
+        karma: 0,
+        profile_picture: ''
     });
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
-    const [showModal, setShowModal] = useState(false);
+    const [selectedChat, setSelectedChat] = useState(null);
 
     const [isLoadingUser, setIsLoadingUser] = useState(true);
     const [isLoadingContent, setIsLoadingContent] = useState(false);
@@ -30,91 +34,68 @@ function ProfilePage() {
         ? posts.slice(indexOfFirst, indexOfLast)
         : reposts.slice(indexOfFirst, indexOfLast);
 
-    // Завантаження даних користувача
     useEffect(() => {
-        setIsLoadingUser(true);
-        axios.get('/api/current_user')
-            .then(response => {
-                setUserData(response.data);
-            })
-            .catch(error => {
-                console.error('Error getting current user:', error);
-            })
-            .finally(() => {
-                setIsLoadingUser(false);
-            });
-    }, []);
+        if (!id) return;
 
-    // Завантаження постів або репостів в залежності від активної вкладки
+        setIsLoadingUser(true);
+        axios.get(`/api/users/${id}`)
+            .then(res => setUserData(res.data))
+            .catch(err => console.error('Error loading user:', err))
+            .finally(() => setIsLoadingUser(false));
+    }, [id]);
+
     useEffect(() => {
         if (!userData.id) return;
 
-        const fetchData = async () => {
-            setIsLoadingContent(true);
-            setCurrentPage(1);
-            try {
-                if (activeTab === 'posts') {
-                    const response = await axios.get('/api/posts/by_user', {
-                        params: { user_id: userData.id }
-                    });
-                    setPosts(response.data.posts);
-                } else {
-                    const response = await axios.get('/api/reposts/by_user', {
-                        params: { user_id: userData.id }
-                    });
-                    setReposts(response.data.reposts);
-                }
-            } catch (error) {
-                console.error('Error loading posts/reposts:', error);
-            } finally {
-                setIsLoadingContent(false);
-            }
-        };
+        setIsLoadingContent(true);
+        setCurrentPage(1);
 
-        fetchData();
+        axios.get(
+            activeTab === 'posts'
+                ? '/api/posts/by_user'
+                : '/api/reposts/by_user',
+            { params: { user_id: userData.id } }
+        )
+        .then(response => {
+            if (activeTab === 'posts') {
+                setPosts(response.data.posts);
+            } else {
+                setReposts(response.data.reposts);
+            }
+        })
+        .catch(error => console.error('Error loading content:', error))
+        .finally(() => setIsLoadingContent(false));
     }, [activeTab, userData.id]);
 
-    if (isLoadingUser) {
-        return <div className="loading">Loading user...</div>;
-    }
-
-    const handleModalOpen = () => setShowModal(true);
-    const handleModalClose = () => setShowModal(false);
-
-    const handleProfileUpdate = async (updatedData) => {
-        console.log('Profile Changed');
-        // try {
-        //     const payload = {
-        //         id: userData.id,
-        //         username: updatedData.username,
-        //         bio: updatedData.bio
-        //     };
-
-        //     if (updatedData.password) {
-        //         payload.password = updatedData.password;
-        //     }
-
-        //     const response = await axios.post('/api/update_user', payload);
-        //     setUserData(response.data);
-        //     handleModalClose();
-        // } catch (error) {
-        //     console.error("Failed to update user", error);
-        // }
+    const handleStartChat = () => {
+        setIsLoadingContent(true);  // Можна окремий стан, але для простоти так
+        axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
+            .then(response => {
+                const chatId = response.data.chat_id;
+                setSelectedChat(chatId);
+                navigate(`/chats/${chatId}`);
+            })
+            .catch(error => console.error('Failed to start chat:', error))
+            .finally(() => setIsLoadingContent(false));
     };
+
+    if (isLoadingUser) {
+        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>Loading profile...</div>;
+    }
 
     return (
         <div className="profile-container">
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src="" alt="" />
+                        <img src={`/static/profile_pictures/${userData.profile_picture}`} alt="Profile" />
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
                             <span className="nickname">{userData.username}</span>
                             <div className="profile-buttons">
-                                <button className="change-profile" onClick={handleModalOpen}>
-                                    Change Profile
+                                <button className="chat-button" onClick={handleStartChat}>
+                                    Почати чат
                                 </button>
                             </div>
                         </div>
@@ -148,7 +129,7 @@ function ProfilePage() {
                             <>
                                 <div className="posts-list">
                                     {currentItems.map(item => (
-                                        <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
+                                        <PostItem key={item.postId || item.id} post={item} />
                                     ))}
                                 </div>
 
@@ -164,16 +145,8 @@ function ProfilePage() {
                     </div>
                 </div>
             </div>
-            {showModal && (
-                <UpdateProfileModal
-                    userData={userData}
-                    onClose={handleModalClose}
-                    onSubmit={handleProfileUpdate}
-                />
-            )}
         </div>
-
     );
 }
 
-export default ProfilePage;
+export default OtherUserProfile;
