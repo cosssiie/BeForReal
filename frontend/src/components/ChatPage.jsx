@@ -14,6 +14,7 @@ function ChatPage({ userId }) {
     const [messageInput, setMessageInput] = useState('');
     const location = useLocation();
     const selectedChatIdFromLocation = location.state?.selectedChat || null;
+    const [optionsOpenChatId, setOptionsOpenChatId] = useState(null);
 
     // Завантажуємо чати користувача
     useEffect(() => {
@@ -44,7 +45,8 @@ function ChatPage({ userId }) {
         } else if (chats.length > 0 && selectedChatId === null) {
             setSelectedChatId(selectedChatIdFromLocation || chats[0].id);
         }
-    }, [chatId, chats, selectedChatIdFromLocation, selectedChatId]);
+    }, [chatId, chats, selectedChatIdFromLocation]);
+
 
 
     useEffect(() => {
@@ -138,6 +140,34 @@ function ChatPage({ userId }) {
         });
     };
 
+    const handleOpenOptions = (e, chatId) => {
+        e.stopPropagation(); // не активує вибір чату
+        setOptionsOpenChatId(prev => prev === chatId ? null : chatId);
+    };
+
+    useEffect(() => {
+        const closeMenu = () => setOptionsOpenChatId(null);
+        document.addEventListener('click', closeMenu);
+        return () => document.removeEventListener('click', closeMenu);
+    }, []);
+
+    const handleDeleteChat = (chatId) => {
+        fetch(`/api/chats/${chatId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(() => {
+            setChats(prev => prev.filter(c => c.id !== chatId));
+
+            if (selectedChatId === chatId) {
+                setSelectedChatId(null);         // скидаємо вибраний чат
+                setMessages([]);                 // очищаємо повідомлення
+            }
+        })
+        .catch(console.error);
+    };
+
 
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
@@ -150,12 +180,35 @@ function ChatPage({ userId }) {
                         <ul className="chat-list">
                             {chats.map(chat => (
                                 <li
-                                    key={chat.id}
-                                    onClick={() => setSelectedChatId(chat.id)}
-                                    className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
+                                  key={chat.id}
+                                  className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
+                                  style={{ position: 'relative' }}
                                 >
+                                  <div onClick={() => setSelectedChatId(Number(chat.id))} className="chat-info" style={{ paddingRight: '30px' }}>
                                     <strong>{chat.name}</strong>
                                     <p className="chat-preview">{chat.lastMessage}</p>
+                                  </div>
+
+                                  <span
+                                    className="chat-options-icon"
+                                    onClick={(e) => handleOpenOptions(e, chat.id)}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '6px',
+                                      right: '8px',
+                                      cursor: 'pointer',
+                                      fontSize: '20px',
+                                      zIndex: 11,
+                                    }}
+                                  >
+                                    ⋮
+                                  </span>
+
+                                  {optionsOpenChatId === chat.id && (
+                                    <div className="chat-options-menu">
+                                      <button onClick={() => handleDeleteChat(chat.id)}>Видалити чат</button>
+                                    </div>
+                                  )}
                                 </li>
                             ))}
                         </ul>

@@ -91,23 +91,31 @@ function PostItem({
 
     const handleRepost = async () => {
         try {
+            const method = hasReposted ? 'DELETE' : 'POST';
             const res = await fetch(`/api/posts/${post.id}/repost`, {
-                method: 'POST',
+                method,
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
                 body: JSON.stringify({userId})
             });
-            if (res.ok) {
-                setRepostCount(prev => prev + 1);
-                setHasReposted(true);
-            } else {
+
+            if (!res.ok) {
                 const err = await res.json();
-                alert(err.error || 'Failed to repost');
+                return alert(err.error || 'Помилка при репості');
             }
+
+            // Перезапитуємо стан з сервера після оновлення
+            const info = await fetch(`/api/posts/${post.id}/reposts`, {
+                credentials: 'include',
+            });
+            const data = await info.json();
+            setRepostCount(data.repostCount || 0);
+            setHasReposted(data.hasReposted);
         } catch (error) {
-            console.error('Error reposting:', error);
+            console.error('Error handling repost:', error);
         }
     };
+
 
     const formatPostDate = (dateStr) => {
         const now = new Date();
@@ -196,12 +204,12 @@ function PostItem({
                     <button
                         className={`repost-button ${hasReposted ? 'reposted' : ''}`}
                         onClick={handleRepost}
-                        disabled={hasReposted}
-                        title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
+                        title={hasReposted ? 'Скасувати репост' : 'Репостнути'}
                     >
                         <Repeat size={18} className="inline-icon"/>
                         <span>{repostCount}</span>
                     </button>
+
 
                     {!isSingle && (
                         <div className="post-action">

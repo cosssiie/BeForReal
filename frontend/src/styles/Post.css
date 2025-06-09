@@ -132,7 +132,6 @@
 .repost-button.reposted {
   background-color: #ddd;
   color: #999;
-  cursor: not-allowed;
 }
 
 .repost-button.reposted:hover {
