@@ -33,7 +33,7 @@ class User(db.Model, UserMixin):
     reactions = db.relationship('Reaction', backref='user', lazy=True)
     reposts = db.relationship('Repost', backref='user', lazy=True)
     messages = db.relationship('Message', backref='user', lazy=True)
-    report_posts = db.relationship('ReportPost', backref='reporter', lazy=True)
+    report_posts = db.relationship('ReportPost', back_populates='reporter', lazy=True)
     report_comments = db.relationship('ReportComment', backref='reporter', lazy=True)
     report_users = db.relationship('ReportUser', foreign_keys='ReportUser.reporter_id', backref='reporter_user', lazy=True)
     reported_users = db.relationship('ReportUser', foreign_keys='ReportUser.reported_user_id', backref='reported_user', lazy=True)
@@ -133,9 +133,13 @@ class Message(db.Model):
 class ReportPost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reporter_username = db.Column(db.String(150), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
+
+    reporter = db.relationship('User', back_populates='report_posts')
+
 
 class ReportComment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

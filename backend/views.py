@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -185,6 +185,45 @@ def add_comment(post_id):
         'parent_id': comment.parent_id
     }), 201
 
+@views.route('/api/posts/<int:post_id>/report', methods=['POST'])
+@login_required
+def report_post(post_id):
+    data = request.get_json()
+    reason = data.get('reason')
+    reporter_id = current_user.id
+    reporter_username = current_user.username
+
+    if not reason:
+        return jsonify({'error': 'Потрібна причина скарги'}), 400
+
+    report = ReportPost(
+        reporter_id=reporter_id,
+        reporter_username=reporter_username,
+        post_id=post_id,
+        reason=reason,
+        date=datetime.utcnow()
+    )
+    db.session.add(report)
+    db.session.commit()
+    return jsonify({'success': True})
+
+@views.route('/api/reports', methods=['GET'])
+@login_required
+def get_reports():
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    reports = ReportPost.query.all()
+    result = []
+    for report in reports:
+        result.append({
+            'post_id': report.post_id,
+            'reason': report.reason,
+            'reporter_id': report.reporter_id,
+            'reporter_username': report.reporter_username,
+            'date': report.date.isoformat(),
+        })
+    return jsonify(result)
 
 
 @views.route('/api/posts', methods=['POST'])
@@ -283,7 +322,7 @@ def vote(post_id):
             return jsonify({"message": "Already voted with the same value", "newKarma": post.karma}), 200
         else:
             # Зміна голосу: -1 → +1 або +1 → -1 → змінюємо на 2 очки
-            post.karma += 1 * delta
+            post.karma += 2 * delta
             vote.value = delta  # оновлюємо голос
 
     db.session.commit()
@@ -331,6 +370,8 @@ def get_reactions(post_id):
         counts[r.emoji] = counts.get(r.emoji, 0) + 1
 
     return jsonify({'reactions': counts})
+
+
 
 #Chats:
 @views.route('/api/chats/<int:user_id>', methods=['GET'])
