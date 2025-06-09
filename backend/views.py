@@ -156,6 +156,37 @@ def get_comments(post_id):
         for c in comments
     ])
 
+@views.route('/api/comments/<int:post_id>', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    data = request.get_json()
+    text = data.get('text', '').strip()
+    parent_id = data.get('parent_id')
+
+    if not text:
+        return jsonify({'error': 'Comment text is required'}), 400
+
+    comment = Comment(
+        comment_text=text,
+        user_id=current_user.id,
+        post_id=post_id,
+        karma=0,
+        parent_id=parent_id
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    return jsonify({
+        'id': comment.id,
+        'text': comment.comment_text,
+        'author': current_user.username,
+        'date': comment.date.isoformat(),
+        'karma': comment.karma,
+        'parent_id': comment.parent_id
+    }), 201
+
+
+
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
