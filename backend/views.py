@@ -338,6 +338,7 @@ def get_chats(user_id):
 def get_messages(chat_id):
     messages = Message.query.filter_by(chat_id=chat_id).order_by(Message.date).all()
     message_list = [{
+        'id': msg.id,
         'userId': msg.user_id,
         'sender': msg.user.username,
         'text': msg.message_text,
@@ -363,6 +364,7 @@ def send_message():
 
     # Emit to chat room
     socketio.emit('new_message', {
+        'id': message.id,
         'userId': user_id,
         'chatId': chat_id,
         'sender': message.user.username,
@@ -370,7 +372,15 @@ def send_message():
         'time': message.date.isoformat()
     }, room=f'chat_{chat_id}')
 
-    return jsonify({'success': True, 'messageId': message.id})
+    return jsonify({
+        'id': message.id,
+        'userId': user_id,
+        'chatId': chat_id,
+        'sender': message.user.username,
+        'text': text,
+        'time': message.date.isoformat()
+    }), 201
+
 
 @views.route('/api/categories', methods=['GET'])
 @login_required
@@ -381,6 +391,25 @@ def get_categories():
             {"id": cat.id, "name": cat.name} for cat in categories
         ]
     })
+
+@views.route('/api/messages/<int:message_id>', methods=['DELETE'])
+@login_required
+def delete_message(message_id):
+    message = Message.query.get_or_404(message_id)
+
+    # Перевірка прав (опційно — лише власник або адмін може видаляти)
+    if message.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    # Видаляємо replies, або прив'язуємо їх до None, або обробляємо інакше
+    replies = Message.query.filter_by(parent_id=message.id).all()
+    for reply in replies:
+        db.session.delete(reply)  # або reply.parent_id = None
+
+    db.session.delete(message)
+    db.session.commit()
+
+    return jsonify({'message': 'Message deleted successfully'}), 200
 
 
 @views.route('/api/posts/<int:post_id>/repost', methods=['POST'])

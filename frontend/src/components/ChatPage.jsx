@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback  } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
 import Chat from './Chat';
 import io from 'socket.io-client';
@@ -48,42 +48,42 @@ function ChatPage({ userId }) {
 
 
     useEffect(() => {
-    if (!selectedChatId) return;
+        if (!selectedChatId) return;
 
-    fetch(`/api/messages/${selectedChatId}`, {
-        credentials: 'include'
-    })
-        .then(res => res.json())
-        .then(data => setMessages(data))
-        .catch(console.error);
+        fetch(`/api/messages/${selectedChatId}`, {
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => setMessages(data))
+            .catch(console.error);
 
-    const room = `chat_${selectedChatId}`;
-    socket.emit('join', room);
+        const room = `chat_${selectedChatId}`;
+        socket.emit('join', room);
 
-    const handleNewMessage = (newMessage) => {
-        if (String(newMessage.chatId) === String(selectedChatId)) {
-            setMessages(prev => [...prev, newMessage]);
-        }
+        const handleNewMessage = (newMessage) => {
+            if (String(newMessage.chatId) === String(selectedChatId)) {
+                setMessages(prev => [...prev, newMessage]);
+            }
 
-        setChats(prevChats =>
-            prevChats.map(chat =>
-                chat.id === newMessage.chatId
-                    ? {
-                        ...chat,
-                        lastMessage: newMessage.text
-                    }
-                    : chat
-            )
-        );
-    };
+            setChats(prevChats =>
+                prevChats.map(chat =>
+                    chat.id === newMessage.chatId
+                        ? {
+                            ...chat,
+                            lastMessage: newMessage.text
+                        }
+                        : chat
+                )
+            );
+        };
 
-    socket.on('new_message', handleNewMessage);
+        socket.on('new_message', handleNewMessage);
 
-    return () => {
-        socket.emit('leave', room);
-        socket.off('new_message', handleNewMessage);
-    };
-}, [selectedChatId]);
+        return () => {
+            socket.emit('leave', room);
+            socket.off('new_message', handleNewMessage);
+        };
+    }, [selectedChatId]);
 
 
     const handleSendMessage = () => {
@@ -106,17 +106,38 @@ function ChatPage({ userId }) {
             .then(savedMessage => {
                 setMessageInput('');
 
-                // Socket: надсилаємо в кімнату
-                const room = `chat_${selectedChatId}`;
-                socket.emit('new_message', { ...savedMessage, room });
-
-                // Оновлюємо список чатів
                 fetch(`/api/chats/${userId}`)
                     .then(res => res.json())
                     .then(data => setChats(data));
             })
             .catch(console.error);
     };
+
+    const handleDeleted = (deletedId) => {
+        setMessages((prevMessages) => {
+            const updatedMessages = prevMessages.filter(msg => msg.id !== deletedId);
+
+            // Якщо видалене повідомлення було останнім:
+            const deletedMessage = prevMessages.find(msg => msg.id === deletedId);
+            const isLastMessage = prevMessages.length > 0 && prevMessages[prevMessages.length - 1].id === deletedId;
+
+            if (isLastMessage) {
+                // Визначити нове останнє повідомлення (якщо воно є)
+                const newLast = updatedMessages[updatedMessages.length - 1];
+
+                setChats(prevChats =>
+                    prevChats.map(chat =>
+                        chat.id === selectedChatId
+                            ? { ...chat, lastMessage: newLast ? newLast.text : '' }
+                            : chat
+                    )
+                );
+            }
+
+            return updatedMessages;
+        });
+    };
+
 
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
@@ -145,7 +166,7 @@ function ChatPage({ userId }) {
             <div className="chat-window">
                 <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
                 <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} />
+                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
                 </div>
                 <div className="message-input">
                     <input
