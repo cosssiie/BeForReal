@@ -4,6 +4,16 @@ import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Fla
 import ReportModal from './ReportModal';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
+const reportReasons = [
+    "Спам",
+    "Образливий контент",
+    "Нецензурна лексика",
+    "Реклама",
+    "Порушення авторських прав",
+    "Фейковий акаунт",
+    "Порушення правил спільноти",
+    "Неправдива інформація"
+];
 
 function PostItem({
     post, votes = {}, userId, handleKarmaChange = () => {
@@ -138,6 +148,28 @@ function PostItem({
         }
     };
 
+    const handleReport = async (reason) => {
+        try {
+            const res = await fetch(`/api/posts/${post.id}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ reporterId: userId, reason })
+            });
+
+            if (res.ok) {
+                alert('Скаргу надіслано');
+                setShowReportReasons(false);
+                setShowOptions(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Не вдалося надіслати скаргу');
+            }
+        } catch (error) {
+            console.error('Error reporting post:', error);
+        }
+    };
+
     const formatPostDate = (dateStr) => {
         const now = new Date();
         const date = new Date(dateStr);
@@ -225,9 +257,7 @@ function PostItem({
             </div>
 
             <div className="post-content">
-                <span className="post-category">
-                    Category: <b>{post.category}</b>
-                </span>
+                <span className="post-category">Category: <b>{post.category}</b></span>
                 <p>{post.content}</p>
             </div>
 
@@ -254,6 +284,7 @@ function PostItem({
                         </div>
                     ))}
                 </div>
+
                 <div className="post-actions">
                     <div className="karma-container">
                         <ArrowUp
