@@ -107,7 +107,9 @@ function HomePage({ userId, onLogout }) {
     }
 
     return (
+
         <div className="home-layout">
+
             <Sidebar isOpen={isSidebarOpen} onLogout={onLogout} onCategorySelect={handleCategorySelect} />
             <div className="home-content">
                 <div className="home-container">
@@ -128,6 +130,8 @@ function HomePage({ userId, onLogout }) {
             </div>
         </div>
     );
+
 }
+
 
 export default HomePage;
