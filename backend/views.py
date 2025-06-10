@@ -201,6 +201,7 @@ def delete_comment(comment_id):
     db.session.delete(comment)
     db.session.commit()
     return jsonify({'message': 'Comment deleted'})
+
 @views.route('/api/posts/<int:post_id>/report', methods=['POST'])
 @login_required
 def report_post(post_id):

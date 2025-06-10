@@ -189,13 +189,21 @@ function PostPage({ userId, user, userIsModerator }) {
         }
     };
 
-    if (!post) {
+    if (!post || !user) {
         return <div className="loading-post">Loading post...</div>;
     }
 
+
     return (
         <div className="post-page">
-            <PostItem post={post} isSingle={true} user={user} />
+            {user && post && (
+              <PostItem
+                post={post}
+                userId={user.id}
+                isModerator={user?.is_moderator}
+                isSingle={true}
+              />
+            )}
 
             <div className="add-comment">
                 <form onSubmit={handleCommentSubmit}>

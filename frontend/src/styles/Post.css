@@ -7,8 +7,7 @@
 
 .post {
   width: 100%;
-  max-width: 600px;
-  border-radius: 12px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   background: rgba(255, 255, 255, 0.8);
@@ -23,20 +22,37 @@
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  align-items: center;
+  margin-bottom: 12px;
   font-size: 14px;
   color: #6b7280;
 }
 
+.post-author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .post-category {
-  display: inline-block;
+  display: flex;
+  color: #f9fafb;
+  background: linear-gradient(135deg, #384D7A, #0D52BF);
+  border: none;
+  padding: 4px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  width: 10%;
+  justify-content: center;
+  transition: all 0.3s ease;
   margin-bottom: 10px;
-  color: #4b5563;
 }
 
 .post-date {
   font-size: 12px;
-  margin-left: 8px;
+  color: #6b7280;
 }
 
 .post-content {
@@ -57,6 +73,17 @@
 .comment-author {
   font-weight: 500;
 }
+.post-author {
+  border-radius: 25px;
+  background: linear-gradient(135deg, #6674B9 0%, #9EBAE5 100%);
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 12px;
+  padding: 8px 12px;
+  margin-right: 20px;
+}
 
 .post-actions {
   display: flex;
@@ -76,7 +103,7 @@
 }
 
 .karma-container {
-  background-color: rgb(235, 235, 235);
+  background-color: #DEE8FF;
   border-radius: 15px;
   padding: 5px;
   display: flex;
@@ -110,10 +137,13 @@
   background: none;
   border: none;
   cursor: pointer;
-  background-color: rgb(235, 235, 235);
+  background-color: #DEE8FF;
   border-radius: 15px;
   padding: 8px;
   color: inherit;
+}
+.reaction-button{
+  background-color: #ffdee3;
 }
 
 .additional-button {
@@ -160,7 +190,7 @@
   font-size: 14px;
   font-weight: bold;
   background-color: rgb(235, 235, 235);
-  border-radius: 8px;
+  border-radius: 15px;
   padding: 5px;
   flex-direction: row;
   align-items: center;
