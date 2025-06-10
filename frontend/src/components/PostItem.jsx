@@ -6,10 +6,9 @@ import ReportModal from './ReportModal';
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-    post, votes = {}, userId, user
-    , handleKarmaChange = () => {
-    }, isSingle = false, userIsModerator }) {
-
+                      post, votes = {}, userId, isModerator
+                      , handleKarmaChange = () => {
+    }, isSingle = false }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -181,18 +180,22 @@ function PostItem({
         }
     };
 
-
+    {console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator)}
     return (
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
                 <div className="username-date">
-                    <span className="post-author" style={{ color: 'blue' }}>
-                        <Link to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}>
+                    <span className="post-author">
+                        <Link
+                            to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}
+                            style={{ color: 'white' }}
+                        >
                             {post.username}
                         </Link>
                     </span>
                     <span className="post-date">{formatPostDate(post.date)}</span>
                 </div>
+
 
                 <button className="additional-button" onClick={toggleOptions}>
                     <EllipsisVertical size={16} />
@@ -209,7 +212,7 @@ function PostItem({
                         >
                             <Flag size={16} />
                         </button>
-                        {(userId === post.userId || user?.is_moderator) && (
+                        {(userId === post.userId || isModerator) && (
                             <button className="flag-button delete-button" onClick={handleDeletePost}>
                                 <Trash size={16} />
                             </button>
@@ -226,7 +229,7 @@ function PostItem({
             </div>
 
             <div className="post-content">
-                <span className="post-category">Category: <b>{post.category}</b></span>
+                <span className="post-category"> <b>{post.category}</b></span>
                 <p>{post.content}</p>
             </div>
 
