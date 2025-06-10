@@ -132,7 +132,6 @@
 .repost-button.reposted {
   background-color: #ddd;
   color: #999;
-  cursor: not-allowed;
 }
 
 .repost-button.reposted:hover {
@@ -218,4 +217,13 @@
 .report-popup select {
     width: 100%;
     padding: 4px;
+}
+
+
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6b7280;
 }

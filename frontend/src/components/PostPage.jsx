@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef  } from 'react';
 import { useParams } from 'react-router-dom';
 import PostItem from './PostItem';
+import {Flag, Trash} from "lucide-react";
 
 function buildCommentTree(comments) {
     const map = {};
@@ -19,9 +20,30 @@ function buildCommentTree(comments) {
     return roots;
 }
 
-function CommentItem({ comment, onReply }) {
+function CommentItem({ comment, onReply, onDelete, userId, user }) {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyText, setReplyText] = useState('');
+    const [showOptions, setShowOptions] = useState(false);
+    const [comments, setComments] = useState([]);
+
+
+    const optionsRef = useRef(null);
+
+      useEffect(() => {
+        function handleClickOutside(event) {
+          if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+            setShowOptions(false);
+          }
+        }
+        if (showOptions) {
+          document.addEventListener('mousedown', handleClickOutside);
+        } else {
+          document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+          document.removeEventListener('mousedown', handleClickOutside);
+        };
+      }, [showOptions]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -32,12 +54,46 @@ function CommentItem({ comment, onReply }) {
         }
     };
 
+
     return (
         <div className="comment" style={{ marginLeft: comment.parent_id ? 20 : 0, borderLeft: comment.parent_id ? '1px solid #ccc' : 'none', paddingLeft: 10 }}>
-            <div className="comment-header">
-                <span className="comment-author">{comment.author || 'Anonymous'}</span>
-                <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
+            <div className="comment-header" style={{ position: 'relative' }}>
+              <span className="comment-author">{comment.author || 'Anonymous'}</span>
+              <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
+
+              {/* Кнопка опцій */}
+              <button
+                className="options-button"
+                onClick={() => setShowOptions(prev => !prev)}
+                aria-label="Options"
+                style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                &#8230; {/* три крапки */}
+              </button>
+
+              {showOptions && (
+              <div className="options-popup" ref={optionsRef}>
+                  <button className="flag-button">
+                      <Flag size={16}/>
+                  </button>
+                  {(userId === comment.userId || user?.is_moderator) && (
+                    <button
+                      className="flag-button delete-button"
+                      onClick={() => {
+                        setShowOptions(false);
+                        if (window.confirm('Ви дійсно хочете видалити цей коментар?')) {
+                          onDelete(comment.id);
+                        }
+                      }}
+                    >
+                      <Trash size={16} />
+                    </button>
+                  )}
+              </div>
+            )}
+
             </div>
+
             <p>{comment.text}</p>
             <button onClick={() => setShowReplyBox(!showReplyBox)}>
                 {showReplyBox ? 'Cancel' : 'Reply'}
@@ -66,7 +122,7 @@ function CommentItem({ comment, onReply }) {
     );
 }
 
-function PostPage() {
+function PostPage({ userId, user}) {
     const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
@@ -118,13 +174,36 @@ function PostPage() {
         setNewComment('');
     };
 
-    if (!post) {
+    const handleDeleteComment = async (commentId) => {
+      try {
+        const res = await fetch(`/api/comments/${commentId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to delete comment');
+
+        setComments(prev => prev.filter(c => c.id !== commentId));
+      } catch (err) {
+        alert('Помилка при видаленні коментаря');
+        console.error(err);
+      }
+    };
+
+    if (!post || !user) {
         return <div className="loading-post">Loading post...</div>;
     }
 
+
     return (
         <div className="post-page">
-            <PostItem post={post} isSingle={true} />
+            {user && post && (
+              <PostItem
+                post={post}
+                userId={user.id}
+                isModerator={user?.is_moderator}
+                isSingle={true}
+              />
+            )}
 
             <div className="add-comment">
                 <form onSubmit={handleCommentSubmit}>
@@ -146,7 +225,7 @@ function PostPage() {
                     <p className="no-comments">No comments yet.</p>
                 ) : (
                     buildCommentTree(comments).map(comment => (
-                        <CommentItem key={comment.id} comment={comment} onReply={handleReply} />
+                        <CommentItem key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} userId={userId}  user={user}/>
                     ))
                 )}
             </div>

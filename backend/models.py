@@ -65,10 +65,10 @@ class Post(db.Model):
     karma = db.Column(db.Integer, default=0)
     is_temporary = db.Column(db.Boolean, default=False)
 
-    comments = db.relationship('Comment', backref='post', lazy=True)
-    reactions = db.relationship('Reaction', backref='post', lazy=True)
-    reposts = db.relationship('Repost', backref='post', lazy=True)
-    report_posts = db.relationship('ReportPost', backref='post', lazy=True)
+    comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
+    reactions = db.relationship('Reaction', backref='post', lazy=True, cascade="all, delete-orphan")
+    reposts = db.relationship('Repost', backref='post', lazy=True, cascade="all, delete-orphan")
+    report_posts = db.relationship('ReportPost', backref='post', lazy=True, cascade="all, delete-orphan")
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -108,8 +108,8 @@ class Chat(db.Model):
     group_name= db.Column(db.String(100))
     created_at = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
-    chat_users = db.relationship('ChatUser', backref='chat', lazy=True)
-    messages = db.relationship('Message', backref='chat', lazy=True)
+    chat_users = db.relationship('ChatUser', backref='chat', cascade='all, delete-orphan', lazy=True)
+    messages = db.relationship('Message', backref='chat', cascade='all, delete-orphan', lazy=True)
 
 class ChatUser(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), primary_key=True)

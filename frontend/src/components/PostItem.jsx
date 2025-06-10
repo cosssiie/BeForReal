@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag } from 'lucide-react';
+import React, {useEffect, useRef, useState} from 'react';
+import {useNavigate, Link} from 'react-router-dom';
+import {ArrowUp, ArrowDown, MessageCircle, Heart, Repeat, EllipsisVertical, Flag, Trash } from 'lucide-react';
 
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 const reportReasons = [
@@ -15,12 +15,9 @@ const reportReasons = [
 ];
 
 function PostItem({
-    post,
-    votes = {},
-    userId,
-    handleKarmaChange = () => { },
-    isSingle = false
-}) {
+                      post, votes = {}, userId, isModerator
+                      , handleKarmaChange = () => {
+    }, isSingle = false }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -106,23 +103,31 @@ function PostItem({
 
     const handleRepost = async () => {
         try {
+            const method = hasReposted ? 'DELETE' : 'POST';
             const res = await fetch(`/api/posts/${post.id}/repost`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method,
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({userId})
             });
-            if (res.ok) {
-                setRepostCount(prev => prev + 1);
-                setHasReposted(true);
-            } else {
+
+            if (!res.ok) {
                 const err = await res.json();
-                alert(err.error || 'Failed to repost');
+                return alert(err.error || 'Помилка при репості');
             }
+
+            // Перезапитуємо стан з сервера після оновлення
+            const info = await fetch(`/api/posts/${post.id}/reposts`, {
+                credentials: 'include',
+            });
+            const data = await info.json();
+            setRepostCount(data.repostCount || 0);
+            setHasReposted(data.hasReposted);
         } catch (error) {
-            console.error('Error reposting:', error);
+            console.error('Error handling repost:', error);
         }
     };
+
 
     const handleReport = async (reason) => {
         try {
@@ -162,6 +167,33 @@ function PostItem({
         }
     };
 
+    const handleDeletePost = async () => {
+        if (!window.confirm('Ви впевнені, що хочете видалити пост?')) return;
+
+        try {
+            const res = await fetch(`/api/posts/${post.id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (res.ok) {
+                if (isSingle) {
+                    navigate('/'); // якщо перегляд окремого поста — перенаправити назад
+                } else {
+                    // якщо список постів — можна викликати callback або оновити список через батьківський компонент
+                    window.location.reload(); // простий варіант
+                }
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Не вдалося видалити пост');
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            alert('Сталася помилка при видаленні поста');
+        }
+    };
+
+    {console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator)}
     return (
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
@@ -183,6 +215,11 @@ function PostItem({
                         <button className="flag-button" onClick={toggleReportReasons}>
                             <Flag size={16} />
                         </button>
+                        {(userId === post.userId || isModerator) && (
+                            <button className="flag-button delete-button" onClick={handleDeletePost}>
+                                <Trash size={16} />
+                            </button>
+                        )}
                         {showReportReasons && (
                             <div className="report-reasons-popup">
                                 {reportReasons.map((reason) => (
@@ -245,12 +282,12 @@ function PostItem({
                     <button
                         className={`repost-button ${hasReposted ? 'reposted' : ''}`}
                         onClick={handleRepost}
-                        disabled={hasReposted}
-                        title={hasReposted ? 'Ви вже репостнули' : 'Репостнути'}
+                        title={hasReposted ? 'Скасувати репост' : 'Репостнути'}
                     >
                         <Repeat size={18} className="inline-icon" />
                         <span>{repostCount}</span>
                     </button>
+
 
                     {!isSingle && (
                         <div className="post-action">

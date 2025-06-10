@@ -69,6 +69,7 @@ def get_post(post_id):
         'commentsCount': comments_count,
         'picture': post.picture,
         'userId': post.user_id,
+        'isModerator':user.is_moderator,
     }
 
     return jsonify(post=result)
@@ -148,11 +149,13 @@ def get_comments(post_id):
     return jsonify([
         {
             'id': c.id,
-            'text': c.comment_text,   
+            'text': c.comment_text,
+            'userId': c.user.id,
+            'isModerator': c.user.is_moderator,
             'author': c.user.username,
             'date': c.date.isoformat(),
             'karma': c.karma,          
-            'parent_id': c.parent_id 
+            'parent_id': c.parent_id
         }
         for c in comments
     ])
@@ -185,6 +188,20 @@ def add_comment(post_id):
         'karma': comment.karma,
         'parent_id': comment.parent_id
     }), 201
+
+@views.route('/api/comments/<int:comment_id>', methods=['DELETE'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({'error': 'Comment not found'}), 404
+
+    if current_user.id != comment.user_id and not current_user.is_moderator:
+        return jsonify({'error': 'Permission denied'}), 403
+
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'message': 'Comment deleted'})
 
 @views.route('/api/posts/<int:post_id>/report', methods=['POST'])
 @login_required
@@ -324,6 +341,22 @@ def create_post():
     }), 201
 
 
+@views.route('/api/posts/<int:post_id>', methods=['DELETE'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    if current_user.id != post.user_id and not current_user.is_moderator:
+        return jsonify({'error': 'Permission denied'}), 403
+
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({'message': 'Post deleted'})
+
+
+
 @views.route('/api/posts/<int:post_id>/vote', methods=['POST'])
 @login_required
 def vote(post_id):
@@ -445,6 +478,7 @@ def get_chats(user_id):
 def get_messages(chat_id):
     messages = Message.query.filter_by(chat_id=chat_id).order_by(Message.date).all()
     message_list = [{
+        'id': msg.id,
         'userId': msg.user_id,
         'sender': msg.user.username,
         'text': msg.message_text,
@@ -470,6 +504,7 @@ def send_message():
 
     # Emit to chat room
     socketio.emit('new_message', {
+        'id': message.id,
         'userId': user_id,
         'chatId': chat_id,
         'sender': message.user.username,
@@ -477,7 +512,15 @@ def send_message():
         'time': message.date.isoformat()
     }, room=f'chat_{chat_id}')
 
-    return jsonify({'success': True, 'messageId': message.id})
+    return jsonify({
+        'id': message.id,
+        'userId': user_id,
+        'chatId': chat_id,
+        'sender': message.user.username,
+        'text': text,
+        'time': message.date.isoformat()
+    }), 201
+
 
 @views.route('/api/categories', methods=['GET'])
 @login_required
@@ -488,6 +531,25 @@ def get_categories():
             {"id": cat.id, "name": cat.name} for cat in categories
         ]
     })
+
+@views.route('/api/messages/<int:message_id>', methods=['DELETE'])
+@login_required
+def delete_message(message_id):
+    message = Message.query.get_or_404(message_id)
+
+    # Перевірка прав (опційно — лише власник або адмін може видаляти)
+    if message.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    # Видаляємо replies, або прив'язуємо їх до None, або обробляємо інакше
+    replies = Message.query.filter_by(parent_id=message.id).all()
+    for reply in replies:
+        db.session.delete(reply)  # або reply.parent_id = None
+
+    db.session.delete(message)
+    db.session.commit()
+
+    return jsonify({'message': 'Message deleted successfully'}), 200
 
 
 @views.route('/api/posts/<int:post_id>/repost', methods=['POST'])
@@ -511,6 +573,21 @@ def repost_post(post_id):
     db.session.commit()
 
     return jsonify({'message': 'Repost created successfully'}), 201
+
+@views.route("/api/posts/<int:post_id>/repost", methods=["DELETE"])
+@login_required
+def delete_repost(post_id):
+    user_id = current_user.id
+    repost = Repost.query.filter_by(post_id=post_id, user_id=user_id).first()
+    if not repost:
+        return jsonify({"error": "Not reposted"}), 400
+
+    db.session.delete(repost)
+    db.session.commit()
+
+    repost_count = Repost.query.filter_by(post_id=post_id).count()
+    return jsonify({"repostCount": repost_count, "hasReposted": False})
+
 
 
 @views.route('/api/posts/<int:post_id>/reposts', methods=['GET'])
@@ -641,4 +718,73 @@ def start_private_chat():
 
     return jsonify({'chat_id': new_chat.id, 'messages': 0})
 
+@views.route('/api/chats/<int:chat_id>/leave', methods=['POST'])
+@login_required
+def leave_chat(chat_id):
+    chat_user = ChatUser.query.filter_by(chat_id=chat_id, user_id=current_user.id).first()
+    if not chat_user:
+        return jsonify({'error': 'Not in chat'}), 404
 
+    db.session.delete(chat_user)
+    db.session.commit()
+    return jsonify({'success': True})
+
+
+@views.route('/api/chats/<int:chat_id>', methods=['DELETE'])
+@login_required
+def delete_leave_chat(chat_id):
+    chat = Chat.query.get_or_404(chat_id)
+
+    chat_user = ChatUser.query.filter_by(chat_id=chat_id, user_id=current_user.id).first()
+    if not chat_user:
+        return jsonify({'error': 'Not a participant'}), 403
+
+    db.session.delete(chat_user)
+    db.session.commit()
+
+    # Перевіряємо, чи ще залишилися учасники в цьому чаті
+    remaining_users = ChatUser.query.filter_by(chat_id=chat_id).count()
+
+    # Якщо учасників немає — видаляємо чат і всі повідомлення
+    if remaining_users == 0:
+        # Видалимо всі повідомлення цього чату
+        Message.query.filter_by(chat_id=chat_id).delete()
+        db.session.delete(chat)
+        db.session.commit()
+        return jsonify({'success': True, 'chatDeleted': True, 'reason': 'empty'})
+
+    return jsonify({'success': True, 'chatDeleted': False})
+
+
+@views.route('/api/chats/create_group', methods=['POST'])
+@login_required
+def create_group_chat():
+    data = request.get_json()
+    user_ids = data.get('user_ids')  # список ID учасників
+    group_name = data.get('name')  # назва групи, якщо потрібно
+
+    if not user_ids or not isinstance(user_ids, list):
+        return jsonify({'error': 'Missing or invalid user_ids'}), 400
+
+    # Додати current_user, якщо ще не в списку
+    if current_user.id not in user_ids:
+        user_ids.append(current_user.id)
+
+    # Перевірка кількості учасників (мінімум 3, щоб це була група)
+    if len(set(user_ids)) < 3:
+        return jsonify({'error': 'Group chat must have at least 3 unique users'}), 400
+
+    # Створити груповий чат
+    new_chat = Chat(is_group=True, name=group_name or "Group Chat")
+    db.session.add(new_chat)
+    db.session.flush()
+
+    # Додати усіх учасників
+    db.session.add_all([
+        ChatUser(chat_id=new_chat.id, user_id=user_id)
+        for user_id in set(user_ids)
+    ])
+
+    db.session.commit()
+
+    return jsonify({'chat_id': new_chat.id, 'messages': 0})
