@@ -88,7 +88,7 @@ function ProfilePage() {
 
     return (
         <div className="home-layout">
-            <Sidebar/>
+            <Sidebar />
             <div className="profile-container">
                 <div className="profile">
                     <div className="profile-header">
@@ -158,9 +158,15 @@ function ProfilePage() {
                     />
                 )}
             </div>
-                <style>{`
+            <style>{`
                 .sidebar-container-filter {
                     display: none;
+                }
+                .posts-list {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr); 
+                    gap: 20px;
+                    animation: fadeIn 0.3s ease-out; 
                 }
             `}</style>
         </div>

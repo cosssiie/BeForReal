@@ -37,17 +37,17 @@
 .post-category {
   display: flex;
   color: #f9fafb;
-  background: linear-gradient(135deg, #384D7A, #0D52BF);
+  background: linear-gradient(135deg, #384D7A 0%, #0D52BF 100%);
   border: none;
   padding: 4px 16px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  width: 10%;
   justify-content: center;
   transition: all 0.3s ease;
   margin-bottom: 10px;
+  width: fit-content;
 }
 
 .post-date {

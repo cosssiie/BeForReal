@@ -14,7 +14,7 @@
 /* Sidebar */
 .chat-sidebar {
     width: 280px;
-    height: auto;
+    height: 50vh;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(15px);
     border-radius: 20px;
