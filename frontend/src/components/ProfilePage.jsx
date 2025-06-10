@@ -88,7 +88,7 @@ function ProfilePage() {
 
     return (
         <div className="home-layout">
-            <Sidebar fixedHeight={true} />
+            <Sidebar/>
             <div className="profile-container">
                 <div className="profile">
                     <div className="profile-header">
@@ -157,7 +157,13 @@ function ProfilePage() {
                         onSubmit={handleProfileUpdate}
                     />
                 )}
-            </div> </div>
+            </div>
+                <style>{`
+                .sidebar-container-filter {
+                    display: none;
+                }
+            `}</style>
+        </div>
     );
 }
 

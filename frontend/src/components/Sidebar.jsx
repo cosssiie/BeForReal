@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal} from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchModal from './SearchModal';
@@ -66,7 +66,7 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                             <div className="menu-link" style={{ cursor: 'pointer' }}>
                                 <Navigation />
                             </div>
-                        </div>  
+                        </div>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                     <div
                         className="filter-option"
                         onClick={() => handleCategoryClick(null)}
-                        style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                        style={{ cursor: 'pointer' }}
                     >
                         All Categories
                     </div>

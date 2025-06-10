@@ -225,6 +225,11 @@ function ChatPage({ userId }) {
                     </div>
                 </div>
             </div>
+            <style>{`
+                .sidebar-container-filter {
+                    display: none;
+                }
+            `}</style>
         </div>
     );
 }

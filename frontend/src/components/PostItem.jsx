@@ -186,7 +186,7 @@ function PostItem({
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
                 <div className="username-date">
-                    <span className="post-author" style={{ color: 'blue' }}>
+                    <span className="post-author">
                         <Link to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}>
                             {post.username}
                         </Link>

@@ -51,6 +51,11 @@ function ReportModal({ onClose, onSubmit }) {
                     <button onClick={onClose}>Cancel</button>
                 </div>
             </div>
+            <style>{`
+                .sidebar-container-filter {
+                    display: none;
+                }
+            `}</style>
         </div>
     );
 }

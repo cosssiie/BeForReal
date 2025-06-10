@@ -197,14 +197,15 @@
 }
 
 .filter-panel {
+    display: flex;
+    flex-direction: column;
     width: 0;
     opacity: 0;
     padding: 0;
-    background: rgba(255, 255, 255, 0.1);
+    background: none;
     border-radius: 10px;
     overflow-y: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    animation: slideDown 0.3s ease-out forwards;
+    gap: 5px;
 }
 
 .sidebar-container-filter:hover .filter-panel {
@@ -226,7 +227,8 @@
 }
 
 .filter-option {
-    margin-bottom: 5px;
+    margin-bottom: 0px;
+    padding: 2px;
     color: #ffffff;
     cursor: pointer;
     border-radius: 5px;
