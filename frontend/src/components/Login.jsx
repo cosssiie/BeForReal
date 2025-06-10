@@ -53,7 +53,7 @@ function Login({ onLogin }) {
             </div>
 
               <div className="logo-wrapper">
-                  <img src="/logo_2.png" alt="Site Logo " className="site-logo"  />
+                  <img src="/assets/images/logo_2.png" alt="Site Logo " className="site-logo"  />
              </div>
 
             <div className={`login-container ${animate ? 'animate-in' : ''}`}>
