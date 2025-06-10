@@ -17,8 +17,14 @@
 .App {
   overflow-y: auto;
   height: 100vh;
-}
+  background-image: url("/public/assets/images/ukma.png"); /* Змінив шлях */
+  background-size: auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: 90% center;
 
+}
 * {
   margin: 0;
   padding: 0;
