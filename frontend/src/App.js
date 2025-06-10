@@ -74,7 +74,7 @@ function App() {
             <>
               <Route path="*" element={<Login onLogin={handleLogin} />} />
               <Route path="/login" element={<Login onLogin={handleLogin} />} />
-              <Route path="/sign up" element={<SignUp />} />
+              <Route path="/sign-up" element={<SignUp />} />
             </>
           ) : (
             <>
@@ -93,6 +93,8 @@ function App() {
               <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user} />} />
               <Route path="/profile/:id" element={<OtherUserProfile />} />
               <Route path="/login" element={<Login onLogin={handleLogin} />} />
+              <Route path="/sign-up" element={<SignUp />} />
+
             </>
           )}
         </Routes>
