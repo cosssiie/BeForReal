@@ -122,7 +122,7 @@ function CommentItem({ comment, onReply, onDelete, userId, user }) {
     );
 }
 
-function PostPage({ userId, user, userIsModerator  }) {
+function PostPage({ userId, user}) {
     const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
@@ -189,13 +189,21 @@ function PostPage({ userId, user, userIsModerator  }) {
       }
     };
 
-    if (!post) {
+    if (!post || !user) {
         return <div className="loading-post">Loading post...</div>;
     }
 
+
     return (
         <div className="post-page">
-            <PostItem post={post} isSingle={true} user={user} />
+            {user && post && (
+              <PostItem
+                post={post}
+                userId={user.id}
+                isModerator={user?.is_moderator}
+                isSingle={true}
+              />
+            )}
 
             <div className="add-comment">
                 <form onSubmit={handleCommentSubmit}>
@@ -217,7 +225,7 @@ function PostPage({ userId, user, userIsModerator  }) {
                     <p className="no-comments">No comments yet.</p>
                 ) : (
                     buildCommentTree(comments).map(comment => (
-                        <CommentItem key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} userId={userId} userIsModerator={user?.is_moderator} user/>
+                        <CommentItem key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} userId={userId}  user={user}/>
                     ))
                 )}
             </div>
