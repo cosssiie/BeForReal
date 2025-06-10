@@ -1,15 +1,8 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  background: linear-gradient(135deg, #EBF2FF 0%, #DEE8FF 100%);
-  min-height: 100vh;
-  color: #03122E;
-}
-
 .post-page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 90vh;
+    height: 100vh;
     overflow-y: auto;
     padding: 40px 20px;
     margin: 0 auto;

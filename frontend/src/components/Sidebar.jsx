@@ -2,6 +2,7 @@ import { Search, SlidersHorizontal, LogOut } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchModal from './SearchModal';
+import Navigation from './Navigation';
 
 function Sidebar({ isOpen, onLogout, onCategorySelect }) {
     const [query, setQuery] = useState('');
@@ -48,7 +49,6 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
                         <div className="menu-content">
-                            {/* Search */}
                             <div className="search-container" style={{ position: 'relative' }}>
                                 <input
                                     type="text"
@@ -62,6 +62,11 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                                     <Search size={25} className="search-icon" />
                                 </button>
                             </div>
+
+                            <div className="menu-link" style={{ cursor: 'pointer' }}>
+                                <Navigation />
+                            </div>
+
 
                             {/* Filter Icon */}
                             <div className="menu-link filter-icon" style={{ cursor: 'pointer' }}>
