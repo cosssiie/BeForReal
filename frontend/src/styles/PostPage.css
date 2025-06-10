@@ -38,7 +38,8 @@
     line-height: 1.4;
 }
 
-.loading-post, .no-comments {
+.loading-post,
+.no-comments {
     color: #6b7280;
     text-align: center;
     padding: 40px 0;

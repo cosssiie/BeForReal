@@ -17,7 +17,7 @@
 .App {
   overflow-y: auto;
   height: 100vh;
-  background-image: url("/public/assets/images/ukma.png"); /* Змінив шлях */
+  background-image: url("/public/assets/images/ukma.png");
   background-size: auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -25,6 +25,7 @@
   background-position: 90% center;
 
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -33,7 +34,6 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-y: hidden;
 }
 
 body {
@@ -45,12 +45,9 @@ body {
 
 body,
 html {
-  overflow: hidden;
-  height: 100%;
   margin: 0;
   padding: 0;
 }
-
 
 #root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;

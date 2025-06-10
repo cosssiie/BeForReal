@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import CreateNewPost from './CreateNewPost';
 import PostItem from './PostItem';
 

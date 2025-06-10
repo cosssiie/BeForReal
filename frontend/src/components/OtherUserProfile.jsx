@@ -149,7 +149,7 @@ function OtherUserProfile() {
                     </div>
                 </div>
             </div>
-                 <style>{`
+            <style>{`
                 .sidebar-container-filter {
                     display: none;
                 }

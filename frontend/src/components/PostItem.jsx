@@ -6,8 +6,8 @@ import ReportModal from './ReportModal';
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-                      post, votes = {}, userId, isModerator
-                      , handleKarmaChange = () => {
+    post, votes = {}, userId, isModerator
+    , handleKarmaChange = () => {
     }, isSingle = false }) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
@@ -180,7 +180,7 @@ function PostItem({
         }
     };
 
-    {console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator)}
+    { console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator) }
     return (
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
