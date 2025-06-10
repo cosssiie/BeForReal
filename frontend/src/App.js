@@ -67,13 +67,13 @@ function App() {
 
   return (
     <Router>
-      {/* {isLoggedIn && <Sidebar />} */}
       {isLoggedIn}
       <div className="App">
         <Routes>
           {!isLoggedIn ? (
             <>
               <Route path="*" element={<Login onLogin={handleLogin} />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
               <Route path="/sign up" element={<SignUp />} />
             </>
           ) : (
@@ -92,6 +92,7 @@ function App() {
 
               <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user} />} />
               <Route path="/profile/:id" element={<OtherUserProfile />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
             </>
           )}
         </Routes>
