@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback  } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
 import Chat from './Chat';
+import Sidebar from './Sidebar';
 import io from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
 
@@ -47,8 +48,6 @@ function ChatPage({ userId }) {
         }
     }, [chatId, chats, selectedChatIdFromLocation]);
 
-
-
     useEffect(() => {
         if (!selectedChatId) return;
 
@@ -87,7 +86,6 @@ function ChatPage({ userId }) {
         };
     }, [selectedChatId]);
 
-
     const handleSendMessage = () => {
         if (!messageInput.trim()) return;
 
@@ -97,7 +95,6 @@ function ChatPage({ userId }) {
             text: messageInput.trim(),
         };
 
-        // Надсилання через API для збереження в базу
         fetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -107,7 +104,6 @@ function ChatPage({ userId }) {
             .then(res => res.json())
             .then(savedMessage => {
                 setMessageInput('');
-
                 fetch(`/api/chats/${userId}`)
                     .then(res => res.json())
                     .then(data => setChats(data));
@@ -118,15 +114,11 @@ function ChatPage({ userId }) {
     const handleDeleted = (deletedId) => {
         setMessages((prevMessages) => {
             const updatedMessages = prevMessages.filter(msg => msg.id !== deletedId);
-
-            // Якщо видалене повідомлення було останнім:
             const deletedMessage = prevMessages.find(msg => msg.id === deletedId);
             const isLastMessage = prevMessages.length > 0 && prevMessages[prevMessages.length - 1].id === deletedId;
 
             if (isLastMessage) {
-                // Визначити нове останнє повідомлення (якщо воно є)
                 const newLast = updatedMessages[updatedMessages.length - 1];
-
                 setChats(prevChats =>
                     prevChats.map(chat =>
                         chat.id === selectedChatId
@@ -141,7 +133,7 @@ function ChatPage({ userId }) {
     };
 
     const handleOpenOptions = (e, chatId) => {
-        e.stopPropagation(); // не активує вибір чату
+        e.stopPropagation();
         setOptionsOpenChatId(prev => prev === chatId ? null : chatId);
     };
 
@@ -156,86 +148,88 @@ function ChatPage({ userId }) {
             method: 'DELETE',
             credentials: 'include'
         })
-        .then(res => res.json())
-        .then(() => {
-            setChats(prev => prev.filter(c => c.id !== chatId));
-
-            if (selectedChatId === chatId) {
-                setSelectedChatId(null);         // скидаємо вибраний чат
-                setMessages([]);                 // очищаємо повідомлення
-            }
-        })
-        .catch(console.error);
+            .then(res => res.json())
+            .then(() => {
+                setChats(prev => prev.filter(c => c.id !== chatId));
+                if (selectedChatId === chatId) {
+                    setSelectedChatId(null);
+                    setMessages([]);
+                }
+            })
+            .catch(console.error);
     };
-
 
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
-
     return (
-        <div className="chat-container">
-            <div className="chat-sidebar">
-                <Scrollbar className="custom-scroll-wrapper">
-                    <div className="scroll-inner">
-                        <ul className="chat-list">
-                            {chats.map(chat => (
-                                <li
-                                  key={chat.id}
-                                  className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
-                                  style={{ position: 'relative' }}
-                                >
-                                  <div onClick={() => setSelectedChatId(Number(chat.id))} className="chat-info" style={{ paddingRight: '30px' }}>
-                                    <strong>{chat.name}</strong>
-                                    <p className="chat-preview">{chat.lastMessage}</p>
-                                  </div>
+        <div className="home-layout">
+            <Sidebar />
+            <div className="chat-container">
+                <div className="chat-sidebar">
+                    <Scrollbar className="custom-scroll-wrapper">
+                        <div className="scroll-inner">
+                            <ul className="chat-list">
+                                {chats.map(chat => (
+                                    <li
+                                        key={chat.id}
+                                        className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
+                                        style={{ position: 'relative' }}
+                                    >
+                                        <div onClick={() => setSelectedChatId(Number(chat.id))} className="chat-info" style={{ paddingRight: '30px' }}>
+                                            <strong>{chat.name}</strong>
+                                            <p className="chat-preview">{chat.lastMessage}</p>
+                                        </div>
+                                        <span
+                                            className="chat-options-icon"
+                                            onClick={(e) => handleOpenOptions(e, chat.id)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '6px',
+                                                right: '8px',
+                                                cursor: 'pointer',
+                                                fontSize: '20px',
+                                                zIndex: 11,
+                                            }}
+                                        >
+                                            ⋮
+                                        </span>
+                                        {optionsOpenChatId === chat.id && (
+                                            <div className="chat-options-menu">
+                                                <button onClick={() => handleDeleteChat(chat.id)}>Видалити чат</button>
+                                            </div>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </Scrollbar>
+                </div>
 
-                                  <span
-                                    className="chat-options-icon"
-                                    onClick={(e) => handleOpenOptions(e, chat.id)}
-                                    style={{
-                                      position: 'absolute',
-                                      top: '6px',
-                                      right: '8px',
-                                      cursor: 'pointer',
-                                      fontSize: '20px',
-                                      zIndex: 11,
-                                    }}
-                                  >
-                                    ⋮
-                                  </span>
-
-                                  {optionsOpenChatId === chat.id && (
-                                    <div className="chat-options-menu">
-                                      <button onClick={() => handleDeleteChat(chat.id)}>Видалити чат</button>
-                                    </div>
-                                  )}
-                                </li>
-                            ))}
-                        </ul>
+                <div className="chat-window">
+                    <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
+                    <div className="chat-messages-wrapper">
+                        <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
                     </div>
-                </Scrollbar>
-            </div>
-
-            <div className="chat-window">
-                <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
-                <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
-                </div>
-                <div className="message-input">
-                    <input
-                        type="text"
-                        className="message-text-input"
-                        placeholder="Type a message..."
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                    />
-                    <button className="send-message-button" onClick={handleSendMessage}>
-                        <img src="/assets/images/white-arrow.png" alt="Send" />
-                    </button>
-
+                    <div className="message-input">
+                        <input
+                            type="text"
+                            className="message-text-input"
+                            placeholder="Type a message..."
+                            value={messageInput}
+                            onChange={(e) => setMessageInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        />
+                        <button className="send-message-button" onClick={handleSendMessage}>
+                            <img src="/assets/images/white-arrow.png" alt="Send" />
+                        </button>
+                    </div>
                 </div>
             </div>
+            <style>{`
+                .sidebar-container-filter {
+                    display: none;
+                }
+            `}</style>
         </div>
     );
 }

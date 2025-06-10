@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import ChatPage from './components/ChatPage';
 import Chat from './components/Chat';
@@ -10,6 +9,7 @@ import PostPage from './components/PostPage';
 import ProfilePage from './components/ProfilePage';
 import AdminPage from './components/AdminPage';
 import OtherUserProfile from './components/OtherUserProfile';
+import Sidebar from './components/Sidebar';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -67,13 +67,13 @@ function App() {
 
   return (
     <Router>
-      {isLoggedIn && <Navigation user={user} />}
-
-      <div className="App" style={{ marginTop: isLoggedIn ? '70px' : '0' }}>
+      {isLoggedIn}
+      <div className="App">
         <Routes>
           {!isLoggedIn ? (
             <>
               <Route path="*" element={<Login onLogin={handleLogin} />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
               <Route path="/sign up" element={<SignUp />} />
             </>
           ) : (
@@ -90,8 +90,9 @@ function App() {
                 element={user?.is_moderator ? <AdminPage /> : <Navigate to="/home" />}
               />
 
-              <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user}/>} />
+              <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user} />} />
               <Route path="/profile/:id" element={<OtherUserProfile />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
             </>
           )}
         </Routes>

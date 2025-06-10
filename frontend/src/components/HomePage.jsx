@@ -3,7 +3,7 @@ import Post from './Post';
 import Sidebar from './Sidebar';
 import Pagination from './Pagination';
 
-function HomePage({ userId, onLogout  }) {
+function HomePage({ userId, onLogout }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [votes, setVotes] = useState({});
@@ -19,31 +19,31 @@ function HomePage({ userId, onLogout  }) {
     const currentPosts = posts?.slice(indexOfFirst, indexOfLast) || [];
 
     const handleCategorySelect = (categoryId) => {
-    setIsLoading(true);
-    setSelectedCategory(categoryId);
+        setIsLoading(true);
+        setSelectedCategory(categoryId);
 
-    const url = categoryId
-        ? `/api/posts/by_category?category_id=${categoryId}`
-        : '/api/posts';
+        const url = categoryId
+            ? `/api/posts/by_category?category_id=${categoryId}`
+            : '/api/posts';
 
-    fetch(url, {
-        credentials: 'include'
-    })
-        .then(res => {
-            if (!res.ok) throw new Error("Failed to load filtered posts");
-            return res.json();
+        fetch(url, {
+            credentials: 'include'
         })
-        .then(data => {
-            setPosts(data.posts || data); // API може повертати `posts: [...]` або просто `[...]`
-            setCurrentPage(1); // скидаємо до першої сторінки
-            setIsLoading(false);
-        })
-        .catch(err => {
-            console.error("Error fetching filtered posts:", err);
-            setPosts([]);
-            setIsLoading(false);
-        });
-};
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to load filtered posts");
+                return res.json();
+            })
+            .then(data => {
+                setPosts(data.posts || data); // API може повертати `posts: [...]` або просто `[...]`
+                setCurrentPage(1); // скидаємо до першої сторінки
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error("Error fetching filtered posts:", err);
+                setPosts([]);
+                setIsLoading(false);
+            });
+    };
 
 
     useEffect(() => {
@@ -71,7 +71,7 @@ function HomePage({ userId, onLogout  }) {
         if (postsList) {
             postsList.scrollIntoView({ behavior: 'smooth' });
         } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ behavior: 'smooth' });
         }
     }, [currentPage]);
 

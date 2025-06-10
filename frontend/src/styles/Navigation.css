@@ -1,32 +1,12 @@
-.header-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  margin-bottom: 0px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 1000;
+.nav-icon {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-icon:hover {
+  transform: translateY(-2px);
 }
 
 .header-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 12px;
-  color: #374151;
-  text-decoration: none;
-}
-
-.header-btn:hover {
-  color: #111827;
-}
-
-.icon {
-  width: 30px;
-  height: 30px;
+  color: #ffffff;
 }

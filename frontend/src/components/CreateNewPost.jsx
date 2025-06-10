@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 
 function CreateNewPost({ onCreate }) {
     const [content, setContent] = useState('');
@@ -66,19 +66,18 @@ function CreateNewPost({ onCreate }) {
     return (
         <form onSubmit={handleSubmit} className="post create-post">
             <div className="post-header">
-                <span className="post-author">You</span>
+                <div className="user-avatar">You</div>
             </div>
 
             <div className="post-content">
-                <label className="post-category">
-                    Category:
+                <label className="select-post-category">
                     <select
                         className="select"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
                     >
                         <option value="" disabled>
-                            select category
+                            Оберіть категорію
                         </option>
                         {Array.isArray(categories) && categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
@@ -92,13 +91,11 @@ function CreateNewPost({ onCreate }) {
                     className="textarea"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="Enter your post content..."
+                    placeholder="Поділіться своїми думками..."
                     rows={1}
                 />
+
                 <div className="image-add">
-                    <label htmlFor="image-upload" className="custom-file-label">
-                        Upload Image
-                    </label>
                     <input
                         id="image-upload"
                         type="file"
@@ -140,8 +137,11 @@ function CreateNewPost({ onCreate }) {
             </div>
 
             <div className="post-footer">
+                <label htmlFor="image-upload" className="custom-file-label">
+                    📷 Додати зображення
+                </label>
                 <button type="submit" className="submit-button">
-                    Post
+                    Опублікувати
                 </button>
             </div>
         </form>

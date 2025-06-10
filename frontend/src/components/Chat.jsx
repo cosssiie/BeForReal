@@ -73,7 +73,7 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
                             </span>
 
                             {isOwnMessage && isSelected && msg.id && (
-                                <div style={panelStyle} className="message-options-panel"  ref={optionsRef}>
+                                <div style={panelStyle} className="message-options-panel" ref={optionsRef}>
                                     <button onClick={() => handleDelete(msg.id)}>Видалити</button>
                                 </div>
                             )}

@@ -3,6 +3,7 @@ import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
 import UpdateProfileModal from './UpdateProfileModal';
+import Sidebar from './Sidebar';
 
 function ProfilePage() {
     const [userData, setUserData] = useState({
@@ -83,96 +84,92 @@ function ProfilePage() {
 
     const handleProfileUpdate = async (updatedData) => {
         console.log('Profile Changed');
-        // try {
-        //     const payload = {
-        //         id: userData.id,
-        //         username: updatedData.username,
-        //         bio: updatedData.bio
-        //     };
-
-        //     if (updatedData.password) {
-        //         payload.password = updatedData.password;
-        //     }
-
-        //     const response = await axios.post('/api/update_user', payload);
-        //     setUserData(response.data);
-        //     handleModalClose();
-        // } catch (error) {
-        //     console.error("Failed to update user", error);
-        // }
     };
 
     return (
-        <div className="profile-container">
-            <div className="profile">
-                <div className="profile-header">
-                    <div className="profile-photo">
-                        <img src="" alt="" />
-                    </div>
-                    <div className="profile-info">
-                        <div className="personal-info">
-                            <span className="nickname">{userData.username}</span>
-                            <div className="profile-buttons">
-                                <button className="change-profile" onClick={handleModalOpen}>
-                                    Change Profile
-                                </button>
+        <div className="home-layout">
+            <Sidebar />
+            <div className="profile-container">
+                <div className="profile">
+                    <div className="profile-header">
+                        <div className="profile-photo">
+                            <img src="" />
+                        </div>
+                        <div className="profile-info">
+                            <div className="personal-info">
+                                <span className="nickname">{userData.username}</span>
+                                <div className="profile-actions">
+                                    <button className="change-profile" onClick={handleModalOpen}>
+                                        Change Profile
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="profile-stats">
+                                <p className="bio">{userData.bio}</p>
+                                <p className="karma">Karma: {userData.karma}</p>
                             </div>
                         </div>
-                        <div className="statistics">
-                            <p className="bio">{userData.bio}</p>
-                            <p className="karma">Karma: {userData.karma}</p>
+                    </div>
+                    <div className="profile-posts">
+                        <nav className="tab-nav">
+                            <ul className="tab-list">
+                                <li
+                                    className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('posts')}
+                                >
+                                    Posts
+                                </li>
+                                <li
+                                    className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('reposts')}
+                                >
+                                    Reposts
+                                </li>
+                            </ul>
+                        </nav>
+                        <div className="tab-content">
+                            {isLoadingContent ? (
+                                <p>Loading posts...</p>
+                            ) : (
+                                <>
+                                    <div className="posts-list">
+                                        {currentItems.map(item => (
+                                            <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
+                                        ))}
+                                    </div>
+
+                                    {totalPages > 1 && (
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={setCurrentPage}
+                                        />
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
-                <div className="profile-posts">
-                    <nav className="tab-nav">
-                        <ul className="tab-list">
-                            <li
-                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('posts')}
-                            >
-                                Posts
-                            </li>
-                            <li
-                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('reposts')}
-                            >
-                                Reposts
-                            </li>
-                        </ul>
-                    </nav>
-                    <div className="tab-content">
-                        {isLoadingContent ? (
-                            <p>Loading posts...</p>
-                        ) : (
-                            <>
-                                <div className="posts-list">
-                                    {currentItems.map(item => (
-                                        <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
-                                    ))}
-                                </div>
-
-                                {totalPages > 1 && (
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={setCurrentPage}
-                                    />
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
+                {showModal && (
+                    <UpdateProfileModal
+                        userData={userData}
+                        onClose={handleModalClose}
+                        onSubmit={handleProfileUpdate}
+                    />
+                )}
             </div>
-            {showModal && (
-                <UpdateProfileModal
-                    userData={userData}
-                    onClose={handleModalClose}
-                    onSubmit={handleProfileUpdate}
-                />
-            )}
+            <style>{`
+                .sidebar-container-filter {
+                    display: none;
+                }
+                .posts-list {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr); 
+                    gap: 20px;
+                    animation: fadeIn 0.3s ease-out; 
+                }
+            `}</style>
         </div>
-
     );
 }
 
