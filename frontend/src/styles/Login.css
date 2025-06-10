@@ -83,10 +83,10 @@
 
 /* Logo */
 .logo-wrapper {
-    z-index: 100;
+    z-index: 130;
     position: absolute;
-    top: -5px;
-    left: 10px;
+    top: 10%;
+    left: 31%;
     display: flex;
     align-items: center;
     animation: slideInDown 0.8s ease-out;
