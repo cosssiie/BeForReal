@@ -10,18 +10,47 @@
 @import './styles/ProfilePage.css';
 @import './styles/AdminPage.css';
 @import './styles/Sidebar.css';
+@import './styles/ReportModal.css';
+@import './styles/UpdatePrifileModal.css';
+
+
+.App {
+  overflow-y: auto;
+  height: 100vh;
+  background-image: url("/public/assets/images/ukma.png");
+  background-size: auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: 90% center;
+
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #EBF2FF 0%, #DEE8FF 100%);
+  min-height: 100vh;
+  color: #03122E;
+}
+
 body,
 html {
-  overflow: hidden;
-  background-color: rgb(255, 255, 255);
-  height: 100%;
   margin: 0;
   padding: 0;
+}
+
+#root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 button {

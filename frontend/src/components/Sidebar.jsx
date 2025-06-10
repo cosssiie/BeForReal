@@ -1,13 +1,13 @@
-import {Search, SlidersHorizontal, LogOut} from 'lucide-react';
-import React, {useState, useEffect, useRef} from 'react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchModal from './SearchModal';
+import Navigation from './Navigation';
 
-function Sidebar({isOpen, onLogout, onCategorySelect}) {
+function Sidebar({ isOpen, onLogout, onCategorySelect }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
-    const [showFilters, setShowFilters] = useState(false);
     const [categories, setCategories] = useState([]);
     const searchRef = useRef();
 
@@ -27,13 +27,8 @@ function Sidebar({isOpen, onLogout, onCategorySelect}) {
         }
     };
 
-    const toggleFilters = () => {
-        setShowFilters(prev => !prev);
-    };
-
     const handleCategoryClick = (categoryId) => {
-        onCategorySelect(categoryId); // передаємо вибір до HomePage
-        setShowFilters(false); // ховаємо фільтри після вибору
+        onCategorySelect(categoryId);
     };
 
     useEffect(() => {
@@ -49,58 +44,55 @@ function Sidebar({isOpen, onLogout, onCategorySelect}) {
     }, []);
 
     return (
-        <>
-            <div className={`sidebar-container ${isOpen ? 'open' : ''}`}>
+        <div className="sidebar-wrapper">
+            <div className={`sidebar-container-main${isOpen ? 'open' : ''}`}>
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
-                        <div className="search-container" style={{position: 'relative'}}>
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="search-input"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <button className="search-button" onClick={handleSearch}>
-                                <Search size={25} className="search-icon"/>
-                            </button>
-                        </div>
-
-                        <div className="menu-link" onClick={toggleFilters} style={{cursor: 'pointer'}}>
-                            <SlidersHorizontal size={25}/>
-                            <span className="label">Filter</span>
-                        </div>
-
-                        {showFilters && (
-                            <div className="filter-panel">
-                                <div
-                                    className="filter-option"
-                                    onClick={() => handleCategoryClick(null)}
-                                    style={{cursor: 'pointer', fontWeight: 'bold'}}
-                                >
-                                    Усі категорії
-                                </div>
-                                {categories.map((cat) => (
-                                    <div
-                                        key={cat.id}
-                                        className="filter-option"
-                                        onClick={() => handleCategoryClick(cat.id)}
-                                        style={{cursor: 'pointer'}}
-                                    >
-                                        {cat.name}
-                                    </div>
-                                ))}
+                        <div className="menu-content">
+                            <div className="search-container" style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    className="search-input"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                />
+                                <button className="search-button" onClick={handleSearch}>
+                                    <Search size={25} className="search-icon" />
+                                </button>
                             </div>
-                        )}
 
-
-                        <div className="logout-container">
-                            <button className="logout-button" onClick={onLogout}>
-                                <LogOut size={25}/>
-                            </button>
+                            <div className="menu-link" style={{ cursor: 'pointer' }}>
+                                <Navigation />
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className={`sidebar-container-filter${isOpen ? 'open' : ''}`}>
+                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }}>
+                    <SlidersHorizontal size={25} />
+                </div>
+
+                <div className="filter-panel">
+                    <div
+                        className="filter-option"
+                        onClick={() => handleCategoryClick(null)}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        All Categories
+                    </div>
+                    {categories.map((cat) => (
+                        <div
+                            key={cat.id}
+                            className="filter-option"
+                            onClick={() => handleCategoryClick(cat.id)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            {cat.name}
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -110,7 +102,7 @@ function Sidebar({isOpen, onLogout, onCategorySelect}) {
                     onClose={() => setShowResults(false)}
                 />
             )}
-        </>
+        </div>
     );
 }
 

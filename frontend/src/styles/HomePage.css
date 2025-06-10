@@ -1,24 +1,21 @@
 .home-layout {
-    display: flex;
-    min-height: 100vh;
-    box-sizing: border-box;
-    padding-top: 70px;
-    margin-top: -70px;
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .home-content {
-    flex: 1;
-    display: flex;
-    min-width: 0;
-    height: 90vh;
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
 }
 
 .home-container {
-    flex: 1;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
-    width: 100%;
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
 }

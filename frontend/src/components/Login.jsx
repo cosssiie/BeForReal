@@ -38,12 +38,14 @@ function Login({ onLogin }) {
     };
 
     const handleCreateAccount = () => {
-        navigate('/sign up');
+        console.log('Login');
+        navigate('/sign-up');
     };
 
     return (
 
         <div className="login-page">
+
             <div className="bg-elements">
                 <div className="floating-shape shape-1"></div>
                 <div className="floating-shape shape-2"></div>
@@ -51,12 +53,13 @@ function Login({ onLogin }) {
                 <div className="floating-shape shape-4"></div>
             </div>
 
+            <div className="logo-wrapper">
+                <img src="/assets/images/logo_2.png" alt="Site Logo " className="site-logo" />
+            </div>
+
             <div className={`login-container ${animate ? 'animate-in' : ''}`}>
-                <div className="logo-wrapper">
-                    <img src="/assets/images/logo_2.png" alt="Site Logo" className="site-logo" />
-                </div>
                 <div className="login-header">
-                    <h2 className="login-title">Login</h2>
+                    <h2 className="login-title">Log In</h2>
                 </div>
                 <form className="login-form" onSubmit={handleLoginClick}>
                     <input
@@ -79,7 +82,7 @@ function Login({ onLogin }) {
                         type="button"
                         onClick={handleCreateAccount}
                     >
-                        Create new account
+                        Create Account
                     </button>
                 </form>
                 {error && <p className="error-message">{error}</p>}

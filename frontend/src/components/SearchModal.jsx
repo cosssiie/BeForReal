@@ -6,10 +6,10 @@ function SearchModal({ results, onClose }) {
         <div style={styles.overlay}>
             <div style={styles.modal}>
                 <button style={styles.closeButton} onClick={onClose}>×</button>
-                <h2 style={styles.header}>Знайдені користувачі</h2>
+                <h2 style={styles.header}>Users</h2>
 
                 {results.length === 0 ? (
-                    <p style={{ textAlign: 'center' }}>Користувачів не знайдено.</p>
+                    <p style={{ textAlign: 'center' }}>No such user found</p>
                 ) : (
                     <div style={styles.resultList}>
                         {results.map((user) => (

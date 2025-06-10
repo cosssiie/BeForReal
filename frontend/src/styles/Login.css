@@ -1,13 +1,3 @@
-/* Основні стилі */
-body,
-html,
-#root {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-}
-
 /* Wrapper */
 .login-page,
 .sign-up-page {
@@ -93,10 +83,10 @@ html,
 
 /* Logo */
 .logo-wrapper {
-    z-index: 100;
+    z-index: 130;
     position: absolute;
-    top: -5px;
-    left: 10px;
+    top: 10%;
+    left: 31%;
     display: flex;
     align-items: center;
     animation: slideInDown 0.8s ease-out;
@@ -113,6 +103,7 @@ html,
 .login-header,
 .sign-up-header {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-bottom: 40px;
