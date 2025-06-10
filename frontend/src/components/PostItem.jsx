@@ -6,9 +6,14 @@ import ReportModal from './ReportModal';
 const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '👎', '🔥'];
 
 function PostItem({
-    post, votes = {}, userId, isModerator
-    , handleKarmaChange = () => {
-    }, isSingle = false }) {
+    post,
+    votes = {},
+    userId,
+    isModerator = false,
+    handleKarmaChange = () => { },
+    isSingle = false,
+    onDeletePost = () => { },
+}) {
     const navigate = useNavigate();
     const [reactions, setReactions] = useState({});
     const [userReaction, setUserReaction] = useState(null);
@@ -42,18 +47,14 @@ function PostItem({
     }, [showOptions]);
 
     useEffect(() => {
-        fetch(`/api/posts/${post.id}/reactions`, {
-            credentials: 'include'
-        })
+        fetch(`/api/posts/${post.id}/reactions`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => setReactions(data.reactions || {}))
             .catch(err => console.error('Failed to load reactions:', err));
     }, [post.id]);
 
     useEffect(() => {
-        fetch(`/api/posts/${post.id}/reposts`, {
-            credentials: 'include',
-        })
+        fetch(`/api/posts/${post.id}/reposts`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 setRepostCount(data.repostCount || 0);
@@ -68,23 +69,21 @@ function PostItem({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ userId, emoji })
+                body: JSON.stringify({ userId, emoji }),
             });
 
             if (res.ok) {
-                const updated = await fetch(`/api/posts/${post.id}/reactions`, {
-                    credentials: 'include'
-                });
+                const updated = await fetch(`/api/posts/${post.id}/reactions`, { credentials: 'include' });
                 const data = await updated.json();
                 setReactions(data.reactions);
                 setUserReaction(emoji);
                 setShowReactions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Failed to react');
+                alert(err.error || 'Не удалось добавить реакцию');
             }
         } catch (error) {
-            console.error('Error reacting:', error);
+            console.error('Ошибка при добавлении реакции:', error);
         }
     };
 
@@ -95,46 +94,42 @@ function PostItem({
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({ userId }),
             });
 
             if (!res.ok) {
                 const err = await res.json();
-                return alert(err.error || 'Помилка при репості');
+                return alert(err.error || 'Ошибка при репосте');
             }
 
-            // Перезапитуємо стан з сервера після оновлення
-            const info = await fetch(`/api/posts/${post.id}/reposts`, {
-                credentials: 'include',
-            });
+            const info = await fetch(`/api/posts/${post.id}/reposts`, { credentials: 'include' });
             const data = await info.json();
             setRepostCount(data.repostCount || 0);
             setHasReposted(data.hasReposted);
         } catch (error) {
-            console.error('Error handling repost:', error);
+            console.error('Ошибка при обработке репоста:', error);
         }
     };
 
     const handleReportSubmit = async (reason) => {
-        console.log('Send on server');
         try {
             const res = await fetch(`/api/posts/${post.id}/report`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ reporterId: userId, reason })
+                body: JSON.stringify({ reporterId: userId, reason }),
             });
 
             if (res.ok) {
-                alert('Скаргу надіслано');
+                alert('Жалоба отправлена');
                 setShowReport(false);
                 setShowOptions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не вдалося надіслати скаргу');
+                alert(err.error || 'Не удалось отправить жалобу');
             }
         } catch (error) {
-            console.error('Error reporting post:', error);
+            console.error('Ошибка при отправке жалобы:', error);
         }
     };
 
@@ -146,9 +141,9 @@ function PostItem({
         if (diffDays === 0) {
             return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         } else if (diffDays === 1) {
-            return 'вчора';
+            return 'вчера';
         } else if (diffDays < 5) {
-            return `${diffDays} дні(в) тому`;
+            return `${diffDays} дн. назад`;
         } else {
             return date.toLocaleDateString();
         }
@@ -160,27 +155,25 @@ function PostItem({
         try {
             const res = await fetch(`/api/posts/${post.id}`, {
                 method: 'DELETE',
-                credentials: 'include'
+                credentials: 'include',
             });
 
             if (res.ok) {
                 if (isSingle) {
-                    navigate('/'); // якщо перегляд окремого поста — перенаправити назад
+                    navigate('/');
                 } else {
-                    // якщо список постів — можна викликати callback або оновити список через батьківський компонент
-                    window.location.reload(); // простий варіант
+                    onDeletePost(post.id);
                 }
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не вдалося видалити пост');
+                alert(err.error || 'Error deleting post');
             }
         } catch (error) {
             console.error('Error deleting post:', error);
-            alert('Сталася помилка при видаленні поста');
+            alert('Error deleting post');
         }
     };
 
-    { console.log('userId:', userId, 'post.userId:', post.userId, 'isMod:', isModerator) }
     return (
         <div className="post">
             <div className="post-header" style={{ position: 'relative' }}>
@@ -195,7 +188,6 @@ function PostItem({
                     </span>
                     <span className="post-date">{formatPostDate(post.date)}</span>
                 </div>
-
 
                 <button className="additional-button" onClick={toggleOptions}>
                     <EllipsisVertical size={16} />
@@ -212,11 +204,11 @@ function PostItem({
                         >
                             <Flag size={16} />
                         </button>
-                        {(userId === post.userId || isModerator) && (
+                        {(userId && post.userId && userId === post.userId) || isModerator ? (
                             <button className="flag-button delete-button" onClick={handleDeletePost}>
                                 <Trash size={16} />
                             </button>
-                        )}
+                        ) : null}
                     </div>
                 )}
 
@@ -229,28 +221,42 @@ function PostItem({
             </div>
 
             <div className="post-content">
-                <span className="post-category"> <b>{post.category}</b></span>
+                <span
+                    className="post-category"
+                    style={{
+                        display: 'inline-flex',
+                        color: '#f9fafb',
+                        background: `linear-gradient(135deg, #384D7A 0%, #0D52BF ${post.category.length * 5 + 50}%)`,
+                        border: 'none',
+                        padding: '4px 16px',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                        width: 'fit-content',
+                    }}
+                >
+                    <b>{post.category}</b>
+                </span>
                 <p>{post.content}</p>
             </div>
 
-            {
-                post.picture && (
-                    <div className="post-image" style={{ marginTop: '10px' }}>
-                        <img
-                            src={`/static/uploads/${post.picture}`}
-                            alt="Post"
-                            style={{ maxWidth: '100%', borderRadius: '8px' }}
-                        />
-                    </div>
-                )
-            }
-
+            {post.picture && (
+                <div className="post-image" style={{ marginTop: '10px' }}>
+                    <img
+                        src={`/static/uploads/${post.picture}`}
+                        alt="Post"
+                        style={{ maxWidth: '100%', borderRadius: '8px' }}
+                    />
+                </div>
+            )}
 
             <div className="post-footer">
                 <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
                     {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji}
-                            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <div className="display-reaction" key={emoji} style={{ display: 'flex', alignItems: 'center' }}>
                             <span className="reaction-emoji">{emoji}</span>
                             <span className="reaction-count">{count}</span>
                         </div>
@@ -275,12 +281,11 @@ function PostItem({
                     <button
                         className={`repost-button ${hasReposted ? 'reposted' : ''}`}
                         onClick={handleRepost}
-                        title={hasReposted ? 'Скасувати репост' : 'Репостнути'}
+                        title={hasReposted ? 'Отменить репост' : 'Репостнуть'}
                     >
                         <Repeat size={18} className="inline-icon" />
                         <span>{repostCount}</span>
                     </button>
-
 
                     {!isSingle && (
                         <div className="post-action">

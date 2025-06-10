@@ -9,14 +9,27 @@ function HomePage({ userId, onLogout }) {
     const [votes, setVotes] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState(null);
     const POSTS_PER_PAGE = 10;
     const [selectedCategory, setSelectedCategory] = useState(null);
-
 
     const totalPages = Math.ceil((posts?.length || 0) / POSTS_PER_PAGE);
     const indexOfLast = currentPage * POSTS_PER_PAGE;
     const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
     const currentPosts = posts?.slice(indexOfFirst, indexOfLast) || [];
+
+    useEffect(() => {
+        fetch('/api/current_user', { credentials: 'include' })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load user');
+                return res.json();
+            })
+            .then(data => setUser(data))
+            .catch(err => {
+                console.error('Error fetching user:', err);
+                setUser(null);
+            });
+    }, []);
 
     const handleCategorySelect = (categoryId) => {
         setIsLoading(true);
@@ -26,33 +39,28 @@ function HomePage({ userId, onLogout }) {
             ? `/api/posts/by_category?category_id=${categoryId}`
             : '/api/posts';
 
-        fetch(url, {
-            credentials: 'include'
-        })
+        fetch(url, { credentials: 'include' })
             .then(res => {
-                if (!res.ok) throw new Error("Failed to load filtered posts");
+                if (!res.ok) throw new Error('Failed to load filtered posts');
                 return res.json();
             })
             .then(data => {
-                setPosts(data.posts || data); // API може повертати `posts: [...]` або просто `[...]`
-                setCurrentPage(1); // скидаємо до першої сторінки
+                setPosts(data.posts || data);
+                setCurrentPage(1);
                 setIsLoading(false);
             })
             .catch(err => {
-                console.error("Error fetching filtered posts:", err);
+                console.error('Error fetching filtered posts:', err);
                 setPosts([]);
                 setIsLoading(false);
             });
     };
 
-
     useEffect(() => {
         setIsLoading(true);
-        fetch('/api/posts', {
-            credentials: 'include'
-        })
+        fetch('/api/posts', { credentials: 'include' })
             .then(res => {
-                if (!res.ok) throw new Error("Failed to load posts");
+                if (!res.ok) throw new Error('Failed to load posts');
                 return res.json();
             })
             .then(data => {
@@ -60,7 +68,7 @@ function HomePage({ userId, onLogout }) {
                 setIsLoading(false);
             })
             .catch(err => {
-                console.error("Failed to load posts:", err);
+                console.error('Failed to load posts:', err);
                 setPosts([]);
                 setIsLoading(false);
             });
@@ -81,9 +89,7 @@ function HomePage({ userId, onLogout }) {
 
         fetch(`/api/posts/${postId}/vote`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ delta, userId }),
         })
@@ -102,6 +108,10 @@ function HomePage({ userId, onLogout }) {
             .catch(err => console.error(err));
     };
 
+    const handleDeletePost = (postId) => {
+        setPosts(prev => prev.filter(post => post.id !== postId));
+    };
+
     if (isLoading) {
         return <div className="loading">Loading posts...</div>;
     }
@@ -116,6 +126,8 @@ function HomePage({ userId, onLogout }) {
                         votes={votes}
                         handleKarmaChange={handleKarmaChange}
                         userId={userId}
+                        isModerator={user?.is_moderator || false}
+                        onDeletePost={handleDeletePost}
                     />
                     {posts.length > 0 && (
                         <Pagination
