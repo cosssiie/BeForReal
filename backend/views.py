@@ -5,7 +5,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
+    ReportUser
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -206,6 +207,40 @@ def report_post(post_id):
     db.session.add(report)
     db.session.commit()
     return jsonify({'success': True})
+
+
+@views.route("/api/users/<int:user_id>/report", methods=["POST"])
+@login_required
+def report_user(user_id):
+    data = request.get_json()
+    reason = data.get("reason")
+    reporter_id = current_user.id
+    reporter_username = current_user.username
+    if not reason:
+        return jsonify({"error": "Причина обов’язкова"}), 400
+
+    if user_id == current_user.id:
+        return jsonify({"error": "Не можна скаржитися на себе"}), 400
+
+    existing_report = ReportUser.query.filter_by(
+        reporter_id=current_user.id,
+        reported_user_id=user_id
+    ).first()
+    if existing_report:
+        return jsonify({"error": "Ви вже скаржились на цього користувача"}), 400
+
+    report = ReportUser(
+        reporter_id=reporter_id,
+        reporter_username=reporter_username,
+        reported_user_id=user_id,
+        reason=reason,
+        date=datetime.utcnow()
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    return jsonify({"message": "Скаргу надіслано"}), 200
+
 
 @views.route('/api/reports', methods=['GET'])
 @login_required

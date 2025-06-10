@@ -208,6 +208,7 @@ def seed_reports(num=10):
                 rep_user_id = random.choice(user_ids)
             report_user = ReportUser(
                 reporter_id=reporter.id,
+                reporter_username=reporter_username,
                 reported_user_id=rep_user_id,
                 reason=random.choice(reasons),
                 date=fake.date_object(),

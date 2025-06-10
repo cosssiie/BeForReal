@@ -148,9 +148,11 @@ class ReportComment(db.Model):
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
+
 class ReportUser(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reporter_username = db.Column(db.String(150), nullable=False)
     reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
