@@ -1,10 +1,10 @@
-import {Search, SlidersHorizontal} from 'lucide-react';
-import React, {useState, useEffect, useRef} from 'react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchModal from './SearchModal';
 import Navigation from './Navigation';
 
-function Sidebar({isOpen, onLogout, user, onToggleSidebar, onCategorySelect}) {
+function Sidebar({ isOpen, onLogout, user, onToggleSidebar, onCategorySelect }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
@@ -57,7 +57,7 @@ function Sidebar({isOpen, onLogout, user, onToggleSidebar, onCategorySelect}) {
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
                         <div className="menu-content">
-                            <div className="search-container" style={{position: 'relative'}}>
+                            <div className="search-container" style={{ position: 'relative' }}>
                                 <input
                                     type="text"
                                     placeholder="Search..."
@@ -67,42 +67,42 @@ function Sidebar({isOpen, onLogout, user, onToggleSidebar, onCategorySelect}) {
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                                 <button className="search-button" onClick={handleSearch}>
-                                    <Search size={25} className="search-icon"/>
+                                    <Search size={25} className="search-icon" />
                                 </button>
                             </div>
 
-                            <div className="menu-link" style={{cursor: 'pointer'}}>
-                                <Navigation user={user} onLogout={onLogout}/>
+                            <div className="menu-link" style={{ cursor: 'pointer' }}>
+                                <Navigation user={user} onLogout={onLogout} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="sidebar-container-filter">
-                <div className="menu-link filter-icon" style={{cursor: 'pointer'}} onClick={onToggleSidebar}>
-                    <SlidersHorizontal size={25}/>
+                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }} onClick={onToggleSidebar}>
+                    <SlidersHorizontal size={25} />
                 </div>
 
-                    <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
+                <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
 
-                        <div
-                            className="filter-option"
-                            onClick={() => handleCategoryClick(null)}
-                            style={{cursor: 'pointer', fontWeight: 'bold'}}
-                        >
-                            Усі категорії
-                        </div>
-                        {categories.map((cat) => (
-                            <div
-                                key={cat.id}
-                                className="filter-option"
-                                onClick={() => handleCategoryClick(cat.id)}
-                                style={{cursor: 'pointer'}}
-                            >
-                                {cat.name}
-                            </div>
-                        ))}
+                    <div
+                        className="filter-option"
+                        onClick={() => handleCategoryClick(null)}
+                        style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                        Усі категорії
                     </div>
+                    {categories.map((cat) => (
+                        <div
+                            key={cat.id}
+                            className="filter-option"
+                            onClick={() => handleCategoryClick(cat.id)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            {cat.name}
+                        </div>
+                    ))}
+                </div>
 
             </div>
 
