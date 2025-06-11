@@ -1,13 +1,14 @@
-import { Search, SlidersHorizontal } from 'lucide-react';
-import React, { useState, useEffect, useRef } from 'react';
+import {Search, SlidersHorizontal} from 'lucide-react';
+import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import SearchModal from './SearchModal';
 import Navigation from './Navigation';
 
-function Sidebar({ isOpen, onLogout, user, onToggleSidebar }) {
+function Sidebar({isOpen, onLogout, user, onToggleSidebar, onCategorySelect}) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
     const [categories, setCategories] = useState([]);
     const searchRef = useRef();
 
@@ -27,13 +28,24 @@ function Sidebar({ isOpen, onLogout, user, onToggleSidebar }) {
         }
     };
 
+
+    const toggleFilters = () => {
+        setShowFilters(prev => !prev);
+    };
+
+    const handleCategoryClick = (categoryId) => {
+        onCategorySelect(categoryId); // передаємо вибір до HomePage
+        setShowFilters(false); // ховаємо фільтри після вибору
+    };
+
+
     useEffect(() => {
         axios.get('/api/categories')
             .then(res => {
-                if (res.data && Array.isArray(res.data.categories)) {
-                    setCategories(res.data.categories);
-                }
+                console.log("Fetched categories:", res.data.categories); // ← має бути видно в консолі
+                setCategories(res.data.categories);
             })
+
             .catch(err => {
                 console.error('Failed to load categories:', err);
             });
@@ -45,7 +57,7 @@ function Sidebar({ isOpen, onLogout, user, onToggleSidebar }) {
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
                         <div className="menu-content">
-                            <div className="search-container" style={{ position: 'relative' }}>
+                            <div className="search-container" style={{position: 'relative'}}>
                                 <input
                                     type="text"
                                     placeholder="Search..."
@@ -55,39 +67,43 @@ function Sidebar({ isOpen, onLogout, user, onToggleSidebar }) {
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                                 <button className="search-button" onClick={handleSearch}>
-                                    <Search size={25} className="search-icon" />
+                                    <Search size={25} className="search-icon"/>
                                 </button>
                             </div>
 
-                            <div className="menu-link" style={{ cursor: 'pointer' }}>
-                                <Navigation user={user} onLogout={onLogout} />
+                            <div className="menu-link" style={{cursor: 'pointer'}}>
+                                <Navigation user={user} onLogout={onLogout}/>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="sidebar-container-filter">
-                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }} onClick={onToggleSidebar}>
-                    <SlidersHorizontal size={25} />
+                <div className="menu-link filter-icon" style={{cursor: 'pointer'}} onClick={onToggleSidebar}>
+                    <SlidersHorizontal size={25}/>
                 </div>
 
-                <div className="filter-panel">
-                    <div
-                        className="filter-option"
-                        style={{ cursor: 'pointer' }}
-                    >
-                        All Categories
-                    </div>
-                    {categories.map((cat) => (
+                    <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
+
                         <div
-                            key={cat.id}
                             className="filter-option"
-                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleCategoryClick(null)}
+                            style={{cursor: 'pointer', fontWeight: 'bold'}}
                         >
-                            {cat.name}
+                            Усі категорії
                         </div>
-                    ))}
-                </div>
+                        {categories.map((cat) => (
+                            <div
+                                key={cat.id}
+                                className="filter-option"
+                                onClick={() => handleCategoryClick(cat.id)}
+                                style={{cursor: 'pointer'}}
+                            >
+                                {cat.name}
+                            </div>
+                        ))}
+                    </div>
+
             </div>
 
             {showResults && (
