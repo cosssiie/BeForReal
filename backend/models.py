@@ -7,12 +7,15 @@ from sqlalchemy import func
 
 db = SQLAlchemy()
 
+
 def utc_now():
     return datetime.now(pytz.utc)
 
-#тимчасове рішення
+
+# тимчасове рішення
 def utc_plus_3():
     return datetime.now(pytz.utc) + timedelta(hours=3)
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -27,16 +30,17 @@ class User(db.Model, UserMixin):
     is_blocked = db.Column(db.Boolean, default=False)
     is_reported = db.Column(db.Boolean, default=False)
 
-
     posts = db.relationship('Post', backref='user', lazy=True)
     comments = db.relationship('Comment', backref='user', lazy=True)
     reactions = db.relationship('Reaction', backref='user', lazy=True)
     reposts = db.relationship('Repost', backref='user', lazy=True)
     messages = db.relationship('Message', backref='user', lazy=True)
     report_posts = db.relationship('ReportPost', back_populates='reporter', lazy=True)
-    report_comments = db.relationship('ReportComment', backref='reporter', lazy=True)
-    report_users = db.relationship('ReportUser', foreign_keys='ReportUser.reporter_id', backref='reporter_user', lazy=True)
-    reported_users = db.relationship('ReportUser', foreign_keys='ReportUser.reported_user_id', backref='reported_user', lazy=True)
+    report_comments = db.relationship('ReportComment', back_populates='reporter', lazy=True)
+    report_users = db.relationship('ReportUser', foreign_keys='ReportUser.reporter_id', back_populates='reporter',
+                                   lazy=True)
+    reported_users = db.relationship('ReportUser', foreign_keys='ReportUser.reported_user_id',
+                                     back_populates='reported_user', lazy=True)
 
     @property
     def status(self):
@@ -54,6 +58,7 @@ class Category(db.Model):
 
     posts = db.relationship('Post', backref='category', lazy=True)
 
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -70,6 +75,7 @@ class Post(db.Model):
     reposts = db.relationship('Repost', backref='post', lazy=True, cascade="all, delete-orphan")
     report_posts = db.relationship('ReportPost', backref='post', lazy=True, cascade="all, delete-orphan")
 
+
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -77,6 +83,7 @@ class Vote(db.Model):
     value = db.Column(db.Integer, nullable=False)  # 1 або -1
 
     __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='unique_vote'),)
+
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -88,7 +95,8 @@ class Comment(db.Model):
     karma = db.Column(db.Integer, default=0)
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
-    report_comments = db.relationship('ReportComment', backref='comment', lazy=True)
+    report_comments = db.relationship('ReportComment', back_populates='comment', lazy=True)
+
 
 class Reaction(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -96,20 +104,23 @@ class Reaction(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     emoji = db.Column(db.String, nullable=False)
 
+
 class Repost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
+
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     is_group = db.Column(db.Boolean, default=False)
-    group_name= db.Column(db.String(100))
+    group_name = db.Column(db.String(100))
     created_at = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
 
     chat_users = db.relationship('ChatUser', backref='chat', cascade='all, delete-orphan', lazy=True)
     messages = db.relationship('Message', backref='chat', cascade='all, delete-orphan', lazy=True)
+
 
 class ChatUser(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), primary_key=True)
@@ -117,6 +128,7 @@ class ChatUser(db.Model):
     is_blocked = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', backref='chat_users', lazy='joined')
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -129,6 +141,7 @@ class Message(db.Model):
     is_read = db.Column(db.Boolean, default=False)
 
     replies = db.relationship('Message', backref=db.backref('parent', remote_side=[id]), lazy=True)
+
 
 class ReportPost(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -147,6 +160,10 @@ class ReportComment(db.Model):
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
+    reporter_username = db.Column(db.String(150))
+
+    reporter = db.relationship('User', back_populates='report_comments')
+    comment = db.relationship('Comment', back_populates='report_comments')
 
 
 class ReportUser(db.Model):
@@ -156,3 +173,6 @@ class ReportUser(db.Model):
     reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
+
+    reporter = db.relationship('User', foreign_keys=[reporter_id], back_populates='report_users')
+    reported_user = db.relationship('User', foreign_keys=[reported_user_id], back_populates='reported_users')
