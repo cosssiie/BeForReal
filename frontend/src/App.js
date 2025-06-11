@@ -82,6 +82,8 @@ function App() {
               />
               <Route path="/posts/:postId" element={<PostPage userId={currentUserId} user={user} />} />
               <Route path="/profile/:id" element={<OtherUserProfile />} />
+              <Route path="/comment/:id" element={<Navigate to="/home" />} />
+
             </Route>
           )}
         </Routes>
