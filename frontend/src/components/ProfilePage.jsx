@@ -87,77 +87,75 @@ function ProfilePage() {
     };
 
     return (
-        <div className="home-layout">
-            <Sidebar />
-            <div className="profile-container">
-                <div className="profile">
-                    <div className="profile-header">
-                        <div className="profile-photo">
-                            <img src="" />
-                        </div>
-                        <div className="profile-info">
-                            <div className="personal-info">
-                                <span className="nickname">{userData.username}</span>
-                                <div className="profile-actions">
-                                    <button className="change-profile" onClick={handleModalOpen}>
-                                        Change Profile
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="profile-stats">
-                                <p className="bio">{userData.bio}</p>
-                                <p className="karma">Karma: {userData.karma}</p>
-                            </div>
-                        </div>
+        <div className="profile-container">
+            <div className="profile">
+                <div className="profile-header">
+                    <div className="profile-photo">
+                        <img src="" />
                     </div>
-                    <div className="profile-posts">
-                        <nav className="tab-nav">
-                            <ul className="tab-list">
-                                <li
-                                    className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('posts')}
-                                >
-                                    Posts
-                                </li>
-                                <li
-                                    className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('reposts')}
-                                >
-                                    Reposts
-                                </li>
-                            </ul>
-                        </nav>
-                        <div className="tab-content">
-                            {isLoadingContent ? (
-                                <p>Loading posts...</p>
-                            ) : (
-                                <>
-                                    <div className="posts-list">
-                                        {currentItems.map(item => (
-                                            <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
-                                        ))}
-                                    </div>
-
-                                    {totalPages > 1 && (
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={setCurrentPage}
-                                        />
-                                    )}
-                                </>
-                            )}
+                    <div className="profile-info">
+                        <div className="personal-info">
+                            <span className="nickname">{userData.username}</span>
+                            <div className="profile-actions">
+                                <button className="change-profile" onClick={handleModalOpen}>
+                                    Change Profile
+                                </button>
+                            </div>
+                        </div>
+                        <div className="profile-stats">
+                            <p className="bio">{userData.bio}</p>
+                            <p className="karma">Karma: {userData.karma}</p>
                         </div>
                     </div>
                 </div>
-                {showModal && (
-                    <UpdateProfileModal
-                        userData={userData}
-                        onClose={handleModalClose}
-                        onSubmit={handleProfileUpdate}
-                    />
-                )}
+                <div className="profile-posts">
+                    <nav className="tab-nav">
+                        <ul className="tab-list">
+                            <li
+                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('posts')}
+                            >
+                                Posts
+                            </li>
+                            <li
+                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('reposts')}
+                            >
+                                Reposts
+                            </li>
+                        </ul>
+                    </nav>
+                    <div className="tab-content">
+                        {isLoadingContent ? (
+                            <p>Loading posts...</p>
+                        ) : (
+                            <>
+                                <div className="posts-list">
+                                    {currentItems.map(item => (
+                                        <PostItem key={item.postId || item.id} post={item} userId={userData.id} />
+                                    ))}
+                                </div>
+
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
             </div>
+            {showModal && (
+                <UpdateProfileModal
+                    userData={userData}
+                    onClose={handleModalClose}
+                    onSubmit={handleProfileUpdate}
+                />
+            )}
+
             <style>{`
                 .sidebar-container-filter {
                     display: none;

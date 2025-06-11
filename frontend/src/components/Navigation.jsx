@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { UserRound, MessageCircleMore, House, Headset, LogOut } from 'lucide-react';
 
-function Navigation({ user }) {
+function Navigation({ user, onLogout }) {
     return (
         <header className="header-nav">
             <Link to="/home" className="header-btn">
@@ -25,11 +25,10 @@ function Navigation({ user }) {
                     <label className="label">Admin Panel</label>
                 </Link>
             )}
-            <Link to="/login" className="header-btn">
-                <LogOut alt="Logout" className="nav-icon" size={25} />
+            <Link to="/login" className="header-btn" onClick={onLogout}>
+                <LogOut alt="LogOut" className="nav-icon" size={25} />
                 <label className="label">Log Out</label>
             </Link>
-
         </header>
     );
 }

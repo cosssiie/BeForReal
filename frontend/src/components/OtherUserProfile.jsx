@@ -85,67 +85,64 @@ function OtherUserProfile() {
     }
 
     return (
-        <div className="home-layout">
-            <Sidebar />
-            <div className="profile-container">
-                <div className="profile">
-                    <div className="profile-header">
-                        <div className="profile-photo">
-                            <img src={`/static/profile_pictures/${userData.profile_picture}`} />
+        <div className="profile-container">
+            <div className="profile">
+                <div className="profile-header">
+                    <div className="profile-photo">
+                        <img src={`/static/profile_pictures/${userData.profile_picture}`} />
+                    </div>
+                    <div className="profile-info">
+                        <div className="personal-info">
+                            <span className="nickname">{userData.username}</span>
+                            <div className="profile-buttons">
+                                <button className="chat-button" onClick={handleStartChat}>
+                                    Почати чат
+                                </button>
+                            </div>
                         </div>
-                        <div className="profile-info">
-                            <div className="personal-info">
-                                <span className="nickname">{userData.username}</span>
-                                <div className="profile-buttons">
-                                    <button className="chat-button" onClick={handleStartChat}>
-                                        Почати чат
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="statistics">
-                                <p className="bio">{userData.bio}</p>
-                                <p className="karma">Karma: {userData.karma}</p>
-                            </div>
+                        <div className="statistics">
+                            <p className="bio">{userData.bio}</p>
+                            <p className="karma">Karma: {userData.karma}</p>
                         </div>
                     </div>
-                    <div className="profile-posts">
-                        <nav className="tab-nav">
-                            <ul className="tab-list">
-                                <li
-                                    className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('posts')}
-                                >
-                                    Posts
-                                </li>
-                                <li
-                                    className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('reposts')}
-                                >
-                                    Reposts
-                                </li>
-                            </ul>
-                        </nav>
-                        <div className="tab-content">
-                            {isLoadingContent ? (
-                                <p>Loading posts...</p>
-                            ) : (
-                                <>
-                                    <div className="posts-list">
-                                        {currentItems.map(item => (
-                                            <PostItem key={item.postId || item.id} post={item} />
-                                        ))}
-                                    </div>
+                </div>
+                <div className="profile-posts">
+                    <nav className="tab-nav">
+                        <ul className="tab-list">
+                            <li
+                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('posts')}
+                            >
+                                Posts
+                            </li>
+                            <li
+                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('reposts')}
+                            >
+                                Reposts
+                            </li>
+                        </ul>
+                    </nav>
+                    <div className="tab-content">
+                        {isLoadingContent ? (
+                            <p>Loading posts...</p>
+                        ) : (
+                            <>
+                                <div className="posts-list">
+                                    {currentItems.map(item => (
+                                        <PostItem key={item.postId || item.id} post={item} />
+                                    ))}
+                                </div>
 
-                                    {totalPages > 1 && (
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={setCurrentPage}
-                                        />
-                                    )}
-                                </>
-                            )}
-                        </div>
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

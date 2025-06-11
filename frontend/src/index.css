@@ -60,3 +60,14 @@ button {
 input {
   font-family: 'Radio Canada', sans-serif;
 }
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
