@@ -160,13 +160,6 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Posts List */
-.posts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
 /* Loading State */
 .loading {
     text-align: center;
