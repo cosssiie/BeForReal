@@ -18,9 +18,13 @@ months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July"
 
 
 #Posts:
+from flask_login import current_user
+
 @views.route('/api/posts', methods=['GET'])
 @login_required
 def get_posts():
+    user_id = current_user.id
+
     posts = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
@@ -29,6 +33,11 @@ def get_posts():
     result = []
     for post, user, category in posts:
         comments_count = len(post.comments)
+
+        # Знайдемо голос користувача для цього поста
+        vote = Vote.query.filter_by(user_id=user_id, post_id=post.id).first()
+        user_vote = vote.value if vote else 0
+
         result.append({
             'id': post.id,
             'title': post.title,
@@ -40,6 +49,7 @@ def get_posts():
             'commentsCount': comments_count,
             'picture': post.picture,
             'userId': post.user_id,
+            'user_vote': user_vote,  # <-- додаємо інфу про голос
         })
     return jsonify(posts=result)
 
@@ -47,6 +57,8 @@ def get_posts():
 @views.route('/api/posts/<int:post_id>', methods=['GET'])
 @login_required
 def get_post(post_id):
+    user_id = current_user.id
+
     post_data = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
@@ -57,6 +69,10 @@ def get_post(post_id):
 
     post, user, category = post_data
     comments_count = len(post.comments)
+
+    # Шукаємо голос користувача за цей пост
+    vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
+    user_vote = vote.value if vote else 0
 
     result = {
         'id': post.id,
@@ -69,10 +85,12 @@ def get_post(post_id):
         'commentsCount': comments_count,
         'picture': post.picture,
         'userId': post.user_id,
-        'isModerator':user.is_moderator,
+        'isModerator': user.is_moderator,
+        'user_vote': user_vote,  # додано інформацію про голос користувача
     }
 
     return jsonify(post=result)
+
 
 @views.route('/api/posts/by_category', methods=['GET'])
 @login_required
@@ -477,18 +495,19 @@ def vote(post_id):
     vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
 
     if vote is None:
-        # Користувач ще не голосував
+        # Користувач ще не голосував — створюємо новий голос
         vote = Vote(user_id=user_id, post_id=post_id, value=delta)
         post.karma += delta
         db.session.add(vote)
     else:
         if vote.value == delta:
-            # Голос такий самий – нічого не робити або можна скасувати (опційно)
-            return jsonify({"message": "Already voted with the same value", "newKarma": post.karma}), 200
+            # Повторне голосування тим самим значенням — скасовуємо голос
+            post.karma -= delta
+            db.session.delete(vote)
         else:
-            # Зміна голосу: -1 → +1 або +1 → -1 → змінюємо на 2 очки
+            # Зміна голосу з -1 на +1 або навпаки — змінюємо карму на 2
             post.karma += 2 * delta
-            vote.value = delta  # оновлюємо голос
+            vote.value = delta
 
     db.session.commit()
     return jsonify({"newKarma": post.karma})
