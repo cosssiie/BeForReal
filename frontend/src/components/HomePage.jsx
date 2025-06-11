@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import Pagination from './Pagination';
+import { useOutletContext } from 'react-router-dom';
 
 function HomePage({ userId, user }) {
-    const [posts, setPosts] = useState([]);
+
     const [votes, setVotes] = useState({});
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isLoading, setIsLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+
     const POSTS_PER_PAGE = 10;
+
+    const {
+        posts,
+        setPosts,
+        isLoading,
+        setIsLoading,
+        currentPage,
+        setCurrentPage,
+        selectedCategory
+    } = useOutletContext();
 
     const totalPages = Math.ceil((posts?.length || 0) / POSTS_PER_PAGE);
     const indexOfLast = currentPage * POSTS_PER_PAGE;
