@@ -16,6 +16,16 @@ function ChatPage({ userId }) {
     const location = useLocation();
     const selectedChatIdFromLocation = location.state?.selectedChat || null;
     const [optionsOpenChatId, setOptionsOpenChatId] = useState(null);
+    const [showGroupModal, setShowGroupModal] = useState(false);
+    const [groupName, setGroupName] = useState('');
+    const [selectedUserIds, setSelectedUserIds] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+
+
+    const handleAddUser = (id) => {
+      setSelectedUserIds(prev => prev.includes(id) ? prev : [...prev, id]);
+    };
 
     // Завантажуємо чати користувача
     useEffect(() => {
@@ -40,6 +50,7 @@ function ChatPage({ userId }) {
             .catch(err => console.error('Failed to load chats:', err));
     }, [userId]);
 
+
     useEffect(() => {
         if (chatId && chats.length > 0) {
             setSelectedChatId(Number(chatId));
@@ -47,6 +58,7 @@ function ChatPage({ userId }) {
             setSelectedChatId(selectedChatIdFromLocation || chats[0].id);
         }
     }, [chatId, chats, selectedChatIdFromLocation]);
+
 
     useEffect(() => {
         if (!selectedChatId) return;
@@ -59,7 +71,7 @@ function ChatPage({ userId }) {
             .catch(console.error);
 
         const room = `chat_${selectedChatId}`;
-        socket.emit('join', room);
+        socket.emit('join', { chatId: selectedChatId });
 
         const handleNewMessage = (newMessage) => {
             if (String(newMessage.chatId) === String(selectedChatId)) {
@@ -81,10 +93,24 @@ function ChatPage({ userId }) {
         socket.on('new_message', handleNewMessage);
 
         return () => {
-            socket.emit('leave', room);
+            socket.emit('leave', { chatId: selectedChatId });
             socket.off('new_message', handleNewMessage);
         };
     }, [selectedChatId]);
+
+
+    useEffect(() => {
+        socket.on('connect', () => {
+            if (selectedChatId) {
+                socket.emit('join', { chatId: selectedChatId });
+            }
+        });
+
+        return () => {
+            socket.off('connect');
+        };
+    }, [selectedChatId]);
+
 
     const handleSendMessage = () => {
         if (!messageInput.trim()) return;
@@ -111,6 +137,7 @@ function ChatPage({ userId }) {
             .catch(console.error);
     };
 
+
     const handleDeleted = (deletedId) => {
         setMessages((prevMessages) => {
             const updatedMessages = prevMessages.filter(msg => msg.id !== deletedId);
@@ -132,16 +159,19 @@ function ChatPage({ userId }) {
         });
     };
 
+
     const handleOpenOptions = (e, chatId) => {
         e.stopPropagation();
         setOptionsOpenChatId(prev => prev === chatId ? null : chatId);
     };
+
 
     useEffect(() => {
         const closeMenu = () => setOptionsOpenChatId(null);
         document.addEventListener('click', closeMenu);
         return () => document.removeEventListener('click', closeMenu);
     }, []);
+
 
     const handleDeleteChat = (chatId) => {
         fetch(`/api/chats/${chatId}`, {
@@ -159,7 +189,87 @@ function ChatPage({ userId }) {
             .catch(console.error);
     };
 
+
+    const handleCreateChat = () => {
+      if (selectedUserIds.length === 0) return;
+
+      if (selectedUserIds.length === 1) {
+        // Приватний чат
+        fetch('/api/chats/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ user_id: selectedUserIds[0] }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            setShowGroupModal(false);
+            setGroupName('');
+            setSelectedUserIds([]);
+            fetch(`/api/chats/${userId}`, { credentials: 'include' })
+              .then(res => res.json())
+              .then(data => {
+                setChats(data);
+                setSelectedChatId(data[0]?.id);
+              });
+          });
+      } else {
+        // Груповий чат: перевірка мінімум 2 користувачі
+        if (!groupName.trim()) {
+          alert('Введіть назву групи');
+          return;
+        }
+        if (selectedUserIds.length < 2) {
+          alert('Для групового чату потрібно вибрати щонайменше 2 користувачів');
+          return;
+        }
+
+        fetch('/api/chats/create_group', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: groupName,
+            user_ids: selectedUserIds,
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+            setShowGroupModal(false);
+            setGroupName('');
+            setSelectedUserIds([]);
+            fetch(`/api/chats/${userId}`, { credentials: 'include' })
+              .then(res => res.json())
+              .then(chats => {
+                setChats(chats);
+                setSelectedChatId(data.chat_id);  // Встановити новий чат за id з відповіді бекенда
+              });
+          });
+      }
+    };
+
+
+    const handleSearch = () => {
+      if (searchQuery.trim().length > 0) {
+        fetch(`/api/users/search?q=${encodeURIComponent(searchQuery.trim())}`, {
+          credentials: 'include'
+        })
+          .then(res => res.json())
+          .then(setSearchResults)
+          .catch(console.error);
+      } else {
+        setSearchResults([]); // Очистити результати, якщо поле порожнє
+      }
+    };
+
+
+
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
+
 
     return (
         <div className="chat-container">
@@ -203,25 +313,90 @@ function ChatPage({ userId }) {
                 </Scrollbar>
             </div>
 
-            <div className="chat-window">
-                <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
-                <div className="chat-messages-wrapper">
-                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
+                <div className="chat-window">
+                    <header className="chat-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{selectedChat ? selectedChat.name : 'Select a chat'}</span>
+                        <button onClick={() => setShowGroupModal(true)} className="create-group-btn" title="Створити групу">＋</button>
+                    </header>
+                    <div className="chat-messages-wrapper">
+                        <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
+                    </div>
+                    <div className="message-input">
+                        <input
+                            type="text"
+                            className="message-text-input"
+                            placeholder="Type a message..."
+                            value={messageInput}
+                            onChange={(e) => setMessageInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        />
+                        <button className="send-message-button" onClick={handleSendMessage}>
+                            <img src="/assets/images/white-arrow.png" alt="Send" />
+                        </button>
+                    </div>
                 </div>
-                <div className="message-input">
+
+
+            {showGroupModal && (
+              <div className="modal-overlay">
+                <div className="modal">
+                  <h3>Створити чат</h3>
+                  {selectedUserIds.length > 1 && (
                     <input
-                        type="text"
-                        className="message-text-input"
-                        placeholder="Type a message..."
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                      type="text"
+                      value={groupName}
+                      onChange={(e) => setGroupName(e.target.value)}
+                      placeholder="Назва групи"
                     />
-                    <button className="send-message-button" onClick={handleSendMessage}>
-                        <img src="/assets/images/white-arrow.png" alt="Send" />
-                    </button>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Пошук користувачів..."
+                    />
+
+                    <button onClick={handleSearch}>🔍</button>
+                  </div>
+
+                  <div>
+                      <p>Знайдені користувачі:</p>
+                      <ul>
+                        {searchResults
+                          .filter(user => !selectedUserIds.includes(user.id))
+                          .map(user => (
+                            <li key={user.id}>
+                              {user.username}
+                              <button onClick={() => handleAddUser(user.id)}>Додати</button>
+                            </li>
+                          ))}
+                      </ul>
+
+                      {selectedUserIds.length > 0 && (
+                        <>
+                          <p>Додані до чату:</p>
+                          <ul>
+                            {searchResults
+                              .filter(user => selectedUserIds.includes(user.id))
+                              .map(user => (
+                                <li key={user.id}>{user.username}</li>
+                              ))}
+                          </ul>
+                        </>
+                      )}
+                    </div>
+
+
+
+                  <button onClick={handleCreateChat} disabled={selectedUserIds.length === 0}>
+                    Створити чат
+                  </button>
+                  <button onClick={() => setShowGroupModal(false)}>Скасувати</button>
                 </div>
-            </div>
+              </div>
+            )}
             <style>{`
                 .sidebar-container-filter {
                     display: none;

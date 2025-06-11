@@ -771,11 +771,11 @@ def create_group_chat():
         user_ids.append(current_user.id)
 
     # Перевірка кількості учасників (мінімум 3, щоб це була група)
-    if len(set(user_ids)) < 3:
+    if len(set(user_ids)) < 2:
         return jsonify({'error': 'Group chat must have at least 3 unique users'}), 400
 
     # Створити груповий чат
-    new_chat = Chat(is_group=True, name=group_name or "Group Chat")
+    new_chat = Chat(is_group=True, group_name=group_name or "Group Chat")
     db.session.add(new_chat)
     db.session.flush()
 
@@ -788,3 +788,10 @@ def create_group_chat():
     db.session.commit()
 
     return jsonify({'chat_id': new_chat.id, 'messages': 0})
+
+
+@views.route('/api/users')
+@login_required
+def get_users():
+    users = User.query.with_entities(User.id, User.username).all()
+    return jsonify([{'id': u.id, 'username': u.username} for u in users])
