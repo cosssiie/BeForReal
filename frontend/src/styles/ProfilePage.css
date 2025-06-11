@@ -82,7 +82,8 @@
     gap: 12px;
 }
 
-.change-profile {
+.change-profile,
+.chat-button {
     background: linear-gradient(135deg, #6674B9 0%, #9EBAE5 100%);
     color: white;
     padding: 12px 24px;
@@ -94,7 +95,8 @@
     font-size: 14px;
 }
 
-.change-profile:hover {
+.change-profile:hover,
+.chat-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 116, 185, 0.4);
 }
