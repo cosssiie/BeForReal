@@ -4,7 +4,7 @@ import axios from 'axios';
 import SearchModal from './SearchModal';
 import Navigation from './Navigation';
 
-function Sidebar({ isOpen, onLogout, onCategorySelect }) {
+function Sidebar({ isOpen, onLogout, user, onToggleSidebar }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
@@ -27,10 +27,6 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
         }
     };
 
-    const handleCategoryClick = (categoryId) => {
-        onCategorySelect(categoryId);
-    };
-
     useEffect(() => {
         axios.get('/api/categories')
             .then(res => {
@@ -44,8 +40,8 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
     }, []);
 
     return (
-        <div className="sidebar-wrapper">
-            <div className={`sidebar-container-main${isOpen ? 'open' : ''}`}>
+        <div className={`sidebar-wrapper${isOpen ? ' open' : ''}`}>
+            <div className="sidebar-container-main">
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
                         <div className="menu-content">
@@ -64,21 +60,20 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                             </div>
 
                             <div className="menu-link" style={{ cursor: 'pointer' }}>
-                                <Navigation />
+                                <Navigation user={user} onLogout={onLogout} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className={`sidebar-container-filter${isOpen ? 'open' : ''}`}>
-                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }}>
+            <div className="sidebar-container-filter">
+                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }} onClick={onToggleSidebar}>
                     <SlidersHorizontal size={25} />
                 </div>
 
                 <div className="filter-panel">
                     <div
                         className="filter-option"
-                        onClick={() => handleCategoryClick(null)}
                         style={{ cursor: 'pointer' }}
                     >
                         All Categories
@@ -87,7 +82,6 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                         <div
                             key={cat.id}
                             className="filter-option"
-                            onClick={() => handleCategoryClick(cat.id)}
                             style={{ cursor: 'pointer' }}
                         >
                             {cat.name}

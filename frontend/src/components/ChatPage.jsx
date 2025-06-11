@@ -162,67 +162,64 @@ function ChatPage({ userId }) {
     const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
     return (
-        <div className="home-layout">
-            <Sidebar />
-            <div className="chat-container">
-                <div className="chat-sidebar">
-                    <Scrollbar className="custom-scroll-wrapper">
-                        <div className="scroll-inner">
-                            <ul className="chat-list">
-                                {chats.map(chat => (
-                                    <li
-                                        key={chat.id}
-                                        className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
-                                        style={{ position: 'relative' }}
+        <div className="chat-container">
+            <div className="chat-sidebar">
+                <Scrollbar className="custom-scroll-wrapper">
+                    <div className="scroll-inner">
+                        <ul className="chat-list">
+                            {chats.map(chat => (
+                                <li
+                                    key={chat.id}
+                                    className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}
+                                    style={{ position: 'relative' }}
+                                >
+                                    <div onClick={() => setSelectedChatId(Number(chat.id))} className="chat-info" style={{ paddingRight: '30px' }}>
+                                        <strong>{chat.name}</strong>
+                                        <p className="chat-preview">{chat.lastMessage}</p>
+                                    </div>
+                                    <span
+                                        className="chat-options-icon"
+                                        onClick={(e) => handleOpenOptions(e, chat.id)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '6px',
+                                            right: '8px',
+                                            cursor: 'pointer',
+                                            fontSize: '20px',
+                                            zIndex: 11,
+                                        }}
                                     >
-                                        <div onClick={() => setSelectedChatId(Number(chat.id))} className="chat-info" style={{ paddingRight: '30px' }}>
-                                            <strong>{chat.name}</strong>
-                                            <p className="chat-preview">{chat.lastMessage}</p>
+                                        ⋮
+                                    </span>
+                                    {optionsOpenChatId === chat.id && (
+                                        <div className="chat-options-menu">
+                                            <button onClick={() => handleDeleteChat(chat.id)}>Видалити чат</button>
                                         </div>
-                                        <span
-                                            className="chat-options-icon"
-                                            onClick={(e) => handleOpenOptions(e, chat.id)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '6px',
-                                                right: '8px',
-                                                cursor: 'pointer',
-                                                fontSize: '20px',
-                                                zIndex: 11,
-                                            }}
-                                        >
-                                            ⋮
-                                        </span>
-                                        {optionsOpenChatId === chat.id && (
-                                            <div className="chat-options-menu">
-                                                <button onClick={() => handleDeleteChat(chat.id)}>Видалити чат</button>
-                                            </div>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </Scrollbar>
-                </div>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Scrollbar>
+            </div>
 
-                <div className="chat-window">
-                    <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
-                    <div className="chat-messages-wrapper">
-                        <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
-                    </div>
-                    <div className="message-input">
-                        <input
-                            type="text"
-                            className="message-text-input"
-                            placeholder="Type a message..."
-                            value={messageInput}
-                            onChange={(e) => setMessageInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                        />
-                        <button className="send-message-button" onClick={handleSendMessage}>
-                            <img src="/assets/images/white-arrow.png" alt="Send" />
-                        </button>
-                    </div>
+            <div className="chat-window">
+                <header className="chat-header">{selectedChat ? selectedChat.name : 'Select a chat'}</header>
+                <div className="chat-messages-wrapper">
+                    <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
+                </div>
+                <div className="message-input">
+                    <input
+                        type="text"
+                        className="message-text-input"
+                        placeholder="Type a message..."
+                        value={messageInput}
+                        onChange={(e) => setMessageInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    />
+                    <button className="send-message-button" onClick={handleSendMessage}>
+                        <img src="/assets/images/white-arrow.png" alt="Send" />
+                    </button>
                 </div>
             </div>
             <style>{`

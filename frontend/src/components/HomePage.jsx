@@ -1,60 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Post from './Post';
-import Sidebar from './Sidebar';
 import Pagination from './Pagination';
 
-function HomePage({ userId, onLogout }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+function HomePage({ userId, user }) {
     const [posts, setPosts] = useState([]);
     const [votes, setVotes] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState(null);
-    const POSTS_PER_PAGE = 10;
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const POSTS_PER_PAGE = 10;
 
     const totalPages = Math.ceil((posts?.length || 0) / POSTS_PER_PAGE);
     const indexOfLast = currentPage * POSTS_PER_PAGE;
     const indexOfFirst = indexOfLast - POSTS_PER_PAGE;
     const currentPosts = posts?.slice(indexOfFirst, indexOfLast) || [];
-
-    useEffect(() => {
-        fetch('/api/current_user', { credentials: 'include' })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to load user');
-                return res.json();
-            })
-            .then(data => setUser(data))
-            .catch(err => {
-                console.error('Error fetching user:', err);
-                setUser(null);
-            });
-    }, []);
-
-    const handleCategorySelect = (categoryId) => {
-        setIsLoading(true);
-        setSelectedCategory(categoryId);
-
-        const url = categoryId
-            ? `/api/posts/by_category?category_id=${categoryId}`
-            : '/api/posts';
-
-        fetch(url, { credentials: 'include' })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to load filtered posts');
-                return res.json();
-            })
-            .then(data => {
-                setPosts(data.posts || data);
-                setCurrentPage(1);
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error('Error fetching filtered posts:', err);
-                setPosts([]);
-                setIsLoading(false);
-            });
-    };
 
     useEffect(() => {
         setIsLoading(true);
@@ -73,15 +32,6 @@ function HomePage({ userId, onLogout }) {
                 setIsLoading(false);
             });
     }, []);
-
-    useEffect(() => {
-        const postsList = document.querySelector('.posts-list');
-        if (postsList) {
-            postsList.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            window.scrollTo({ behavior: 'smooth' });
-        }
-    }, [currentPage]);
 
     const handleKarmaChange = (postId, delta, userId) => {
         const currentVote = votes[postId] || 0;
@@ -117,27 +67,22 @@ function HomePage({ userId, onLogout }) {
     }
 
     return (
-        <div className="home-layout">
-            <Sidebar isOpen={isSidebarOpen} onLogout={onLogout} onCategorySelect={handleCategorySelect} />
-            <div className="home-content">
-                <div className="home-container">
-                    <Post
-                        currentPosts={currentPosts}
-                        votes={votes}
-                        handleKarmaChange={handleKarmaChange}
-                        userId={userId}
-                        isModerator={user?.is_moderator || false}
-                        onDeletePost={handleDeletePost}
-                    />
-                    {posts.length > 0 && (
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                        />
-                    )}
-                </div>
-            </div>
+        <div className="home-container">
+            <Post
+                currentPosts={currentPosts}
+                votes={votes}
+                handleKarmaChange={handleKarmaChange}
+                userId={userId}
+                isModerator={user?.is_moderator || false}
+                onDeletePost={handleDeletePost}
+            />
+            {posts.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
+            )}
         </div>
     );
 }

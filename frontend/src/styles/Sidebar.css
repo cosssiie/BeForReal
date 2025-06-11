@@ -107,6 +107,8 @@
     cursor: pointer;
     gap: 0px;
     transition: all 0.8s ease;
+    background: none;
+    border: none;
 
 }
 
