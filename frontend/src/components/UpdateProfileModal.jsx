@@ -120,8 +120,6 @@ function UpdateProfileModal({ userData, onClose, onSubmit }) {
                     <button onClick={onClose}>Cancel</button>
                 </div>
 
-                <hr />
-
                 <div className="delete-section">
                     <button onClick={handleDeleteAccount} className="delete-btn">
                         Видалити акаунт
