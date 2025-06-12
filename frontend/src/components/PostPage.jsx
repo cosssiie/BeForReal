@@ -1,14 +1,14 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {useParams} from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import PostItem from './PostItem';
-import {Flag, Trash} from "lucide-react";
+import { Flag, Trash, Send, MessageCircle } from "lucide-react";
 import ReportModal from "./ReportModal";
 
 function buildCommentTree(comments) {
     const map = {};
     const roots = [];
 
-    comments.forEach(c => map[c.id] = {...c, replies: []});
+    comments.forEach(c => map[c.id] = { ...c, replies: [] });
 
     comments.forEach(c => {
         if (c.parent_id) {
@@ -21,7 +21,7 @@ function buildCommentTree(comments) {
     return roots;
 }
 
-function CommentItem({comment, onReply, onDelete, userId, user, post}) {
+function CommentItem({ comment, onReply, onDelete, userId, user, post }) {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyText, setReplyText] = useState('');
     const [showOptions, setShowOptions] = useState(false);
@@ -60,9 +60,9 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
         try {
             const res = await fetch(`/api/comments/${comment.id}/report`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({reason}),
+                body: JSON.stringify({ reason }),
             });
 
             if (res.ok) {
@@ -85,7 +85,7 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
             borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
             paddingLeft: 10
         }}>
-            <div className="comment-header" style={{position: 'relative'}}>
+            <div className="comment-header" style={{ position: 'relative' }}>
                 <span className="comment-author">{comment.author || 'Anonymous'}</span>
                 <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
 
@@ -94,7 +94,7 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
                     className="options-button"
                     onClick={() => setShowOptions(prev => !prev)}
                     aria-label="Options"
-                    style={{marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer'}}
+                    style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
                     &#8230; {/* три крапки */}
                 </button>
@@ -108,7 +108,7 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
                                 setShowOptions(false);
                             }}
                         >
-                            <Flag size={16}/>
+                            <Flag size={16} />
                         </button>
                         {(userId === comment.userId || user?.is_moderator) && (
                             <button
@@ -120,7 +120,7 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
                                     }
                                 }}
                             >
-                                <Trash size={16}/>
+                                <Trash size={16} />
                             </button>
                         )}
                     </div>
@@ -143,12 +143,12 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
 
             {showReplyBox && (
                 <form onSubmit={handleSubmit}>
-          <textarea
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Write a reply..."
-              rows={2}
-          />
+                    <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Write a reply..."
+                        rows={2}
+                    />
                     <button type="submit">Post Reply</button>
                 </form>
             )}
@@ -175,8 +175,8 @@ function CommentItem({comment, onReply, onDelete, userId, user, post}) {
     );
 }
 
-function PostPage({userId, user, userIsModerator}) {
-    const {postId} = useParams();
+function PostPage({ userId, user, userIsModerator }) {
+    const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -184,12 +184,12 @@ function PostPage({userId, user, userIsModerator}) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch(`/api/posts/${postId}`, {credentials: 'include'})
+        fetch(`/api/posts/${postId}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => setPost(data.post))
             .catch(err => console.error("Error fetching post:", err));
 
-        fetch(`/api/comments/${postId}`, {credentials: 'include'})
+        fetch(`/api/comments/${postId}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => setComments(data))
             .catch(err => console.error("Error fetching comments:", err));
@@ -205,7 +205,7 @@ function PostPage({userId, user, userIsModerator}) {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({text, parent_id: parentId})
+                body: JSON.stringify({ text, parent_id: parentId })
             });
 
             if (!res.ok) throw new Error("Failed to post reply");
@@ -249,54 +249,82 @@ function PostPage({userId, user, userIsModerator}) {
 
     return (
         <div className="post-page">
-            {user && post && (
-                <PostItem
-                    post={post}
-                    userId={user.id}
-                    isModerator={user?.is_moderator}
-                    isSingle={true}
-                />
-            )}
-
-            <div className="add-comment">
-                <form onSubmit={handleCommentSubmit}>
-          <textarea
-              placeholder="Write your comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              rows={4}
-          />
-                    <button type="submit" disabled={submitting}>
-                        {submitting ? 'Submitting...' : 'Add Comment'}
-                    </button>
-                </form>
-                {error && <p className="error">{error}</p>}
-            </div>
-
-            <div className="comments">
-                {comments.length === 0 ? (
-                    <p className="no-comments">No comments yet.</p>
-                ) : (
-                    buildCommentTree(comments).map(comment => (
-                        <CommentItem
-                            key={comment.id}
-                            comment={comment}
-                            onReply={handleReply}
-                            onDelete={handleDeleteComment}
-                            userId={userId}
-                            user={user}
-                            post={post}
-                        />
-
-
-                    ))
+            <div className="post-container">
+                {user && post && (
+                    <PostItem
+                        post={post}
+                        userId={user.id}
+                        isModerator={user?.is_moderator}
+                        isSingle={true}
+                    />
                 )}
+
+                <div className="comments-section">
+                    <div className="add-comment-card">
+                        <form className="add-comment-form" onSubmit={handleCommentSubmit}>
+                            <div className="user-avatar">
+                                {user?.avatar ? (
+                                    <img src={user.avatar} alt={user.username} />
+                                ) : (
+                                    <span>{user?.username.charAt(0).toUpperCase()}</span>
+                                )}
+                            </div>
+                            <div className="input-group">
+                                <textarea
+                                    className="comment-input"
+                                    placeholder="Share your thoughts..."
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    rows={3}
+                                />
+                                <button
+                                    type="submit"
+                                    className="submit-button"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? (
+                                        <span className="spinner"></span>
+                                    ) : (
+                                        <>
+                                            <Send size={18} />
+                                            <span>Post</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                        {error && <div className="error-message">{error}</div>}
+                    </div>
+
+                    <div className="comments-list">
+                        {comments.length === 0 ? (
+                            <div className="empty-state">
+                                <MessageCircle size={48} className="icon" />
+                                <h3>No comments yet</h3>
+                                <p>Be the first to share what you think!</p>
+                            </div>
+                        ) : (
+                            buildCommentTree([...comments].reverse()).map(comment => (
+                                <CommentItem
+                                    key={comment.id}
+                                    comment={comment}
+                                    onReply={handleReply}
+                                    onDelete={handleDeleteComment}
+                                    userId={userId}
+                                    user={user}
+                                    post={post}
+                                />
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
             <style>{`
                 .sidebar-container-filter {
                     display: none;
                 }
             `}</style>
+
         </div>
     );
 }

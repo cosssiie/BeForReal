@@ -1,13 +1,13 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
-import {EllipsisVertical, Flag} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { EllipsisVertical, Flag } from 'lucide-react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
 import Sidebar from './Sidebar';
 
 function OtherUserProfile() {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const [showOptions, setShowOptions] = useState(false);
     const [showReportReasons, setShowReportReasons] = useState(false);
@@ -104,7 +104,7 @@ function OtherUserProfile() {
 
     const handleStartChat = () => {
         setIsLoadingContent(true);  // Можна окремий стан, але для простоти так
-        axios.post('/api/chats/start', {user_id: userData.id}, {withCredentials: true})
+        axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
             .then(response => {
                 const chatId = response.data.chat_id;
                 setSelectedChat(chatId);
@@ -118,9 +118,9 @@ function OtherUserProfile() {
         try {
             const res = await fetch(`/api/users/${userData.id}/report`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({reporterId: localStorage.getItem('userId'), reason})
+                body: JSON.stringify({ reporterId: localStorage.getItem('userId'), reason })
             });
 
             if (res.ok) {
@@ -138,7 +138,7 @@ function OtherUserProfile() {
 
 
     if (isLoadingUser) {
-        return <div className="loading" style={{fontSize: 20, textAlign: 'center', marginTop: 50}}>Loading
+        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>Loading
             profile...</div>;
     }
 
@@ -154,7 +154,7 @@ function OtherUserProfile() {
                             <span className="nickname">{userData.username}</span>
                             <div className="profile-buttons">
                                 <button className="chat-button" onClick={handleStartChat}>
-                                    Почати чат
+                                    Start a Conversation
                                 </button>
                             </div>
                         </div>

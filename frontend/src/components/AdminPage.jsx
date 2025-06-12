@@ -37,10 +37,10 @@ function AdminPage() {
                     <table className="report-table">
                         <thead>
                             <tr>
-                                <th>ID Поста</th>
-                                <th>Причина</th>
-                                <th>Користувач</th>
-                                <th>Дата</th>
+                                <th>Post ID</th>
+                                <th>Reason</th>
+                                <th>Reporting User</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,10 +60,10 @@ function AdminPage() {
                     <table className="report-table">
                         <thead>
                             <tr>
-                                <th>ID Користувача</th>
-                                <th>Причина</th>
-                                <th>Користувач, що скаржиться</th>
-                                <th>Дата</th>
+                                <th>User ID</th>
+                                <th>Reason</th>
+                                <th>Reporting User</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,10 +83,10 @@ function AdminPage() {
                     <table className="report-table">
                         <thead>
                             <tr>
-                                <th>ID Коментаря</th>
-                                <th>Причина</th>
-                                <th>Користувач</th>
-                                <th>Дата</th>
+                                <th>Comment ID</th>
+                                <th>Reason</th>
+                                <th>Reporting User</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -106,67 +106,42 @@ function AdminPage() {
         }
     };
 
-    if (loading) return <p>Завантаження...</p>;
+
+    if (loading) {
+        return <div className="loading">Loading reports...</div>;
+    }
 
     return (
         <div className="admin-container">
-            <h2>Скарги</h2>
+            <h2>Reports</h2>
 
-            {/* Вкладки */}
             <div className="tabs">
                 <button
                     className={activeTab === 'posts' ? 'active' : ''}
                     onClick={() => setActiveTab('posts')}
                 >
-                    Репорти на пости
+                    Post Reports
                 </button>
                 <button
                     className={activeTab === 'users' ? 'active' : ''}
                     onClick={() => setActiveTab('users')}
                 >
-                    Репорти на користувачів
+                    User Reports
                 </button>
                 <button
                     className={activeTab === 'comments' ? 'active' : ''}
                     onClick={() => setActiveTab('comments')}
                 >
-                    Репорти на коментарі
+                    Comment Reports
                 </button>
-            </div>
-
-            {/* Таблиця з репортами */}
-            {renderTable()}
-
-            <style>{`
-                .tabs {
-                    margin-bottom: 20px;
-                }
-                .tabs button {
-                    margin-right: 10px;
-                    padding: 8px 16px;
-                    border: none;
-                    background-color: #eee;
-                    cursor: pointer;
-                    border-radius: 4px;
-                    font-weight: 600;
-                }
-                .tabs button.active {
-                    background-color: #007bff;
-                    color: white;
-                }
-                .report-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                .report-table th, .report-table td {
-                    padding: 8px 12px;
-                    border: 1px solid #ddd;
-                    text-align: left;
-                }
-                .report-table th {
-                    background-color: #f8f8f8;
+                <style>{`
+                .sidebar-container-filter {
+                    display: none;
                 }
             `}</style>
+            </div>
+
+            {renderTable()}
         </div>
     );
 }
