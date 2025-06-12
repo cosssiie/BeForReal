@@ -30,23 +30,28 @@ class User(db.Model, UserMixin):
     is_blocked = db.Column(db.Boolean, default=False)
     is_reported = db.Column(db.Boolean, default=False)
 
-    posts = db.relationship('Post', backref='user', lazy=True)
-    comments = db.relationship('Comment', backref='user', lazy=True)
-    reactions = db.relationship('Reaction', backref='user', lazy=True)
-    reposts = db.relationship('Repost', backref='user', lazy=True)
-    messages = db.relationship('Message', backref='user', lazy=True)
-    report_posts = db.relationship('ReportPost', back_populates='reporter', lazy=True)
-    report_comments = db.relationship('ReportComment', back_populates='reporter', lazy=True)
+    posts = db.relationship('Post', backref='user', lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete-orphan")
+    reactions = db.relationship('Reaction', backref='user', lazy=True, cascade="all, delete-orphan")
+    reposts = db.relationship('Repost', backref='user', lazy=True, cascade="all, delete-orphan")
+    messages = db.relationship('Message', backref='user', lazy=True, cascade="all, delete-orphan")
+    report_posts = db.relationship('ReportPost', back_populates='reporter', lazy=True, cascade="all, delete-orphan")
+    report_comments = db.relationship('ReportComment', back_populates='reporter', lazy=True, cascade="all, delete-orphan")
     report_users = db.relationship('ReportUser', foreign_keys='ReportUser.reporter_id', back_populates='reporter',
-                                   lazy=True)
+                                   lazy=True, cascade="all, delete-orphan")
     reported_users = db.relationship('ReportUser', foreign_keys='ReportUser.reported_user_id',
-                                     back_populates='reported_user', lazy=True)
+                                     back_populates='reported_user', lazy=True, cascade="all, delete-orphan")
+
+    @property
+    def calculated_karma(self):
+        return sum(post.karma for post in self.posts if post.karma)
+
 
     @property
     def status(self):
-        if self.karma < 0:
+        if self.calculated_karma < -100:
             return 'demon'
-        elif self.karma < 1000:
+        elif self.calculated_karma < 100:
             return 'noob'
         else:
             return 'pro'
@@ -94,8 +99,8 @@ class Comment(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
 
-    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
-    report_comments = db.relationship('ReportComment', back_populates='comment', lazy=True)
+    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
+    report_comments = db.relationship('ReportComment', back_populates='comment', cascade='all, delete-orphan', lazy=True)
 
 
 class Reaction(db.Model):
@@ -140,7 +145,7 @@ class Message(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
     is_read = db.Column(db.Boolean, default=False)
 
-    replies = db.relationship('Message', backref=db.backref('parent', remote_side=[id]), lazy=True)
+    replies = db.relationship('Message', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
 
 
 class ReportPost(db.Model):
@@ -157,7 +162,7 @@ class ReportPost(db.Model):
 class ReportComment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id', ondelete='CASCADE'), nullable=False)
     reason = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     reporter_username = db.Column(db.String(150))
