@@ -1,7 +1,6 @@
 @import './styles/Post.css';
 @import './styles/PostPage.css';
 @import './styles/HomePage.css';
-@import './styles/Navigation.css';
 @import './styles/ChatPage.css';
 @import './styles/Chat.css';
 @import './styles/CreateNewPost.css';
@@ -11,7 +10,7 @@
 @import './styles/AdminPage.css';
 @import './styles/Sidebar.css';
 @import './styles/ReportModal.css';
-@import './styles/UpdatePrifileModal.css';
+@import './styles/UpdateProfileModal.css';
 
 
 .App {
