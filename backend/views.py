@@ -671,24 +671,26 @@ def delete_message(message_id):
 @views.route('/api/posts/<int:post_id>/repost', methods=['POST'])
 @login_required
 def repost_post(post_id):
-    data = request.get_json()
-    user_id = data.get('userId')
-    # Перевірка чи пост існує
+    # user_id from logged in user
+    user_id = current_user.id
+
+    # Check if post exists
     post = Post.query.get(post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
 
-    # Перевірка чи вже є репост від цього користувача для цього поста
+    # Check if repost already exists from this user
     existing_repost = Repost.query.filter_by(user_id=user_id, post_id=post_id).first()
     if existing_repost:
         return jsonify({'error': 'Already reposted'}), 400
 
-    # Створення репоста
+    # Create new repost
     new_repost = Repost(user_id=user_id, post_id=post_id)
     db.session.add(new_repost)
     db.session.commit()
 
     return jsonify({'message': 'Repost created successfully'}), 201
+
 
 @views.route("/api/posts/<int:post_id>/repost", methods=["DELETE"])
 @login_required
@@ -763,7 +765,8 @@ def get_current_user():
         'profile_picture': current_user.profile_picture,
         'karma': current_user.karma,
         'bio': current_user.bio,
-        'date_joined': current_user.date_joined.isoformat()
+        'date_joined': current_user.date_joined.isoformat(),
+        'calculated_karma': current_user.calculated_karma,
     })
 
 
@@ -791,7 +794,8 @@ def get_user_by_id(id):
         'username': user.username,
         'profile_picture': user.profile_picture,
         'bio': user.bio,
-        'karma': user.karma
+        'karma': user.karma,
+        'calculated_karma': user.calculated_karma,
     })
 
 @views.route('/api/chats/start', methods=['POST'])
