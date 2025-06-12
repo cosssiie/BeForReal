@@ -121,15 +121,15 @@ function PostItem({
             });
 
             if (res.ok) {
-                alert('Жалоба отправлена');
+                alert('Скаргу надіслано');
                 setShowReport(false);
                 setShowOptions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не удалось отправить жалобу');
+                alert(err.error || 'Не вдалося надіслати скаргу');
             }
         } catch (error) {
-            console.error('Ошибка при отправке жалобы:', error);
+            console.error('Помилка при скарзі:', error);
         }
     };
 

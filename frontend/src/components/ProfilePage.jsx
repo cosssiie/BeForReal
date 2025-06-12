@@ -10,7 +10,8 @@ function ProfilePage() {
         id: null,
         username: '',
         bio: '',
-        karma: 0
+        karma: 0,
+        calculated_karma: 0
     });
     const [posts, setPosts] = useState([]);
     const [reposts, setReposts] = useState([]);
@@ -117,7 +118,7 @@ function ProfilePage() {
                         </div>
                         <div className="profile-stats">
                             <p className="bio">{userData.bio}</p>
-                            <p className="karma">Karma: {userData.karma}</p>
+                            <p className="karma">Karma: {userData.calculated_karma}</p>
                         </div>
                     </div>
                 </div>
