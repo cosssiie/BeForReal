@@ -114,7 +114,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #6366f1;
+    background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
     color: white;
     border: none;
     padding: 10px;
