@@ -2,9 +2,9 @@ import uuid
 from datetime import timezone, datetime
 from flask_socketio import SocketIO, emit
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, emit
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
     ReportUser, ReportComment
 from . import db
@@ -765,6 +765,61 @@ def get_current_user():
         'bio': current_user.bio,
         'date_joined': current_user.date_joined.isoformat()
     })
+
+
+@views.route('/api/user/update', methods=['PUT'])
+@login_required
+def update_user():
+    user = current_user
+
+    username = request.form.get('username')
+    bio = request.form.get('bio')
+    password = request.form.get('password')
+    profile_picture = request.files.get('profile_picture')
+
+    if username:
+        user.username = username
+    if bio:
+        user.bio = bio
+    if password:
+        user.password = generate_password_hash(password)
+    if profile_picture:
+        from werkzeug.utils import secure_filename
+        import os
+
+        filename = f"{uuid.uuid4().hex}_{secure_filename(profile_picture.filename)}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+        path = os.path.join(upload_folder, filename)
+
+        # Створюємо папку, якщо її немає
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        profile_picture.save(path)
+        user.profile_picture = filename
+
+    db.session.commit()
+
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'bio': user.bio,
+        'profile_picture': user.profile_picture,
+        'karma': user.karma
+    })
+
+@views.route('/api/user/delete', methods=['DELETE'])
+@login_required
+def delete_user():
+    user = current_user
+
+    # Додатково: видалити пов'язані об'єкти, якщо потрібно
+    db.session.delete(user)
+    db.session.commit()
+
+    logout_user()  # якщо використовуєш Flask-Login
+
+    return jsonify({'message': 'Account deleted successfully'})
 
 
 @views.route('/api/users/search', methods=['GET'])
