@@ -83,20 +83,20 @@
 
 /* Logo */
 .logo-wrapper {
-    z-index: 100;
+    z-index: 130;
     position: absolute;
-    top: -5px;
-    left: 10px;
+    top: 10%;
+    left: 31%;
     display: flex;
     align-items: center;
     animation: slideInDown 0.8s ease-out;
 }
 
 .site-logo {
-    max-width: 140px;
+    max-width: 280px;
     /* Adjusted for better fit in top-left corner */
     height: auto;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 /* Header */
