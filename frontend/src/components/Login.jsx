@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 function Login({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [animate, setAnimate] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const timer = setTimeout(() => setAnimate(true), 50); // невелика затримка
+        const timer = setTimeout(() => setAnimate(true), 50);
         return () => clearTimeout(timer);
     }, []);
 
@@ -38,14 +40,11 @@ function Login({ onLogin }) {
     };
 
     const handleCreateAccount = () => {
-        console.log('Login');
         navigate('/sign-up');
     };
 
     return (
-
         <div className="login-page">
-
             <div className="bg-elements">
                 <div className="floating-shape shape-1"></div>
                 <div className="floating-shape shape-2"></div>
@@ -54,7 +53,7 @@ function Login({ onLogin }) {
             </div>
 
             <div className="logo-wrapper">
-                <img src="/assets/images/logo_2.png" alt="Site Logo " className="site-logo" />
+                <img src="/assets/images/logo_2.png" alt="Site Logo" className="site-logo" />
             </div>
 
             <div className={`login-container ${animate ? 'animate-in' : ''}`}>
@@ -69,13 +68,27 @@ function Login({ onLogin }) {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                    <input
-                        type="password"
-                        className="form-input"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="password-input-wrapper">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            className="form-input"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? (
+                                <EyeOff size={20} className="eye-icon" />
+                            ) : (
+                                <Eye size={20} className="eye-icon" />
+                            )}
+                        </button>
+                    </div>
                     <button className="login-btn" type="submit">Log In</button>
                     <button
                         className="create-account-button"
