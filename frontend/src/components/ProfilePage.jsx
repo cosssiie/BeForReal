@@ -83,16 +83,29 @@ function ProfilePage() {
     const handleModalOpen = () => setShowModal(true);
     const handleModalClose = () => setShowModal(false);
 
-    const handleProfileUpdate = async (updatedData) => {
-        console.log('Profile Changed');
+    const handleProfileUpdate = async (formData) => {
+      try {
+        const response = await axios.put('/api/user/update', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        setUserData(response.data);
+        setShowModal(false);
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('Failed to update profile');
+      }
     };
+
 
     return (
         <div className="profile-container">
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src="" />
+                        <img src={`/static/uploads/${userData.profile_picture}`} alt="Profile" />
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
@@ -106,6 +119,7 @@ function ProfilePage() {
                         <div className="profile-stats">
                             <p className="bio">{userData.bio}</p>
                             <p className="karma">Karma: {userData.calculated_karma}</p>
+                            <p className="status">Status: {userData.status}</p>
                         </div>
                     </div>
                 </div>
