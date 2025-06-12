@@ -1,0 +1,231 @@
+/* Основний контейнер */
+.create-post {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(3, 18, 46, 0.15);
+    border: 1px solid rgba(56, 77, 122, 0.1);
+}
+
+/* Заголовок компонента */
+.create-post .post-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.create-post .user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #384D7A, #0D52BF);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.create-post .post-header h3 {
+    color: #03122E;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Контент поста */
+.create-post .post-content {
+    margin-bottom: 15px;
+}
+
+/* Категорія */
+.create-post .select-post-category {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.create-post .select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #CCCDDE;
+    border-radius: 12px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    color: #384D7A;
+    outline: none;
+}
+
+.create-post .select:focus {
+    border-color: #0D52BF;
+}
+
+/* Текстове поле */
+.create-post .textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid #CCCDDE;
+    border-radius: 12px;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 15px;
+    font-family: inherit;
+    color: #03122E;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.create-post .textarea:focus {
+    border-color: #0D52BF;
+}
+
+/* Завантаження зображень */
+.create-post .image-add {
+    margin-bottom: 15px;
+}
+
+.create-post .custom-file-label {
+    display: inline-block;
+    background: #EBF2FF;
+    border: 2px dashed #9CA6BD;
+    color: #384D7A;
+    padding: 12px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+
+.create-post .custom-file-label:hover {
+    background: #DEE8FF;
+    border-color: #0D52BF;
+}
+
+.create-post .post-image-input {
+    display: none;
+}
+
+/* Прев'ю зображень */
+.create-post .image-preview-outer {
+    margin-top: 15px;
+}
+
+.create-post .image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.create-post .image-preview-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.create-post .image-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #CCCDDE;
+}
+
+.create-post .image-remove-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.create-post .image-remove-button:hover {
+    background: rgba(255, 0, 0, 1);
+}
+
+/* Підвал з кнопками */
+.create-post .post-footer {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.create-post .custom-file-label {
+    display: inline-block;
+    background: #EBF2FF;
+    border: 2px dashed #9CA6BD;
+    color: #384D7A;
+    padding: 12px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-align: center;
+    flex: 1;
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
+
+.create-post .custom-file-label:hover {
+    background: #DEE8FF;
+    border-color: #0D52BF;
+}
+
+.create-post .submit-button {
+    background: linear-gradient(135deg, #384D7A, #0D52BF);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.create-post .submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 82, 191, 0.4);
+}
+
+.create-post .submit-button:active {
+    transform: translateY(0);
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .create-post {
+        padding: 20px;
+        border-radius: 15px;
+    }
+
+    .create-post .post-header h3 {
+        font-size: 16px;
+    }
+
+    .create-post .user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .create-post .textarea {
+        min-height: 100px;
+    }
+}

@@ -1,0 +1,253 @@
+.sidebar-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.sidebar-container-main,
+.sidebar-container-filter {
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 10px;
+    background: linear-gradient(135deg, #062159, #163d89);
+    border-radius: 15px;
+    margin: 10px;
+    position: sticky;
+    overflow: hidden;
+    width: 100px;
+    transition: all 800ms cubic-bezier(0.07, 0.88, 0.37, 1.05);
+}
+
+.sidebar-container-filter {
+    height: 15vh;
+}
+
+.custom-sidebar {
+    height: 100%;
+    gap: 20px;
+    padding: 15px 0;
+    border-radius: 10px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar-container-main:hover,
+.sidebar-container-filter:hover {
+    width: 250px;
+}
+
+.sidebar-container-filter:hover {
+    height: 250px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.menu-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.menu-link,
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-decoration: none;
+    padding: 0;
+    border-radius: 10px;
+    transition: all 500ms ease;
+    width: calc(100% - 20px);
+    color: #ffffff;
+    gap: 24px;
+}
+
+.nav-icon {
+    cursor: pointer;
+}
+
+.header-nav .label {
+    color: #ffffff;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 300ms, width 300ms;
+    white-space: nowrap;
+}
+
+.sidebar-container-main:hover .header-nav .label {
+    opacity: 1;
+    width: auto;
+}
+
+.header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 8px;
+    width: 100%;
+    border-radius: 10px;
+    transition: all 500ms ease;
+    color: #ffffff;
+    cursor: pointer;
+    gap: 0px;
+    transition: all 0.8s ease;
+    background: none;
+    border: none;
+
+}
+
+.sidebar-container-main:hover .header-btn,
+.sidebar-container-filter:hover .header-btn {
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.label {
+    color: #ffffff;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 300ms ease, width 300ms ease;
+    white-space: nowrap;
+}
+
+.sidebar-container-main:hover .label,
+.sidebar-container-filter:hover .label {
+    opacity: 1;
+    width: auto;
+    margin-left: 0;
+}
+
+.header-btn:hover {
+    transform: translateY(-2px);
+}
+
+
+.sidebar-container-main:hover .menu-link,
+.sidebar-container-filter:hover .menu-link {
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.sidebar-container-filter:hover .menu-link.filter-icon {
+    display: none;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.search-input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+    background: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    border-radius: 20px;
+    height: 36px;
+    transition: all 900ms ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border: 1px solid #ffffff;
+}
+
+.search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    transition: all 500ms ease;
+}
+
+.search-icon {
+    color: white;
+}
+
+.sidebar-container-main:hover .search-input {
+    width: 100%;
+    opacity: 1;
+    padding: 10px;
+}
+
+.sidebar-container-main:hover .search-button {
+    opacity: 1;
+    margin-left: 0;
+    z-index: 1;
+}
+
+.filter-panel {
+    display: flex;
+    flex-direction: column;
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    background: none;
+    border-radius: 10px;
+    overflow-y: hidden;
+    gap: 5px;
+}
+
+.filter-panel.open {
+    opacity: 1;
+    width: calc(100% - 20px);
+    padding: 10px;
+}
+
+
+.sidebar-container-filter:hover .filter-panel {
+    opacity: 1;
+    width: calc(100% - 20px);
+    padding: 10px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filter-option {
+    margin-bottom: 0px;
+    padding: 2px;
+    color: #ffffff;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
+
+.filter-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.filter-option:first-child {
+    margin-top: 0;
+}
