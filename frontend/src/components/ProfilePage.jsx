@@ -119,6 +119,7 @@ function ProfilePage() {
                         <div className="profile-stats">
                             <p className="bio">{userData.bio}</p>
                             <p className="karma">Karma: {userData.calculated_karma}</p>
+                            <p className="status">Status: {userData.status}</p>
                         </div>
                     </div>
                 </div>

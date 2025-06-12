@@ -767,6 +767,7 @@ def get_current_user():
         'bio': current_user.bio,
         'date_joined': current_user.date_joined.isoformat(),
         'calculated_karma': current_user.calculated_karma,
+        'status': current_user.status,
     })
 
 
@@ -808,13 +809,19 @@ def update_user():
         'username': user.username,
         'bio': user.bio,
         'profile_picture': user.profile_picture,
-        'karma': user.karma
+        'karma': user.karma,
+        'calculated_karma': user.calculated_karma,
+        'status': current_user.status,
     })
 
 @views.route('/api/user/delete', methods=['DELETE'])
 @login_required
 def delete_user():
     user = current_user
+
+    posts = Post.query.filter_by(user_id=current_user.id).all()
+    for post in posts:
+        db.session.delete(post)
 
     # Додатково: видалити пов'язані об'єкти, якщо потрібно
     db.session.delete(user)

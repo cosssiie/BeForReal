@@ -49,9 +49,9 @@ class User(db.Model, UserMixin):
 
     @property
     def status(self):
-        if self.calculated_karma < 0:
+        if self.calculated_karma < -100:
             return 'demon'
-        elif self.calculated_karma < 1000:
+        elif self.calculated_karma < 100:
             return 'noob'
         else:
             return 'pro'
