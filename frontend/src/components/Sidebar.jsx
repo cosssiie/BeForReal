@@ -4,10 +4,11 @@ import axios from 'axios';
 import SearchModal from './SearchModal';
 import Navigation from './Navigation';
 
-function Sidebar({ isOpen, onLogout, onCategorySelect }) {
+function Sidebar({ isOpen, onLogout, user, onToggleSidebar, onCategorySelect }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
     const [categories, setCategories] = useState([]);
     const searchRef = useRef();
 
@@ -27,25 +28,32 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
         }
     };
 
-    const handleCategoryClick = (categoryId) => {
-        onCategorySelect(categoryId);
+
+    const toggleFilters = () => {
+        setShowFilters(prev => !prev);
     };
+
+    const handleCategoryClick = (categoryId) => {
+        onCategorySelect(categoryId); // передаємо вибір до HomePage
+        setShowFilters(false); // ховаємо фільтри після вибору
+    };
+
 
     useEffect(() => {
         axios.get('/api/categories')
             .then(res => {
-                if (res.data && Array.isArray(res.data.categories)) {
-                    setCategories(res.data.categories);
-                }
+                console.log("Fetched categories:", res.data.categories); // ← має бути видно в консолі
+                setCategories(res.data.categories);
             })
+
             .catch(err => {
                 console.error('Failed to load categories:', err);
             });
     }, []);
 
     return (
-        <div className="sidebar-wrapper">
-            <div className={`sidebar-container-main${isOpen ? 'open' : ''}`}>
+        <div className={`sidebar-wrapper${isOpen ? ' open' : ''}`}>
+            <div className="sidebar-container-main">
                 <div className="custom-sidebar">
                     <div className="menu" ref={searchRef}>
                         <div className="menu-content">
@@ -64,24 +72,25 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                             </div>
 
                             <div className="menu-link" style={{ cursor: 'pointer' }}>
-                                <Navigation />
+                                <Navigation user={user} onLogout={onLogout} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className={`sidebar-container-filter${isOpen ? 'open' : ''}`}>
-                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }}>
+            <div className="sidebar-container-filter">
+                <div className="menu-link filter-icon" style={{ cursor: 'pointer' }} onClick={onToggleSidebar}>
                     <SlidersHorizontal size={25} />
                 </div>
 
-                <div className="filter-panel">
+                <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
+
                     <div
                         className="filter-option"
                         onClick={() => handleCategoryClick(null)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', fontWeight: 'bold' }}
                     >
-                        All Categories
+                        Усі категорії
                     </div>
                     {categories.map((cat) => (
                         <div
@@ -94,6 +103,7 @@ function Sidebar({ isOpen, onLogout, onCategorySelect }) {
                         </div>
                     ))}
                 </div>
+
             </div>
 
             {showResults && (

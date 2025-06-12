@@ -5,7 +5,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash
-from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost
+from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
+    ReportUser, ReportComment
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -159,6 +160,22 @@ def get_comments(post_id):
         for c in comments
     ])
 
+@views.route('/api/comment/<int:comment_id>', methods=['GET'])
+@login_required
+def get_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    return jsonify({
+        'id': comment.id,
+        'text': comment.comment_text,
+        'userId': comment.user.id,
+        'isModerator': comment.user.is_moderator,
+        'author': comment.user.username,
+        'date': comment.date.isoformat(),
+        'karma': comment.karma,
+        'parent_id': comment.parent_id
+    })
+
+
 @views.route('/api/comments/<int:post_id>', methods=['POST'])
 @login_required
 def add_comment(post_id):
@@ -224,6 +241,63 @@ def report_post(post_id):
     db.session.commit()
     return jsonify({'success': True})
 
+
+@views.route("/api/users/<int:user_id>/report", methods=["POST"])
+@login_required
+def report_user(user_id):
+    data = request.get_json()
+    reason = data.get("reason")
+    reporter_id = current_user.id
+    reporter_username = current_user.username
+    if not reason:
+        return jsonify({"error": "Причина обов’язкова"}), 400
+
+    if user_id == current_user.id:
+        return jsonify({"error": "Не можна скаржитися на себе"}), 400
+
+    existing_report = ReportUser.query.filter_by(
+        reporter_id=current_user.id,
+        reported_user_id=user_id
+    ).first()
+    if existing_report:
+        return jsonify({"error": "Ви вже скаржились на цього користувача"}), 400
+
+    report = ReportUser(
+        reporter_id=reporter_id,
+        reporter_username=reporter_username,
+        reported_user_id=user_id,
+        reason=reason,
+        date=datetime.utcnow()
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    return jsonify({"message": "Скаргу надіслано"}), 200
+
+
+@views.route('/api/comments/<int:comment_id>/report', methods=['POST'])
+@login_required
+def report_comment(comment_id):
+    data = request.get_json()
+    reason = data.get('reason')
+    reporter_id = current_user.id
+    reporter_username = current_user.username
+
+    if not reason:
+        return jsonify({'error': 'Потрібна причина скарги'}), 400
+
+    report = ReportComment(
+        reporter_id=reporter_id,
+        reporter_username=reporter_username,
+        comment_id=comment_id,
+        reason=reason,
+        date=datetime.utcnow()
+    )
+    db.session.add(report)
+    db.session.commit()
+    return jsonify({'success': True})
+
+
 @views.route('/api/reports', methods=['GET'])
 @login_required
 def get_reports():
@@ -241,6 +315,64 @@ def get_reports():
             'date': report.date.isoformat(),
         })
     return jsonify(result)
+
+@views.route('/api/reports/posts', methods=['GET'])
+@login_required
+def get_post_reports():
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    reports = ReportPost.query.all()
+    result = []
+    for report in reports:
+        result.append({
+            'post_id': report.post_id,
+            'reason': report.reason,
+            'reporter_id': report.reporter_id,
+            'reporter_username': report.reporter_username,
+            'date': report.date.isoformat(),
+        })
+    return jsonify(result)
+
+
+@views.route('/api/reports/users', methods=['GET'])
+@login_required
+def get_user_reports():
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    reports = ReportUser.query.all()
+    result = []
+    for report in reports:
+        result.append({
+            'reported_user_id': report.reported_user_id,
+            'reported_username': report.reported_user.username,  # Якщо є поле username в моделі, або треба приєднати
+            'reason': report.reason,
+            'reporter_id': report.reporter_id,
+            'reporter_username': report.reporter.username,
+            'date': report.date.isoformat(),
+        })
+    return jsonify(result)
+
+
+@views.route('/api/reports/comments', methods=['GET'])
+@login_required
+def get_comment_reports():
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    reports = ReportComment.query.all()  # Припускаю, що є така модель
+    result = []
+    for report in reports:
+        result.append({
+            'comment_id': report.comment_id,
+            'reason': report.reason,
+            'reporter_id': report.reporter_id,
+            'reporter_username': report.reporter.username,
+            'date': report.date.isoformat(),
+        })
+    return jsonify(result)
+
 
 
 @views.route('/api/posts', methods=['POST'])
@@ -736,11 +868,11 @@ def create_group_chat():
         user_ids.append(current_user.id)
 
     # Перевірка кількості учасників (мінімум 3, щоб це була група)
-    if len(set(user_ids)) < 3:
+    if len(set(user_ids)) < 2:
         return jsonify({'error': 'Group chat must have at least 3 unique users'}), 400
 
     # Створити груповий чат
-    new_chat = Chat(is_group=True, name=group_name or "Group Chat")
+    new_chat = Chat(is_group=True, group_name=group_name or "Group Chat")
     db.session.add(new_chat)
     db.session.flush()
 
@@ -753,3 +885,10 @@ def create_group_chat():
     db.session.commit()
 
     return jsonify({'chat_id': new_chat.id, 'messages': 0})
+
+
+@views.route('/api/users')
+@login_required
+def get_users():
+    users = User.query.with_entities(User.id, User.username).all()
+    return jsonify([{'id': u.id, 'username': u.username} for u in users])

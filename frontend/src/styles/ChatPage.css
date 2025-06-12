@@ -186,7 +186,7 @@
     border-color: rgba(6, 33, 89, 0.5);
 }
 
-.send-message-button {
+.send-message-button, .create-group-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -206,7 +206,7 @@
     height: 20px;
 }
 
-.send-message-button:hover {
+.send-message-button:hover, .create-group-btn:hover {
     transform: scale(1.1);
 }
 

@@ -170,6 +170,40 @@
     gap: 20px;
 }
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #666;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+.eye-icon {
+    vertical-align: middle;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
 .form-input {
     width: 100%;
     padding: 16px 20px;

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { EllipsisVertical, Flag } from 'lucide-react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
@@ -8,6 +9,20 @@ import Sidebar from './Sidebar';
 function OtherUserProfile() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [showOptions, setShowOptions] = useState(false);
+    const [showReportReasons, setShowReportReasons] = useState(false);
+    const optionsRef = useRef(null);
+
+    const reportReasons = [
+        "Спам",
+        "Образливий контент",
+        "Нецензурна лексика",
+        "Реклама",
+        "Порушення авторських прав",
+        "Фейковий акаунт",
+        "Порушення правил спільноти",
+        "Неправдива інформація"
+    ];
 
     const [userData, setUserData] = useState({
         id: null,
@@ -68,6 +83,25 @@ function OtherUserProfile() {
             .finally(() => setIsLoadingContent(false));
     }, [activeTab, userData.id]);
 
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+                setShowOptions(false);
+                setShowReportReasons(false);
+            }
+        }
+
+        if (showOptions) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showOptions]);
+
+
     const handleStartChat = () => {
         setIsLoadingContent(true);  // Можна окремий стан, але для простоти так
         axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
@@ -80,72 +114,93 @@ function OtherUserProfile() {
             .finally(() => setIsLoadingContent(false));
     };
 
+    const handleReport = async (reason) => {
+        try {
+            const res = await fetch(`/api/users/${userData.id}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ reporterId: localStorage.getItem('userId'), reason })
+            });
+
+            if (res.ok) {
+                alert('Скаргу надіслано');
+                setShowReportReasons(false);
+                setShowOptions(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Не вдалося надіслати скаргу');
+            }
+        } catch (error) {
+            console.error('Error reporting user:', error);
+        }
+    };
+
+
     if (isLoadingUser) {
-        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>Loading profile...</div>;
+        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>Loading
+            profile...</div>;
     }
 
     return (
-        <div className="home-layout">
-            <Sidebar />
-            <div className="profile-container">
-                <div className="profile">
-                    <div className="profile-header">
-                        <div className="profile-photo">
-                            <img src={`/static/profile_pictures/${userData.profile_picture}`} />
+        <div className="profile-container">
+            <div className="profile">
+                <div className="profile-header">
+                    <div className="profile-photo">
+                        <img src={`/static/profile_pictures/${userData.profile_picture}`} />
+                    </div>
+                    <div className="profile-info">
+                        <div className="personal-info">
+                            <span className="nickname">{userData.username}</span>
+                            <div className="profile-buttons">
+                                <button className="chat-button" onClick={handleStartChat}>
+                                    Start a Conversation
+                                </button>
+                            </div>
                         </div>
-                        <div className="profile-info">
-                            <div className="personal-info">
-                                <span className="nickname">{userData.username}</span>
-                                <div className="profile-buttons">
-                                    <button className="chat-button" onClick={handleStartChat}>
-                                        Почати чат
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="statistics">
-                                <p className="bio">{userData.bio}</p>
-                                <p className="karma">Karma: {userData.karma}</p>
-                            </div>
+                        <div className="statistics">
+                            <p className="bio">{userData.bio}</p>
+                            <p className="karma">Karma: {userData.karma}</p>
                         </div>
                     </div>
-                    <div className="profile-posts">
-                        <nav className="tab-nav">
-                            <ul className="tab-list">
-                                <li
-                                    className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('posts')}
-                                >
-                                    Posts
-                                </li>
-                                <li
-                                    className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('reposts')}
-                                >
-                                    Reposts
-                                </li>
-                            </ul>
-                        </nav>
-                        <div className="tab-content">
-                            {isLoadingContent ? (
-                                <p>Loading posts...</p>
-                            ) : (
-                                <>
-                                    <div className="posts-list">
-                                        {currentItems.map(item => (
-                                            <PostItem key={item.postId || item.id} post={item} />
-                                        ))}
-                                    </div>
+                </div>
+                <div className="profile-posts">
+                    <nav className="tab-nav">
+                        <ul className="tab-list">
+                            <li
+                                className={`tab-item ${activeTab === 'posts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('posts')}
+                            >
+                                Posts
+                            </li>
+                            <li
+                                className={`tab-item ${activeTab === 'reposts' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('reposts')}
+                            >
+                                Reposts
+                            </li>
+                        </ul>
+                    </nav>
+                    <div className="tab-content">
+                        {isLoadingContent ? (
+                            <p>Loading posts...</p>
+                        ) : (
+                            <>
+                                <div className="posts-list">
+                                    {currentItems.map(item => (
+                                        <PostItem key={item.postId || item.id} post={item} />
+                                    ))}
+                                </div>
 
-                                    {totalPages > 1 && (
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={setCurrentPage}
-                                        />
-                                    )}
-                                </>
-                            )}
-                        </div>
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

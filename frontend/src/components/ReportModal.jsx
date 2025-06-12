@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
 const reasons = [
-    'Reason1',
-    'Reason2',
-    'Reason3',
-    'Reason4',
-    'Another'
-];
+    "Спам",
+    "Образливий контент",
+    "Нецензурна лексика",
+    "Реклама",
+    "Порушення авторських прав",
+    "Фейковий акаунт",
+    "Порушення правил спільноти",
+    "Неправдива інформація"
+]
 
-function ReportModal({ onClose, onSubmit }) {
+
+function ReportModal({onClose, onSubmit}) {
     const [selectedReason, setSelectedReason] = useState('');
     const [customReason, setCustomReason] = useState('');
 

@@ -107,6 +107,8 @@
     cursor: pointer;
     gap: 0px;
     transition: all 0.8s ease;
+    background: none;
+    border: none;
 
 }
 
@@ -207,6 +209,13 @@
     overflow-y: hidden;
     gap: 5px;
 }
+
+.filter-panel.open {
+    opacity: 1;
+    width: calc(100% - 20px);
+    padding: 10px;
+}
+
 
 .sidebar-container-filter:hover .filter-panel {
     opacity: 1;
