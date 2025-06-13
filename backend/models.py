@@ -31,7 +31,7 @@ class User(db.Model, UserMixin):
     is_reported = db.Column(db.Boolean, default=False)
 
     posts = db.relationship('Post', backref='user', lazy=True, cascade="all, delete-orphan")
-    comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship('Comment', back_populates='user', lazy=True, cascade="all, delete-orphan")
     reactions = db.relationship('Reaction', backref='user', lazy=True, cascade="all, delete-orphan")
     reposts = db.relationship('Repost', backref='user', lazy=True, cascade="all, delete-orphan")
     messages = db.relationship('Message', backref='user', lazy=True, cascade="all, delete-orphan")
@@ -99,6 +99,7 @@ class Comment(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
 
+    user = db.relationship('User', back_populates='comments', lazy=True)
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
     report_comments = db.relationship('ReportComment', back_populates='comment', cascade='all, delete-orphan', lazy=True)
 
