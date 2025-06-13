@@ -99,7 +99,6 @@ class Comment(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
     karma = db.Column(db.Integer, default=0)
 
-    user = db.relationship('User', back_populates='comments', lazy=True)
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
     report_comments = db.relationship('ReportComment', back_populates='comment', cascade='all, delete-orphan', lazy=True)
 

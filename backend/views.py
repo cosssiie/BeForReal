@@ -218,7 +218,7 @@ def add_comment(post_id):
     if parent_id:
         parent_comment = Comment.query.get(parent_id)
         if parent_comment:
-            parent_user = parent_comment.user
+            parent_user = User.query.get(parent_comment.user_id)
             parent_username = parent_user.username if parent_user else None
 
     return jsonify({
@@ -832,7 +832,7 @@ def delete_user():
     db.session.delete(user)
     db.session.commit()
 
-    logout_user()  # якщо використовуєш Flask-Login
+    logout_user()
 
     return jsonify({'message': 'Account deleted successfully'})
 
