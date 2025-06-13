@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import PostItem from './PostItem';
-import { Flag, Trash, Send, MessageCircle } from "lucide-react";
+import { ArrowUp, ArrowDown, Flag, Trash, Send, MessageCircle, EllipsisVertical, CornerDownLeft, X } from "lucide-react";
 import ReportModal from "./ReportModal";
+import { style } from 'framer-motion/client';
 
 function buildCommentTree(comments) {
     const map = {};
@@ -21,7 +22,16 @@ function buildCommentTree(comments) {
     return roots;
 }
 
-function CommentItem({ comment, onReply, onDelete, userId, user, post }) {
+function CommentItem({
+    comment,
+    onReply,
+    onDelete,
+    userId,
+    user,
+    post,
+    votes = {},
+    handleKarmaChange = () => { },
+}) {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyText, setReplyText] = useState('');
     const [showOptions, setShowOptions] = useState(false);
@@ -50,7 +60,7 @@ function CommentItem({ comment, onReply, onDelete, userId, user, post }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (replyText.trim()) {
-            onReply(replyText, comment.id);
+            onReply(replyText, comment.id, comment.author);
             setReplyText('');
             setShowReplyBox(false);
         }
@@ -80,98 +90,126 @@ function CommentItem({ comment, onReply, onDelete, userId, user, post }) {
 
 
     return (
-        <div className="comment" style={{
-            marginLeft: comment.parent_id ? 20 : 0,
-            borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
-            paddingLeft: 10
-        }}>
-            <div className="comment-header" style={{ position: 'relative' }}>
-                <span className="comment-author">{comment.author || 'Anonymous'}</span>
-                <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
+        <div className="comment-section">
+            <div className="comment" style={{
+                marginLeft: comment.parent_id ? 20 : 0,
+                borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
+                paddingLeft: 10
+            }}>
+                <div className="comment-header" style={{ position: 'relative' }}>
+                    {comment.parent_id && (
+                        <div className="reply-to">
+                            Reply to @{comment.parent_username || 'user'}
+                        </div>
+                    )}
+                    <span className="comment-author">{comment.author || 'Anonymous'}</span>
+                    <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
 
-                {/* Кнопка опцій */}
-                <button
-                    className="options-button"
-                    onClick={() => setShowOptions(prev => !prev)}
-                    aria-label="Options"
-                    style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                    &#8230; {/* три крапки */}
-                </button>
+                    {/* Кнопка опцій */}
+                    <button
+                        className="options-button"
+                        onClick={() => setShowOptions(prev => !prev)}
+                        aria-label="Options"
+                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                        <EllipsisVertical size={18} />
+                    </button>
 
-                {showOptions && (
-                    <div className="options-popup" ref={optionsRef}>
-                        <button
-                            className="flag-button"
-                            onClick={() => {
-                                setShowReport(true);
-                                setShowOptions(false);
-                            }}
-                        >
-                            <Flag size={16} />
-                        </button>
-                        {(userId === comment.userId || user?.is_moderator) && (
+                    {showOptions && (
+                        <div className="options-popup" ref={optionsRef}>
                             <button
-                                className="flag-button delete-button"
+                                className="flag-button"
                                 onClick={() => {
+                                    setShowReport(true);
                                     setShowOptions(false);
-                                    if (window.confirm('Ви дійсно хочете видалити цей коментар?')) {
-                                        onDelete(comment.id);
-                                    }
                                 }}
                             >
-                                <Trash size={16} />
+                                <Flag size={16} />
                             </button>
-                        )}
-                    </div>
-                )}
+                            {(userId === comment.userId || user?.is_moderator) && (
+                                <button
+                                    className="flag-button delete-button"
+                                    onClick={() => {
+                                        setShowOptions(false);
+                                        if (window.confirm('Ви дійсно хочете видалити цей коментар?')) {
+                                            onDelete(comment.id);
+                                        }
+                                    }}
+                                >
+                                    <Trash size={16} />
+                                </button>
+                            )}
+                        </div>
+                    )}
 
-
-                {showReport && (
-                    <ReportModal
-                        onClose={() => setShowReport(false)}
-                        onSubmit={handleReportSubmit}
-                    />
-                )}
-
-            </div>
-
-            <p>{comment.text}</p>
-            <button onClick={() => setShowReplyBox(!showReplyBox)}>
-                {showReplyBox ? 'Cancel' : 'Reply'}
-            </button>
-
-            {showReplyBox && (
-                <form onSubmit={handleSubmit}>
-                    <textarea
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Write a reply..."
-                        rows={2}
-                    />
-                    <button type="submit">Post Reply</button>
-                </form>
-            )}
-
-            {comment.replies?.length > 0 && (
-                <div className="comment-replies">
-                    {comment.replies.map(reply => (
-                        <CommentItem
-                            key={reply.id}
-                            comment={reply}
-                            onReply={onReply}
-                            onDelete={onDelete}
-                            userId={userId}
-                            user={user}
-                            userIsModerator={user?.is_moderator}
-                            post={post}
+                    {showReport && (
+                        <ReportModal
+                            onClose={() => setShowReport(false)}
+                            onSubmit={handleReportSubmit}
                         />
+                    )}
 
-                    ))}
                 </div>
-            )}
+                <div className="comment-body">
+                    <p className="comment-text">{comment.text}</p>
+                    <div className="comment-footer">
+                        <div className="karma-container" style={{ backgroundColor: '#f6f6f6' }}>
+                            <ArrowUp
+                                size={16}
+                                className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
+                                onClick={() => handleKarmaChange(post.id, 1, userId)}
+                            />
+                            <span className="karma-value">{post.karma}</span>
+                            <ArrowDown
+                                size={16}
+                                className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
+                                onClick={() => handleKarmaChange(post.id, -1, userId)}
+                            />
+                        </div>
+                        <button className="reply-button" onClick={() => setShowReplyBox(!showReplyBox)}>
+                            {showReplyBox ? <X size={18} /> : <CornerDownLeft size={18} />}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {
+                showReplyBox && (
+                    <form className="reply-form" onSubmit={handleSubmit}>
+                        <textarea
+                            className="reply-form-input"
+                            input type="text"
+                            placeholder="Your reply"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            rows={2}
+                        />
+                        <button className="reply-form-button" type="submit"><Send size={18} /></button>
+                    </form>
+                )
+            }
 
-        </div>
+            {
+                comment.replies?.length > 0 && (
+                    <div className="comment-replies">
+                        {comment.replies.map(reply => (
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                onReply={onReply}
+                                onDelete={onDelete}
+                                userId={userId}
+                                user={user}
+                                userIsModerator={user?.is_moderator}
+                                post={post}
+                            />
+
+                        ))}
+                    </div>
+                )
+            }
+
+
+        </div >
     );
 }
 
@@ -195,7 +233,7 @@ function PostPage({ userId, user, userIsModerator }) {
             .catch(err => console.error("Error fetching comments:", err));
     }, [postId]);
 
-    const handleReply = async (text, parentId = null) => {
+    const handleReply = async (text, parentId = null, parentAuthor = null) => {
         setSubmitting(true);
         setError(null);
         try {
@@ -205,7 +243,11 @@ function PostPage({ userId, user, userIsModerator }) {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ text, parent_id: parentId })
+                body: JSON.stringify({
+                    text,
+                    parent_id: parentId,
+                    parent_author: parentAuthor
+                })
             });
 
             if (!res.ok) throw new Error("Failed to post reply");
@@ -287,7 +329,6 @@ function PostPage({ userId, user, userIsModerator }) {
                                     ) : (
                                         <>
                                             <Send size={18} />
-                                            <span>Post</span>
                                         </>
                                     )}
                                 </button>

@@ -23,6 +23,14 @@
     height: 15vh;
 }
 
+.sidebar-container-filter .custom-scroll-wrapper{
+    display: none;
+}
+
+.sidebar-container-filter:hover .custom-scroll-wrapper{
+    display: flex;
+}
+
 .custom-sidebar {
     height: 100%;
     gap: 20px;
@@ -43,7 +51,7 @@
 }
 
 .sidebar-container-filter:hover {
-    height: 250px;
+    height: 180px;
 }
 
 .menu {
