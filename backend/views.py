@@ -2,9 +2,9 @@ import uuid
 from datetime import timezone, datetime
 from flask_socketio import SocketIO, emit
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, emit
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
     ReportUser, ReportComment
 from . import db
@@ -18,9 +18,13 @@ months = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July"
 
 
 #Posts:
+from flask_login import current_user
+
 @views.route('/api/posts', methods=['GET'])
 @login_required
 def get_posts():
+    user_id = current_user.id
+
     posts = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
@@ -29,6 +33,11 @@ def get_posts():
     result = []
     for post, user, category in posts:
         comments_count = len(post.comments)
+
+        # Знайдемо голос користувача для цього поста
+        vote = Vote.query.filter_by(user_id=user_id, post_id=post.id).first()
+        user_vote = vote.value if vote else 0
+
         result.append({
             'id': post.id,
             'title': post.title,
@@ -40,6 +49,7 @@ def get_posts():
             'commentsCount': comments_count,
             'picture': post.picture,
             'userId': post.user_id,
+            'user_vote': user_vote,  # <-- додаємо інфу про голос
         })
     return jsonify(posts=result)
 
@@ -47,6 +57,8 @@ def get_posts():
 @views.route('/api/posts/<int:post_id>', methods=['GET'])
 @login_required
 def get_post(post_id):
+    user_id = current_user.id
+
     post_data = db.session.query(Post, User, Category). \
         join(User, Post.user_id == User.id). \
         join(Category, Post.category_id == Category.id). \
@@ -57,6 +69,10 @@ def get_post(post_id):
 
     post, user, category = post_data
     comments_count = len(post.comments)
+
+    # Шукаємо голос користувача за цей пост
+    vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
+    user_vote = vote.value if vote else 0
 
     result = {
         'id': post.id,
@@ -69,10 +85,12 @@ def get_post(post_id):
         'commentsCount': comments_count,
         'picture': post.picture,
         'userId': post.user_id,
-        'isModerator':user.is_moderator,
+        'isModerator': user.is_moderator,
+        'user_vote': user_vote,  # додано інформацію про голос користувача
     }
 
     return jsonify(post=result)
+
 
 @views.route('/api/posts/by_category', methods=['GET'])
 @login_required
@@ -477,18 +495,19 @@ def vote(post_id):
     vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
 
     if vote is None:
-        # Користувач ще не голосував
+        # Користувач ще не голосував — створюємо новий голос
         vote = Vote(user_id=user_id, post_id=post_id, value=delta)
         post.karma += delta
         db.session.add(vote)
     else:
         if vote.value == delta:
-            # Голос такий самий – нічого не робити або можна скасувати (опційно)
-            return jsonify({"message": "Already voted with the same value", "newKarma": post.karma}), 200
+            # Повторне голосування тим самим значенням — скасовуємо голос
+            post.karma -= delta
+            db.session.delete(vote)
         else:
-            # Зміна голосу: -1 → +1 або +1 → -1 → змінюємо на 2 очки
+            # Зміна голосу з -1 на +1 або навпаки — змінюємо карму на 2
             post.karma += 2 * delta
-            vote.value = delta  # оновлюємо голос
+            vote.value = delta
 
     db.session.commit()
     return jsonify({"newKarma": post.karma})
@@ -652,24 +671,26 @@ def delete_message(message_id):
 @views.route('/api/posts/<int:post_id>/repost', methods=['POST'])
 @login_required
 def repost_post(post_id):
-    data = request.get_json()
-    user_id = data.get('userId')
-    # Перевірка чи пост існує
+    # user_id from logged in user
+    user_id = current_user.id
+
+    # Check if post exists
     post = Post.query.get(post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
 
-    # Перевірка чи вже є репост від цього користувача для цього поста
+    # Check if repost already exists from this user
     existing_repost = Repost.query.filter_by(user_id=user_id, post_id=post_id).first()
     if existing_repost:
         return jsonify({'error': 'Already reposted'}), 400
 
-    # Створення репоста
+    # Create new repost
     new_repost = Repost(user_id=user_id, post_id=post_id)
     db.session.add(new_repost)
     db.session.commit()
 
     return jsonify({'message': 'Repost created successfully'}), 201
+
 
 @views.route("/api/posts/<int:post_id>/repost", methods=["DELETE"])
 @login_required
@@ -744,8 +765,71 @@ def get_current_user():
         'profile_picture': current_user.profile_picture,
         'karma': current_user.karma,
         'bio': current_user.bio,
-        'date_joined': current_user.date_joined.isoformat()
+        'date_joined': current_user.date_joined.isoformat(),
+        'calculated_karma': current_user.calculated_karma,
+        'status': current_user.status,
     })
+
+
+@views.route('/api/user/update', methods=['PUT'])
+@login_required
+def update_user():
+    user = current_user
+
+    username = request.form.get('username')
+    bio = request.form.get('bio')
+    password = request.form.get('password')
+    profile_picture = request.files.get('profile_picture')
+
+    if username:
+        user.username = username
+    if bio:
+        user.bio = bio
+    if password:
+        user.password = generate_password_hash(password)
+    if profile_picture:
+        from werkzeug.utils import secure_filename
+        import os
+
+        filename = f"{uuid.uuid4().hex}_{secure_filename(profile_picture.filename)}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+        path = os.path.join(upload_folder, filename)
+
+        # Створюємо папку, якщо її немає
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        profile_picture.save(path)
+        user.profile_picture = filename
+
+    db.session.commit()
+
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'bio': user.bio,
+        'profile_picture': user.profile_picture,
+        'karma': user.karma,
+        'calculated_karma': user.calculated_karma,
+        'status': current_user.status,
+    })
+
+@views.route('/api/user/delete', methods=['DELETE'])
+@login_required
+def delete_user():
+    user = current_user
+
+    posts = Post.query.filter_by(user_id=current_user.id).all()
+    for post in posts:
+        db.session.delete(post)
+
+    # Додатково: видалити пов'язані об'єкти, якщо потрібно
+    db.session.delete(user)
+    db.session.commit()
+
+    logout_user()  # якщо використовуєш Flask-Login
+
+    return jsonify({'message': 'Account deleted successfully'})
 
 
 @views.route('/api/users/search', methods=['GET'])
@@ -772,7 +856,8 @@ def get_user_by_id(id):
         'username': user.username,
         'profile_picture': user.profile_picture,
         'bio': user.bio,
-        'karma': user.karma
+        'karma': user.karma,
+        'calculated_karma': user.calculated_karma,
     })
 
 @views.route('/api/chats/start', methods=['POST'])

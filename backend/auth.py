@@ -10,7 +10,7 @@ from . import db
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/api/sign up', methods=['POST'])
+@auth.route('/api/sign-up', methods=['POST'])
 def sign_up():
     data = request.get_json()
     username = data.get('username')
@@ -24,11 +24,10 @@ def sign_up():
         return jsonify({'error': 'Only ukma.edu.ua emails are allowed.'}), 400
 
     # Хешуємо пароль
-    # додати після створення реальних акаунтів
-    #hashed_password = generate_password_hash(password)
+    hashed_password = generate_password_hash(password)
 
     # Створюємо нового користувача
-    new_user = User(username=username, email=email, password=password, bio=None)
+    new_user = User(username=username, email=email, password=hashed_password, bio=None)
 
     try:
         db.session.add(new_user)
