@@ -124,7 +124,7 @@
     transition: all 0.2s;
 }
 
-.reply-form-button {    
+.reply-form-button {
     background: #ffffff;
     color: #6366f1;
 }
@@ -198,6 +198,17 @@
     color: #b91c1c;
     border-radius: 8px;
     font-size: 14px;
+}
+
+.reply-to {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 4px;
+    font-style: italic;
+}
+
+.reply-to::before {
+    content: "↳ ";
 }
 
 @keyframes spin {
