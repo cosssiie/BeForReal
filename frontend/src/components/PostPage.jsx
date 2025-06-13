@@ -60,7 +60,7 @@ function CommentItem({
     const handleSubmit = (e) => {
         e.preventDefault();
         if (replyText.trim()) {
-            onReply(replyText, comment.id);
+            onReply(replyText, comment.id, comment.author);
             setReplyText('');
             setShowReplyBox(false);
         }
@@ -97,6 +97,11 @@ function CommentItem({
                 paddingLeft: 10
             }}>
                 <div className="comment-header" style={{ position: 'relative' }}>
+                    {comment.parent_id && (
+                        <div className="reply-to">
+                            Reply to @{comment.parent_username || 'user'}
+                        </div>
+                    )}
                     <span className="comment-author">{comment.author || 'Anonymous'}</span>
                     <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
 
@@ -172,7 +177,7 @@ function CommentItem({
                     <form className="reply-form" onSubmit={handleSubmit}>
                         <textarea
                             className="reply-form-input"
-                            input type="text" 
+                            input type="text"
                             placeholder="Your reply"
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
@@ -228,7 +233,7 @@ function PostPage({ userId, user, userIsModerator }) {
             .catch(err => console.error("Error fetching comments:", err));
     }, [postId]);
 
-    const handleReply = async (text, parentId = null) => {
+    const handleReply = async (text, parentId = null, parentAuthor = null) => {
         setSubmitting(true);
         setError(null);
         try {
@@ -238,7 +243,11 @@ function PostPage({ userId, user, userIsModerator }) {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ text, parent_id: parentId })
+                body: JSON.stringify({
+                    text,
+                    parent_id: parentId,
+                    parent_author: parentAuthor
+                })
             });
 
             if (!res.ok) throw new Error("Failed to post reply");

@@ -121,6 +121,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    width: auto;
 }
 
 .create-post .image-preview-wrapper {
@@ -129,8 +130,8 @@
 }
 
 .create-post .image-preview {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
     object-fit: cover;
     border-radius: 8px;
     border: 2px solid #CCCDDE;

@@ -101,6 +101,12 @@ class Comment(db.Model):
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
     report_comments = db.relationship('ReportComment', back_populates='comment', cascade='all, delete-orphan', lazy=True)
+    
+    @property
+    def parent_username(self):
+        if self.parent:
+            return self.parent.user.username
+        return None
 
 
 class Reaction(db.Model):

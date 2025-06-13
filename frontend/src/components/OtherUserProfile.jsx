@@ -1,6 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
-import {EllipsisVertical, Flag} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { EllipsisVertical, Flag } from 'lucide-react';
 import axios from 'axios';
 import PostItem from './PostItem';
 import Pagination from './Pagination';
@@ -8,7 +8,7 @@ import Sidebar from './Sidebar';
 import ReportModal from "./ReportModal";
 
 function OtherUserProfile() {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const [showOptions, setShowOptions] = useState(false);
     const [showReport, setShowReport] = useState(false);
@@ -55,7 +55,7 @@ function OtherUserProfile() {
     ];
 
     useEffect(() => {
-        axios.get('/api/current_user', {withCredentials: true})
+        axios.get('/api/current_user', { withCredentials: true })
             .then(res => setUserId(res.data.id))
             .catch(err => console.error("Can't get logged-in user:", err));
     }, []);
@@ -81,7 +81,7 @@ function OtherUserProfile() {
             activeTab === 'posts'
                 ? '/api/posts/by_user'
                 : '/api/reposts/by_user',
-            {params: {user_id: userData.id}}
+            { params: { user_id: userData.id } }
         )
             .then(response => {
                 if (activeTab === 'posts') {
@@ -118,7 +118,7 @@ function OtherUserProfile() {
 
     const handleStartChat = () => {
         setIsLoadingContent(true);
-        axios.post('/api/chats/start', {user_id: userData.id}, {withCredentials: true})
+        axios.post('/api/chats/start', { user_id: userData.id }, { withCredentials: true })
             .then(response => {
                 const chatId = response.data.chat_id;
                 setSelectedChat(chatId);
@@ -137,9 +137,9 @@ function OtherUserProfile() {
         try {
             const res = await fetch(`/api/users/${userData.id}/report`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({reporterId: userId, reason}),
+                body: JSON.stringify({ reporterId: userId, reason }),
             });
 
             if (res.ok) {
@@ -156,7 +156,7 @@ function OtherUserProfile() {
     };
 
     if (isLoadingUser) {
-        return <div className="loading" style={{fontSize: 20, textAlign: 'center', marginTop: 50}}>
+        return <div className="loading" style={{ fontSize: 20, textAlign: 'center', marginTop: 50 }}>
             Loading profile...
         </div>;
     }
@@ -166,17 +166,18 @@ function OtherUserProfile() {
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src={`/static/profile_pictures/${userData.profile_picture}`}/>
+                        <img src={`/static/profile_pictures/${userData.profile_picture}`} />
                     </div>
                     <div className="profile-info">
+                        <button className="additional-button" onClick={toggleOptions}>
+                            <EllipsisVertical size={18} />
+                        </button>
                         <div className="personal-info">
                             <span className="nickname">{userData.username}</span>
                             <button className="chat-button" onClick={handleStartChat}>
                                 Start a Conversation
                             </button>
-                            <button className="additional-button" onClick={toggleOptions}>
-                                <EllipsisVertical size={18}/>
-                            </button>
+
                             {showOptions && (
                                 <div className="options-popup" ref={optionsRef}>
                                     <button
@@ -186,7 +187,7 @@ function OtherUserProfile() {
                                             setShowReport(true);
                                         }}
                                     >
-                                        <Flag size={16}/>
+                                        <Flag size={16} />
                                     </button>
                                 </div>
                             )}
@@ -227,7 +228,7 @@ function OtherUserProfile() {
                             <>
                                 <div className="posts-list">
                                     {currentItems.map(item => (
-                                        <PostItem key={item.postId || item.id} post={item}/>
+                                        <PostItem key={item.postId || item.id} post={item} />
                                     ))}
                                 </div>
                                 {totalPages > 1 && (

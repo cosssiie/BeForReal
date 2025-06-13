@@ -80,10 +80,10 @@ function PostItem({
                 setShowReactions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не удалось добавить реакцию');
+                alert(err.error || 'Error adding reaction');
             }
         } catch (error) {
-            console.error('Ошибка при добавлении реакции:', error);
+            console.error('Error adding reaction:', error);
         }
     };
 
@@ -99,7 +99,7 @@ function PostItem({
 
             if (!res.ok) {
                 const err = await res.json();
-                return alert(err.error || 'Ошибка при репосте');
+                return alert(err.error || 'Error reposting');
             }
 
             const info = await fetch(`/api/posts/${post.id}/reposts`, { credentials: 'include' });
@@ -107,7 +107,7 @@ function PostItem({
             setRepostCount(data.repostCount || 0);
             setHasReposted(data.hasReposted);
         } catch (error) {
-            console.error('Ошибка при обработке репоста:', error);
+            console.error('Error reposting:', error);
         }
     };
 
@@ -121,15 +121,14 @@ function PostItem({
             });
 
             if (res.ok) {
-                alert('Скаргу надіслано');
                 setShowReport(false);
                 setShowOptions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не вдалося надіслати скаргу');
+                alert(err.error || 'Error reporting');
             }
         } catch (error) {
-            console.error('Помилка при скарзі:', error);
+            console.error('Error reporting:', error);
         }
     };
 
@@ -141,16 +140,16 @@ function PostItem({
         if (diffDays === 0) {
             return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         } else if (diffDays === 1) {
-            return 'вчера';
+            return 'вчора';
         } else if (diffDays < 5) {
-            return `${diffDays} дн. назад`;
+            return `${diffDays} дн. тому`;
         } else {
             return date.toLocaleDateString();
         }
     };
 
     const handleDeletePost = async () => {
-        if (!window.confirm('Ви впевнені, що хочете видалити пост?')) return;
+        if (!window.confirm('Are you sure you want to delete a post?')) return;
 
         try {
             const res = await fetch(`/api/posts/${post.id}`, {

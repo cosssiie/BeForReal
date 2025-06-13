@@ -105,7 +105,7 @@ function ProfilePage() {
             <div className="profile">
                 <div className="profile-header">
                     <div className="profile-photo">
-                        <img src={`/static/uploads/${userData.profile_picture}`} alt="Profile" />
+                        <img src={`/static/uploads/${userData.profile_picture}`} />
                     </div>
                     <div className="profile-info">
                         <div className="personal-info">
