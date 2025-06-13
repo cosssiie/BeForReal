@@ -173,7 +173,8 @@ def get_comments(post_id):
             'author': c.user.username,
             'date': c.date.isoformat(),
             'karma': c.karma,          
-            'parent_id': c.parent_id
+            'parent_id': c.parent_id,
+            'parent_username': c.parent_username,
         }
         for c in comments
     ])
@@ -190,7 +191,8 @@ def get_comment(comment_id):
         'author': comment.user.username,
         'date': comment.date.isoformat(),
         'karma': comment.karma,
-        'parent_id': comment.parent_id
+        'parent_id': comment.parent_id,
+        'parent_username': comment.parent_username
     })
 
 

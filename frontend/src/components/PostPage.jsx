@@ -99,7 +99,7 @@ function CommentItem({
                 <div className="comment-header" style={{ position: 'relative' }}>
                     {comment.parent_id && (
                         <div className="reply-to">
-                            Reply to @{comment.parent_author || 'user'}
+                            Reply to @{comment.parent_username || 'user'}
                         </div>
                     )}
                     <span className="comment-author">{comment.author || 'Anonymous'}</span>
