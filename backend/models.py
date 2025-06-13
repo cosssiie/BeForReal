@@ -31,7 +31,7 @@ class User(db.Model, UserMixin):
     is_reported = db.Column(db.Boolean, default=False)
 
     posts = db.relationship('Post', backref='user', lazy=True, cascade="all, delete-orphan")
-    comments = db.relationship('Comment', back_populates='user', lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete-orphan")
     reactions = db.relationship('Reaction', backref='user', lazy=True, cascade="all, delete-orphan")
     reposts = db.relationship('Repost', backref='user', lazy=True, cascade="all, delete-orphan")
     messages = db.relationship('Message', backref='user', lazy=True, cascade="all, delete-orphan")
