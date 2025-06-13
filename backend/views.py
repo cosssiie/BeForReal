@@ -253,7 +253,6 @@ def report_post(post_id):
         reporter_username=reporter_username,
         post_id=post_id,
         reason=reason,
-        date=datetime.utcnow()
     )
     db.session.add(report)
     db.session.commit()
@@ -285,7 +284,6 @@ def report_user(user_id):
         reporter_username=reporter_username,
         reported_user_id=user_id,
         reason=reason,
-        date=datetime.utcnow()
     )
     db.session.add(report)
     db.session.commit()
@@ -309,7 +307,6 @@ def report_comment(comment_id):
         reporter_username=reporter_username,
         comment_id=comment_id,
         reason=reason,
-        date=datetime.utcnow()
     )
     db.session.add(report)
     db.session.commit()
