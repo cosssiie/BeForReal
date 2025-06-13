@@ -1,5 +1,6 @@
 import { Search, SlidersHorizontal } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
+import { Scrollbar } from 'react-scrollbars-custom';
 import axios from 'axios';
 import SearchModal from './SearchModal';
 import Navigation from './Navigation';
@@ -82,27 +83,28 @@ function Sidebar({ isOpen, onLogout, user, onToggleSidebar, onCategorySelect }) 
                 <div className="menu-link filter-icon" style={{ cursor: 'pointer' }} onClick={onToggleSidebar}>
                     <SlidersHorizontal size={25} />
                 </div>
+                <Scrollbar className="custom-scroll-wrapper">
+                    <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
 
-                <div className={`filter-panel ${showFilters ? 'open' : ''}`}>
-
-                    <div
-                        className="filter-option"
-                        onClick={() => handleCategoryClick(null)}
-                        style={{ cursor: 'pointer', fontWeight: 'bold' }}
-                    >
-                        Усі категорії
-                    </div>
-                    {categories.map((cat) => (
                         <div
-                            key={cat.id}
                             className="filter-option"
-                            onClick={() => handleCategoryClick(cat.id)}
-                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleCategoryClick(null)}
+                            style={{ cursor: 'pointer', fontWeight: 'bold' }}
                         >
-                            {cat.name}
+                            Усі категорії
                         </div>
-                    ))}
-                </div>
+                        {categories.map((cat) => (
+                            <div
+                                key={cat.id}
+                                className="filter-option"
+                                onClick={() => handleCategoryClick(cat.id)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {cat.name}
+                            </div>
+                        ))}
+                    </div>
+                </Scrollbar>
 
             </div>
 
