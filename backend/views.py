@@ -214,13 +214,21 @@ def add_comment(post_id):
     db.session.add(comment)
     db.session.commit()
 
+    parent_username = None
+    if parent_id:
+        parent_comment = Comment.query.get(parent_id)
+        if parent_comment:
+            parent_user = parent_comment.user
+            parent_username = parent_user.username if parent_user else None
+
     return jsonify({
         'id': comment.id,
         'text': comment.comment_text,
         'author': current_user.username,
         'date': comment.date.isoformat(),
         'karma': comment.karma,
-        'parent_id': comment.parent_id
+        'parent_id': comment.parent_id,
+        'parent_username': parent_username
     }), 201
 
 @views.route('/api/comments/<int:comment_id>', methods=['DELETE'])
@@ -925,7 +933,7 @@ def delete_leave_chat(chat_id):
     remaining_users = ChatUser.query.filter_by(chat_id=chat_id).count()
 
     # Якщо учасників немає — видаляємо чат і всі повідомлення
-    if remaining_users == 0:
+    if remaining_users <= 1:
         # Видалимо всі повідомлення цього чату
         Message.query.filter_by(chat_id=chat_id).delete()
         db.session.delete(chat)
