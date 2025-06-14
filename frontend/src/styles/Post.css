@@ -220,8 +220,8 @@
 
 .options-popup {
   position: absolute;
-  bottom: 110%;
-  right: -40px;
+  top: -15%;
+  right: -5%;
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 
 const reasons = [
     "Спам",
@@ -9,10 +9,9 @@ const reasons = [
     "Фейковий акаунт",
     "Порушення правил спільноти",
     "Неправдива інформація"
-]
+];
 
-
-function ReportModal({onClose, onSubmit}) {
+function ReportModal({ onClose, onSubmit }) {
     const [selectedReason, setSelectedReason] = useState('');
     const [customReason, setCustomReason] = useState('');
 

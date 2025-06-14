@@ -174,138 +174,142 @@ function PostItem({
     };
 
     return (
-        <div className="post">
-            <div className="post-header" style={{ position: 'relative' }}>
-                <div className="username-date">
-                    <span className="post-author">
-                        <Link
-                            to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}
-                            style={{ color: 'white' }}
-                        >
-                            {post.username}
-                        </Link>
-                    </span>
-                    <span className="post-date">{formatPostDate(post.date)}</span>
-                </div>
-
-                <button className="additional-button" onClick={toggleOptions}>
-                    <EllipsisVertical size={16} />
-                </button>
-
-                {showOptions && (
-                    <div className="options-popup" ref={optionsRef}>
-                        <button
-                            className="flag-button"
-                            onClick={() => {
-                                setShowOptions(false);
-                                setShowReport(true);
-                            }}
-                        >
-                            <Flag size={16} />
-                        </button>
-                        {(userId && post.userId && userId === post.userId) || isModerator ? (
-                            <button className="flag-button delete-button" onClick={handleDeletePost}>
-                                <Trash size={16} />
-                            </button>
-                        ) : null}
-                    </div>
-                )}
-
-                {showReport && (
-                    <ReportModal
-                        onClose={() => setShowReport(false)}
-                        onSubmit={handleReportSubmit}
-                    />
-                )}
-            </div>
-
-            <div className="post-content">
-                <span className="post-category">
-                    <b>{post.category}</b>
-                </span>
-                <p>{post.content}</p>
-            </div>
-
-            {post.picture && (
-                <div className="post-image" style={{ marginTop: '10px' }}>
-                    <img
-                        src={`/static/uploads/${post.picture}`}
-                        alt="Post"
-                        style={{ maxWidth: '100%', borderRadius: '8px' }}
-                    />
-                </div>
-            )}
-
-            <div className="post-footer">
-                <div className="reactions-display">
-                    {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji}>
-                            <span className="reaction-emoji">{emoji}</span>
-                            <span className="reaction-count">{count}</span>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="post-actions">
-                    <div className="karma-container">
-                        <ArrowUp
-                            size={16}
-                            className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
-                            onClick={() => handleKarmaChange(post.id, 1, userId)}
-                        />
-                        <span className="karma-value">{post.karma}</span>
-                        <ArrowDown
-                            size={16}
-                            className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
-                            onClick={() => handleKarmaChange(post.id, -1, userId)}
-                        />
+        <>
+            <div className="post">
+                <div className="post-header">
+                    <div className="username-date">
+                        <span className="post-author">
+                            <Link
+                                to={userId === post.userId ? '/profile' : `/profile/${post.userId}`}
+                                style={{ color: 'white' }}
+                            >
+                                {post.username}
+                            </Link>
+                        </span>
+                        <span className="post-date">{formatPostDate(post.date)}</span>
                     </div>
 
-                    <button
-                        className={`repost-button ${hasReposted ? 'reposted' : ''}`}
-                        onClick={handleRepost}
-                        title={hasReposted ? 'Delete repost' : 'Репостнуть'}
-                    >
-                        <Repeat size={18} className="inline-icon" />
-                        <span>{repostCount}</span>
+                    <button className="additional-button" onClick={toggleOptions}>
+                        <EllipsisVertical size={16} />
                     </button>
 
-                    {!isSingle && (
-                        <div className="post-action">
-                            <button className="comment-button" onClick={() => navigate(`/posts/${post.id}`)}>
-                                <MessageCircle size={16} />
-                                <span>{post.commentsCount}</span>
+                    {showOptions && (
+                        <div className="options-popup" ref={optionsRef}>
+                            <button
+                                className="flag-button"
+                                onClick={() => {
+                                    setShowOptions(false);
+                                    setShowReport(true);
+                                }}
+                            >
+                                <Flag size={16} />
                             </button>
+                            {(userId && post.userId && userId === post.userId) || isModerator ? (
+                                <button className="flag-button delete-button" onClick={handleDeletePost}>
+                                    <Trash size={16} />
+                                </button>
+                            ) : null}
                         </div>
                     )}
 
-                    <div
-                        className="reactions-container"
-                        onMouseEnter={() => setShowReactions(true)}
-                        onMouseLeave={() => setShowReactions(false)}
-                        style={{ position: 'relative' }}
-                    >
-                        <button className="reaction-button">
-                            <Heart size={18} />
+                </div>
+
+                <div className="post-content">
+                    <span className="post-category">
+                        <b>{post.category}</b>
+                    </span>
+                    <p>{post.content}</p>
+                </div>
+
+                {post.picture && (
+                    <div className="post-image" style={{ marginTop: '10px' }}>
+                        <img
+                            src={`/static/uploads/${post.picture}`}
+                            alt="Post"
+                            style={{ maxWidth: '100%', borderRadius: '8px' }}
+                        />
+                    </div>
+                )}
+
+                <div className="post-footer">
+                    <div className="reactions-display">
+                        {Object.entries(reactions).map(([emoji, count]) => (
+                            <div className="display-reaction" key={emoji}>
+                                <span className="reaction-emoji">{emoji}</span>
+                                <span className="reaction-count">{count}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="post-actions">
+                        <div className="karma-container">
+                            <ArrowUp
+                                size={16}
+                                className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
+                                onClick={() => handleKarmaChange(post.id, 1, userId)}
+                            />
+                            <span className="karma-value">{post.karma}</span>
+                            <ArrowDown
+                                size={16}
+                                className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
+                                onClick={() => handleKarmaChange(post.id, -1, userId)}
+                            />
+                        </div>
+
+                        <button
+                            className={`repost-button ${hasReposted ? 'reposted' : ''}`}
+                            onClick={handleRepost}
+                            title={hasReposted ? 'Delete repost' : 'Репостнуть'}
+                        >
+                            <Repeat size={18} className="inline-icon" />
+                            <span>{repostCount}</span>
                         </button>
 
-                        {showReactions && (
-                            <div className="reactions-popup">
-                                {availableEmojis.map((emoji) => (
-                                    <span
-                                        key={emoji}
-                                        className="reaction-emoji"
-                                        onClick={() => handleReaction(emoji)}
-                                    >
-                                        {emoji}
-                                    </span>
-                                ))}
+                        {!isSingle && (
+                            <div className="post-action">
+                                <button className="comment-button" onClick={() => navigate(`/posts/${post.id}`)}>
+                                    <MessageCircle size={16} />
+                                    <span>{post.commentsCount}</span>
+                                </button>
                             </div>
                         )}
+
+                        <div
+                            className="reactions-container"
+                            onMouseEnter={() => setShowReactions(true)}
+                            onMouseLeave={() => setShowReactions(false)}
+                            style={{ position: 'relative' }}
+                        >
+                            <button className="reaction-button">
+                                <Heart size={18} />
+                            </button>
+
+                            {showReactions && (
+                                <div className="reactions-popup">
+                                    {availableEmojis.map((emoji) => (
+                                        <span
+                                            key={emoji}
+                                            className="reaction-emoji"
+                                            onClick={() => handleReaction(emoji)}
+                                        >
+                                            {emoji}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+            </div>   
+            {showReport && (
+                <ReportModal
+                    isOpen={showReport}
+                    onClose={() => setShowReport(false)}
+                    onSubmit={handleReportSubmit}
+                />
+            )}
+        </>
     );
 }
 

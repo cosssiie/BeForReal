@@ -90,90 +90,85 @@ function CommentItem({
 
 
     return (
-        <div className="comment-section">
-            <div className="comment" style={{
-                marginLeft: comment.parent_id ? 20 : 0,
-                borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
-                paddingLeft: 10
-            }}>
-                <div className="comment-header" style={{ position: 'relative' }}>
-                    {comment.parent_id && (
-                        <div className="reply-to">
-                            Reply to @{comment.parent_username || 'user'}
-                        </div>
-                    )}
-                    <span className="comment-author">{comment.author || 'Anonymous'}</span>
-                    <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
+        <>
+            <div className="comment-section">
+                <div className="comment" style={{
+                    marginLeft: comment.parent_id ? 20 : 0,
+                    borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
+                    paddingLeft: 10
+                }}>
+                    <div className="comment-header" style={{ position: 'relative' }}>
+                        {comment.parent_id && (
+                            <div className="reply-to">
+                                Reply to @{comment.parent_username || 'user'}
+                            </div>
+                        )}
+                        <span className="comment-author">{comment.author || 'Anonymous'}</span>
+                        <span className="comment-date">{new Date(comment.date).toLocaleString()}</span>
 
-                    {/* Кнопка опцій */}
-                    <button
-                        className="options-button"
-                        onClick={() => setShowOptions(prev => !prev)}
-                        aria-label="Options"
-                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                        <EllipsisVertical size={18} />
-                    </button>
+                        {/* Кнопка опцій */}
+                        <button
+                            className="options-button"
+                            onClick={() => setShowOptions(prev => !prev)}
+                            aria-label="Options"
+                            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
+                        >
+                            <EllipsisVertical size={18} />
+                        </button>
 
-                    {showOptions && (
-                        <div className="options-popup" ref={optionsRef}>
-                            <button
-                                className="flag-button"
-                                onClick={() => {
-                                    setShowReport(true);
-                                    setShowOptions(false);
-                                }}
-                            >
-                                <Flag size={16} />
-                            </button>
-                            {(userId === comment.userId || user?.is_moderator) && (
+                        {showOptions && (
+                            <div className="options-popup" ref={optionsRef} style={{ top: '-35px', right: '-40px'}}>
                                 <button
-                                    className="flag-button delete-button"
+                                    className="flag-button"
                                     onClick={() => {
+                                        setShowReport(true);
                                         setShowOptions(false);
-                                        if (window.confirm('Ви дійсно хочете видалити цей коментар?')) {
-                                            onDelete(comment.id);
-                                        }
                                     }}
                                 >
-                                    <Trash size={16} />
+                                    <Flag size={16} />
                                 </button>
-                            )}
-                        </div>
-                    )}
-
-                    {showReport && (
-                        <ReportModal
-                            onClose={() => setShowReport(false)}
-                            onSubmit={handleReportSubmit}
-                        />
-                    )}
-
-                </div>
-                <div className="comment-body">
-                    <p className="comment-text">{comment.text}</p>
-                    <div className="comment-footer">
-                        <div className="karma-container" style={{ backgroundColor: '#f6f6f6' }}>
-                            <ArrowUp
-                                size={16}
-                                className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
-                                onClick={() => handleKarmaChange(post.id, 1, userId)}
-                            />
-                            <span className="karma-value">{post.karma}</span>
-                            <ArrowDown
-                                size={16}
-                                className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
-                                onClick={() => handleKarmaChange(post.id, -1, userId)}
-                            />
-                        </div>
-                        <button className="reply-button" onClick={() => setShowReplyBox(!showReplyBox)}>
-                            {showReplyBox ? <X size={18} /> : <CornerDownLeft size={18} />}
-                        </button>
+                                {(userId === comment.userId || user?.is_moderator) && (
+                                    <button
+                                        className="flag-button delete-button"
+                                        onClick={() => {
+                                            setShowOptions(false);
+                                            if (window.confirm('Ви дійсно хочете видалити цей коментар?')) {
+                                                onDelete(comment.id);
+                                            }
+                                        }}
+                                    >
+                                        <Trash size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
+                    <div className="comment-body">
+                        <p className="comment-text">{comment.text}</p>
+                        <div className="comment-footer">
+                            <div className="karma-container" style={{ backgroundColor: '#f6f6f6' }}>
+                                <ArrowUp
+                                    size={16}
+                                    className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
+                                    onClick={() => handleKarmaChange(post.id, 1, userId)}
+                                />
+                                <span className="karma-value">{post.karma}</span>
+                                <ArrowDown
+                                    size={16}
+                                    className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
+                                    onClick={() => handleKarmaChange(post.id, -1, userId)}
+                                />
+                            </div>
+                            <button className="reply-button" onClick={() => setShowReplyBox(!showReplyBox)}>
+                                {showReplyBox ? <X size={18} /> : <CornerDownLeft size={18} />}
+                            </button>
+                        </div>
+
+                    </div>
+
                 </div>
-            </div>
-            {
-                showReplyBox && (
+
+                {showReplyBox && (
                     <form className="reply-form" onSubmit={handleSubmit}>
                         <textarea
                             className="reply-form-input"
@@ -185,11 +180,8 @@ function CommentItem({
                         />
                         <button className="reply-form-button" type="submit"><Send size={18} /></button>
                     </form>
-                )
-            }
-
-            {
-                comment.replies?.length > 0 && (
+                )}
+                {comment.replies?.length > 0 && (
                     <div className="comment-replies">
                         {comment.replies.map(reply => (
                             <CommentItem
@@ -205,11 +197,15 @@ function CommentItem({
 
                         ))}
                     </div>
-                )
-            }
-
-
-        </div >
+                )}
+            </div >
+            {showReport && (
+                <ReportModal
+                    onClose={() => setShowReport(false)}
+                    onSubmit={handleReportSubmit}
+                />
+            )}
+        </>
     );
 }
 
