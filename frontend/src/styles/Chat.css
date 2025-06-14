@@ -52,3 +52,33 @@
     margin-bottom: 4px;
     font-weight: 500;
 }
+
+.message-options-panel {
+    position: absolute;
+    top: -40px;
+    right: 0px;
+    background: none;
+    z-index: 100;
+}
+
+.message-options-panel button {
+    padding: 10px;
+    background-color: #ffdee3;
+    color: #ff3f3f;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.message-options-panel button:hover {
+    background-color: #ffc0cb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(255, 63, 63, 0.2);
+}
+
+.message-options-panel button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}

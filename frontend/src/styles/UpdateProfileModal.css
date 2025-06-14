@@ -1,395 +1,408 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  /* background: rgba(0, 0, 0, 0.4); */
-  display: flex;
-  justify-content: center;
-  /* align-items: center; */
-  z-index: 1000;
-  opacity: 0.95;
-}
-
 @keyframes overlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .modal {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  position: relative;
-  animation: modalSlideIn 0.3s ease-out;
-  margin: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+    margin: 20px;
+    overflow: hidden !important;
 }
 
 @keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .modal h3 {
-  color: #2d3748;
-  font-size: 24px;
-  font-weight: 700;
-  text-align: center;
-  margin: 0 0 25px 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #2d3748;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 25px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Скидаємо стандартні стилі списку */
+.custom-scroll-wrapper {
+    width: 100%;
+    margin: 15px 0;
+}
+
+.custom-scroll-wrapper .ScrollbarsCustom-Track {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 3px !important;
+    width: 6px !important;
+}
+
+.custom-scroll-wrapper .ScrollbarsCustom-Thumb {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 3px !important;
+}
+
+.custom-scroll-wrapper .ScrollbarsCustom-Thumb:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.scroll-content {
+    padding-right: 15px;
+}
+
 .input-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .input-list li {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
 }
 
 .input-list li:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .input-list label {
-  color: #4a5568;
-  font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .input-list input,
 .input-list textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  outline: none;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+    outline: none;
 }
 
 .input-list input:focus,
 .input-list textarea:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-1px);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
 }
 
 .input-list input::placeholder,
 .input-list textarea::placeholder {
-  color: #a0aec0;
+    color: #a0aec0;
 }
 
 .input-list textarea {
-  resize: vertical;
-  min-height: 80px;
-  max-height: 120px;
+    resize: vertical;
+    min-height: 80px;
+    max-height: 120px;
 }
 
 /* Стилі для кнопок */
 .modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 25px;
-  justify-content: center;
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+    justify-content: center;
 }
 
 /* Стилі для кнопки видалення акаунту */
 .delete-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-width: 120px;
-  background: #718096;
-  color: white;
-  margin-top: 15px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 200px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 120px;
+    background: #718096;
+    color: white;
+    margin-top: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px;
 }
 
 .delete-btn:hover {
-  background: #4a5568;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(113, 128, 150, 0.3);
+    background: #4a5568;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(113, 128, 150, 0.3);
 }
 
 .delete-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 8px rgba(113, 128, 150, 0.3);
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(113, 128, 150, 0.3);
 }
 
 .delete-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 .delete-btn:hover::before {
-  left: 100%;
+    left: 100%;
 }
 
 .modal-actions button {
-  flex: 1;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-width: 120px;
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 120px;
 }
 
 /* Ефект переливання для кнопок */
 .modal-actions button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 .modal-actions button:hover::before {
-  left: 100%;
+    left: 100%;
 }
 
 /* Кнопка "Update" */
 .modal-actions button:first-child {
-      background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
+    background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
 
-  color: white;
+    color: white;
 }
 
 .modal-actions button:first-child:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
 .modal-actions button:first-child:active {
-  transform: translateY(0);
-  box-shadow: 0 5px 10px rgba(102, 126, 234, 0.3);
+    transform: translateY(0);
+    box-shadow: 0 5px 10px rgba(102, 126, 234, 0.3);
 }
 
 /* Кнопка "Cancel" */
 .modal-actions button:last-child {
-  background: #f7fafc;
-  color: #4a5568;
-  border: 2px solid #e2e8f0;
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
 }
 
 .modal-actions button:last-child:hover {
-  background: #edf2f7;
-  border-color: #cbd5e0;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .modal-actions button:last-child:active {
-  transform: translateY(0);
-  background: #e2e8f0;
+    transform: translateY(0);
+    background: #e2e8f0;
 }
 
 /* Стилі для стану завантаження */
 .modal-actions button:disabled,
 .delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
 }
 
 .modal-actions button:disabled::before,
 .delete-btn:disabled::before {
-  display: none;
+    display: none;
 }
 
 /* Стилі для валідації помилок */
 .input-list input.error,
 .input-list textarea.error {
-  border-color: #e53e3e;
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+    border-color: #e53e3e;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
 }
 
 .input-list input.error:focus,
 .input-list textarea.error:focus {
-  border-color: #e53e3e;
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+    border-color: #e53e3e;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
 }
 
 /* Повідомлення про помилку */
 .error-message {
-  color: #e53e3e;
-  font-size: 12px;
-  margin-top: 4px;
-  font-weight: 500;
+    color: #e53e3e;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
 /* Адаптивність для мобільних пристроїв */
 @media (max-width: 768px) {
-  .modal {
-    margin: 10px;
-    padding: 20px;
-    max-width: none;
-  }
+    .modal {
+        margin: 10px;
+        padding: 20px;
+        max-width: none;
+    }
 
-  .modal h3 {
-    font-size: 20px;
-    margin-bottom: 20px;
-  }
+    .modal h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
 
-  .input-list li {
-    margin-bottom: 15px;
-  }
+    .input-list li {
+        margin-bottom: 15px;
+    }
 
-  .modal-actions {
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-  }
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
 
-  .modal-actions button {
-    min-width: auto;
-  }
+    .modal-actions button {
+        min-width: auto;
+    }
 
-  .delete-btn {
-    width: 100%;
-    margin-top: 15px;
-  }
+    .delete-btn {
+        width: 100%;
+        margin-top: 15px;
+    }
 }
 
 /* Анімація для закриття модального вікна */
 .modal-overlay.closing {
-  animation: overlayFadeOut 0.3s ease-out forwards;
+    animation: overlayFadeOut 0.3s ease-out forwards;
 }
 
 .modal-overlay.closing .modal {
-  animation: modalSlideOut 0.3s ease-out forwards;
+    animation: modalSlideOut 0.3s ease-out forwards;
 }
 
 @keyframes overlayFadeOut {
-  to {
-    opacity: 0;
-  }
+    to {
+        opacity: 0;
+    }
 }
 
 @keyframes modalSlideOut {
-  to {
-    opacity: 0;
-    transform: translateY(-30px) scale(0.95);
-  }
+    to {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
 }
 
 /* Додаткові стилі для покращення UX */
 .modal-overlay {
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
 }
 
 .modal {
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
 }
 
 /* Стилі для focus-visible (доступність) */
 .modal-actions button:focus-visible,
 .delete-btn:focus-visible {
-  outline: 2px solid #667eea;
-  outline-offset: 2px;
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
 }
 
 .input-list input:focus-visible,
 .input-list textarea:focus-visible {
-  outline: none;
+    outline: none;
 }
 
 /* Стилі для темної теми (опціонально) */
 @media (prefers-color-scheme: dark) {
-  .modal {
-    background: linear-gradient(135deg, #03122E 0%, #191F45 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+    .modal {
+        background: linear-gradient(135deg, #03122E 0%, #191F45 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-  .modal h3 {
-    color: #f7fafc;
-  }
+    .modal h3 {
+        color: #f7fafc;
+    }
 
-  .input-list label {
-    color: #e2e8f0;
-  }
+    .input-list label {
+        color: #e2e8f0;
+    }
 
-  .input-list input,
-  .input-list textarea {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #4a5568;
-    color: #f7fafc;
-  }
+    .input-list input,
+    .input-list textarea {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #4a5568;
+        color: #f7fafc;
+    }
 
-  .input-list input:focus,
-  .input-list textarea:focus {
-    background: rgba(255, 255, 255, 0.15);
-  }
+    .input-list input:focus,
+    .input-list textarea:focus {
+        background: rgba(255, 255, 255, 0.15);
+    }
 
-  .modal-actions button:last-child {
-    background: #4a5568;
-    color: #f7fafc;
-    border-color: #718096;
-  }
+    .modal-actions button:last-child {
+        background: #4a5568;
+        color: #f7fafc;
+        border-color: #718096;
+    }
 
-  .modal-actions button:last-child:hover {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
+    .modal-actions button:last-child:hover {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
 
-  .delete-btn {
-    background: #718096;
-  }
+    .delete-btn {
+        background: #718096;
+    }
 
-  .delete-btn:hover {
-    background: #4a5568;
-  }
+    .delete-btn:hover {
+        background: #4a5568;
+    }
 }

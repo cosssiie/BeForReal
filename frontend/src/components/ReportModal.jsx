@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 
 const reasons = [
     "Спам",
@@ -9,10 +9,9 @@ const reasons = [
     "Фейковий акаунт",
     "Порушення правил спільноти",
     "Неправдива інформація"
-]
+];
 
-
-function ReportModal({onClose, onSubmit}) {
+function ReportModal({ onClose, onSubmit }) {
     const [selectedReason, setSelectedReason] = useState('');
     const [customReason, setCustomReason] = useState('');
 
@@ -31,14 +30,15 @@ function ReportModal({onClose, onSubmit}) {
                 <ul className="reason-list">
                     {reasons.map((reason) => (
                         <li key={reason}>
-                            <label>
+                            <label className="radio-label">
                                 <input
                                     type="radio"
                                     name="reason"
                                     value={reason}
                                     onChange={() => setSelectedReason(reason)}
+                                    className="radio-input"
                                 />
-                                {reason}
+                                <span className="radio-text">{reason}</span>
                             </label>
                         </li>
                     ))}
@@ -48,11 +48,12 @@ function ReportModal({onClose, onSubmit}) {
                         value={customReason}
                         onChange={(e) => setCustomReason(e.target.value)}
                         placeholder="Describe the problem"
+                        className="reason-textarea"
                     />
                 )}
                 <div className="modal-actions">
-                    <button onClick={handleSubmit}>Send</button>
-                    <button onClick={onClose}>Cancel</button>
+                    <button onClick={handleSubmit} className="submit-btn">Send</button>
+                    <button onClick={onClose} className="cancel-btn">Cancel</button>
                 </div>
             </div>
         </div>
