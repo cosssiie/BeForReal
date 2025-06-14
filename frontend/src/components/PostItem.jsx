@@ -222,11 +222,10 @@ function PostItem({
                 </div>
 
                 {post.picture && (
-                    <div className="post-image" style={{ marginTop: '10px' }}>
+                    <div className="post-image">
                         <img
                             src={`/static/uploads/${post.picture}`}
                             alt="Post"
-                            style={{ maxWidth: '100%', borderRadius: '8px' }}
                         />
                     </div>
                 )}

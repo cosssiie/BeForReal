@@ -62,6 +62,18 @@
   white-space: pre-line;
 }
 
+.post-image {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.post-image img{
+  max-width: 60%;
+  max-height: auto;
+}
+
 .post-footer {
   display: flex;
   justify-content: space-between;
