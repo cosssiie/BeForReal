@@ -30,23 +30,6 @@ function PostItem({
     };
 
     useEffect(() => {
-        function handleClickOutside(event) {
-            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
-                setShowOptions(false);
-                setShowReport(false);
-            }
-        }
-
-        if (showOptions) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [showOptions]);
-
-    useEffect(() => {
         fetch(`/api/posts/${post.id}/reactions`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => setReactions(data.reactions || {}))
@@ -62,6 +45,23 @@ function PostItem({
             })
             .catch(err => console.error('Failed to load repost info', err));
     }, [post.id]);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+                setShowOptions(false);
+                setShowReport(false);
+            }
+        }
+
+        if (showOptions) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showOptions]);
 
     const handleReaction = async (emoji) => {
         try {
@@ -220,23 +220,7 @@ function PostItem({
             </div>
 
             <div className="post-content">
-                <span
-                    className="post-category"
-                    style={{
-                        display: 'inline-flex',
-                        color: '#f9fafb',
-                        background: `linear-gradient(135deg, #384D7A 0%, #0D52BF ${post.category.length * 5 + 50}%)`,
-                        border: 'none',
-                        padding: '4px 16px',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        justifyContent: 'center',
-                        transition: 'all 0.3s ease',
-                        width: 'fit-content',
-                    }}
-                >
+                <span className="post-category">
                     <b>{post.category}</b>
                 </span>
                 <p>{post.content}</p>
@@ -253,9 +237,9 @@ function PostItem({
             )}
 
             <div className="post-footer">
-                <div className="reactions-display" style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
+                <div className="reactions-display">
                     {Object.entries(reactions).map(([emoji, count]) => (
-                        <div className="display-reaction" key={emoji} style={{ display: 'flex', alignItems: 'center' }}>
+                        <div className="display-reaction" key={emoji}>
                             <span className="reaction-emoji">{emoji}</span>
                             <span className="reaction-count">{count}</span>
                         </div>
@@ -280,7 +264,7 @@ function PostItem({
                     <button
                         className={`repost-button ${hasReposted ? 'reposted' : ''}`}
                         onClick={handleRepost}
-                        title={hasReposted ? 'Отменить репост' : 'Репостнуть'}
+                        title={hasReposted ? 'Delete repost' : 'Репостнуть'}
                     >
                         <Repeat size={18} className="inline-icon" />
                         <span>{repostCount}</span>

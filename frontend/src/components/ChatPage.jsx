@@ -314,7 +314,7 @@ function ChatPage({ userId }) {
       <div className="chat-window">
         <header className="chat-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{selectedChat ? selectedChat.name : 'Select a chat'}</span>
-          <button onClick={() => setShowGroupModal(true)} className="create-group-btn" title="Створити групу"><Plus size={25} /></button>
+          <button onClick={() => setShowGroupModal(true)} className="create-group-btn" title="Create a new chat"><Plus size={25} /></button>
         </header>
         <div className="chat-messages-wrapper">
           <Chat messages={messages} userId={userId} isGroup={selectedChat?.isGroup} onMessageDeleted={handleDeleted} />
@@ -343,7 +343,7 @@ function ChatPage({ userId }) {
                 type="text"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                placeholder="Nmae of group"
+                placeholder="Name of group"
               />
             )}
 
