@@ -4,7 +4,7 @@ import axios from 'axios';
 const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
     const bottomRef = useRef(null);
     const [selectedMsgId, setSelectedMsgId] = useState(null);
-    const optionsRef = useRef(null); // для кліку поза меню
+    const optionsRef = useRef(null);
 
     useEffect(() => {
         if (bottomRef.current) {
@@ -12,13 +12,9 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
         }
     }, [messages]);
 
-    // Закриває меню при кліку поза ним
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (
-                optionsRef.current &&
-                !optionsRef.current.contains(event.target)
-            ) {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
                 setSelectedMsgId(null);
             }
         };
@@ -29,9 +25,9 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
         };
     }, []);
 
-    const handleDoubleClick = (msgId, msgUserId) => {
+    const handleMessageClick = (msgId, msgUserId) => {
         if (String(msgUserId) === String(userId)) {
-            setSelectedMsgId(msgId);
+            setSelectedMsgId(prevId => prevId === msgId ? null : msgId);
         } else {
             setSelectedMsgId(null);
         }
@@ -64,7 +60,7 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
                         <div
                             key={msg.id || index}
                             className={`message ${isIncoming ? 'message-incoming' : 'message-outgoing'}`}
-                            onDoubleClick={() => handleDoubleClick(msg.id, msg.userId)}
+                            onClick={() => handleMessageClick(msg.id, msg.userId)}
                         >
                             {isIncoming && <div className="message-username">{msg.sender}</div>}
                             <p>{msg.text}</p>
