@@ -73,8 +73,8 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
                             </span>
 
                             {isOwnMessage && isSelected && msg.id && (
-                                <div style={panelStyle} className="message-options-panel" ref={optionsRef}>
-                                    <button onClick={() => handleDelete(msg.id)}>Видалити</button>
+                                <div className="message-options-panel" ref={optionsRef}>
+                                    <button onClick={() => handleDelete(msg.id)}>Delete</button>
                                 </div>
                             )}
                         </div>
@@ -84,18 +84,6 @@ const Chat = ({ messages, userId, isGroup, onMessageDeleted }) => {
             <div ref={bottomRef} />
         </div>
     );
-};
-
-const panelStyle = {
-    position: 'absolute',
-    top: '-37px',
-    right: '20px',
-    background: 'white',
-    border: '1px solid #ccc',
-    borderRadius: '6px',
-    padding: '6px 12px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-    zIndex: 100
 };
 
 export default Chat;

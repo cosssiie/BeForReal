@@ -207,6 +207,9 @@ function ChatPage({ userId }) {
           setShowGroupModal(false);
           setGroupName('');
           setSelectedUserIds([]);
+          setSearchQuery('');
+          setSearchResults([]);
+
           fetch(`/api/chats/${userId}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
@@ -243,11 +246,14 @@ function ChatPage({ userId }) {
           setShowGroupModal(false);
           setGroupName('');
           setSelectedUserIds([]);
+          setSearchQuery('');
+          setSearchResults([]);
+
           fetch(`/api/chats/${userId}`, { credentials: 'include' })
             .then(res => res.json())
             .then(chats => {
               setChats(chats);
-              setSelectedChatId(data.chat_id);  // Встановити новий чат за id з відповіді бекенда
+              setSelectedChatId(data.chat_id);
             });
         });
     }
@@ -288,14 +294,6 @@ function ChatPage({ userId }) {
                   <span
                     className="chat-options-icon"
                     onClick={(e) => handleOpenOptions(e, chat.id)}
-                    style={{
-                      position: 'absolute',
-                      top: '6px',
-                      right: '8px',
-                      cursor: 'pointer',
-                      fontSize: '20px',
-                      zIndex: 11,
-                    }}
                   >
                     ⋮
                   </span>
@@ -329,7 +327,7 @@ function ChatPage({ userId }) {
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
           />
           <button className="send-message-button" onClick={handleSendMessage}>
-            <ArrowRight size={25}/>
+            <ArrowRight size={25} />
           </button>
         </div>
       </div>
