@@ -403,6 +403,9 @@ def get_comment_reports():
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
+    if current_user.is_blocked:
+        return jsonify({'error': 'Ваш акаунт заблоковано. Ви не можете створювати пости.'}), 403
+
     content = request.form.get('content')
     category_id = request.form.get('category')
     user_id = current_user.id
@@ -775,6 +778,7 @@ def get_current_user():
         'date_joined': current_user.date_joined.isoformat(),
         'calculated_karma': current_user.calculated_karma,
         'status': current_user.status,
+        "is_blocked": current_user.is_blocked
     })
 
 
@@ -984,3 +988,28 @@ def create_group_chat():
 def get_users():
     users = User.query.with_entities(User.id, User.username).all()
     return jsonify([{'id': u.id, 'username': u.username} for u in users])
+
+
+@views.route('/api/users/<int:user_id>/block', methods=['POST'])
+@login_required
+def block_user(user_id):
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = True
+    db.session.commit()
+    return jsonify({'message': 'User blocked successfully'}), 200
+
+
+@views.route('/api/users/<int:user_id>/unblock', methods=['POST'])
+@login_required
+def unblock_user(user_id):
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = False
+    db.session.commit()
+    return jsonify({'message': 'User unblocked successfully'}), 200
+
