@@ -110,8 +110,7 @@ def seed_comments(users, posts):
         comment = Comment(
             user=users[i % len(users)],
             post=posts[i % len(posts)],
-            comment_text=f"Nice post {i}!",
-            karma=0
+            comment_text=f"Nice post {i}!"
         )
         db.session.add(comment)
         comments.append(comment)

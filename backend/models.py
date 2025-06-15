@@ -44,8 +44,12 @@ class User(db.Model, UserMixin):
 
     @property
     def calculated_karma(self):
-        return sum(post.karma for post in self.posts if post.karma)
-
+        post_karma = sum(post.karma for post in self.posts if post.karma)
+        comment_karma = sum(
+            sum(vote.value for vote in comment.votes)
+            for comment in self.comments
+        )
+        return post_karma + comment_karma
 
     @property
     def status(self):
@@ -90,6 +94,16 @@ class Vote(db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='unique_vote'),)
 
 
+class CommentVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+    value = db.Column(db.Integer, nullable=False)  # 1 або -1
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'comment_id', name='unique_comment_vote'),)
+
+
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -97,7 +111,7 @@ class Comment(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
     comment_text = db.Column(db.String(1500))
     date = db.Column(db.DateTime(timezone=True), default=utc_plus_3)
-    karma = db.Column(db.Integer, default=0)
+    votes = db.relationship('CommentVote', backref='comment', lazy=True, cascade='all, delete-orphan')
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade='all, delete-orphan')
     report_comments = db.relationship('ReportComment', back_populates='comment', cascade='all, delete-orphan', lazy=True)
@@ -107,6 +121,10 @@ class Comment(db.Model):
         if self.parent:
             return self.parent.user.username
         return None
+
+    @property
+    def karma(self):
+        return sum(vote.value for vote in self.votes)
 
 
 class Reaction(db.Model):

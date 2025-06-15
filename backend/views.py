@@ -6,7 +6,7 @@ from flask_login import login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash, generate_password_hash
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
-    ReportUser, ReportComment
+    ReportUser, ReportComment, CommentVote
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -210,7 +210,6 @@ def add_comment(post_id):
         comment_text=text,
         user_id=current_user.id,
         post_id=post_id,
-        karma=0,
         parent_id=parent_id
     )
     db.session.add(comment)
@@ -521,6 +520,46 @@ def vote(post_id):
 
     db.session.commit()
     return jsonify({"newKarma": post.karma})
+
+
+@views.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
+@login_required
+def vote_comment(comment_id):
+    data = request.get_json()
+    delta = data.get('delta')
+    user_id = current_user.id
+
+    if delta is None:
+        return jsonify({'error': 'Vote delta is required'}), 400
+
+    try:
+        delta = int(delta)
+        if delta not in [-1, 1]:
+            return jsonify({'error': 'Delta must be -1 or 1'}), 400
+    except ValueError:
+        return jsonify({'error': 'Delta must be an integer'}), 400
+
+    comment = Comment.query.get_or_404(comment_id)
+    vote = CommentVote.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if vote is None:
+        # Новий голос
+        vote = CommentVote(user_id=user_id, comment_id=comment_id, value=delta)
+        db.session.add(vote)
+    else:
+        if vote.value == delta:
+            # Зняти голос
+            db.session.delete(vote)
+        else:
+            # Змінити голос
+            vote.value = delta
+
+    db.session.commit()
+
+    # Карма автоматично перераховується
+    return jsonify({"newKarma": comment.karma})
+
+
 
 
 @views.route('/api/posts/<int:post_id>/react', methods=['POST'])
