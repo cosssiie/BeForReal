@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import PostItem from './PostItem';
 import { ArrowUp, ArrowDown, Flag, Trash, Send, MessageCircle, EllipsisVertical, CornerDownLeft, X } from "lucide-react";
 import ReportModal from "./ReportModal";
-import { style } from 'framer-motion/client';
+import { style } from 'framer-motion';
 
 function buildCommentTree(comments) {
     const map = {};
