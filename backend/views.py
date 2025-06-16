@@ -6,7 +6,7 @@ from flask_login import login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, emit
 from werkzeug.security import check_password_hash, generate_password_hash
 from .models import User, Post, Chat, ChatUser, Message, Category, Comment, Reaction, Repost, Vote, ReportPost, \
-    ReportUser, ReportComment
+    ReportUser, ReportComment, CommentVote
 from . import db
 from sqlalchemy import desc, and_, or_ # can descending order the oder_by database. or_ is for multiple search termers
 from .sockets import socketio
@@ -210,7 +210,6 @@ def add_comment(post_id):
         comment_text=text,
         user_id=current_user.id,
         post_id=post_id,
-        karma=0,
         parent_id=parent_id
     )
     db.session.add(comment)
@@ -403,6 +402,9 @@ def get_comment_reports():
 @views.route('/api/posts', methods=['POST'])
 @login_required
 def create_post():
+    if current_user.is_blocked:
+        return jsonify({'error': 'Ваш акаунт заблоковано. Ви не можете створювати пости.'}), 403
+
     content = request.form.get('content')
     category_id = request.form.get('category')
     user_id = current_user.id
@@ -518,6 +520,46 @@ def vote(post_id):
 
     db.session.commit()
     return jsonify({"newKarma": post.karma})
+
+
+@views.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
+@login_required
+def vote_comment(comment_id):
+    data = request.get_json()
+    delta = data.get('delta')
+    user_id = current_user.id
+
+    if delta is None:
+        return jsonify({'error': 'Vote delta is required'}), 400
+
+    try:
+        delta = int(delta)
+        if delta not in [-1, 1]:
+            return jsonify({'error': 'Delta must be -1 or 1'}), 400
+    except ValueError:
+        return jsonify({'error': 'Delta must be an integer'}), 400
+
+    comment = Comment.query.get_or_404(comment_id)
+    vote = CommentVote.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if vote is None:
+        # Новий голос
+        vote = CommentVote(user_id=user_id, comment_id=comment_id, value=delta)
+        db.session.add(vote)
+    else:
+        if vote.value == delta:
+            # Зняти голос
+            db.session.delete(vote)
+        else:
+            # Змінити голос
+            vote.value = delta
+
+    db.session.commit()
+
+    # Карма автоматично перераховується
+    return jsonify({"newKarma": comment.karma})
+
+
 
 
 @views.route('/api/posts/<int:post_id>/react', methods=['POST'])
@@ -775,6 +817,7 @@ def get_current_user():
         'date_joined': current_user.date_joined.isoformat(),
         'calculated_karma': current_user.calculated_karma,
         'status': current_user.status,
+        "is_blocked": current_user.is_blocked
     })
 
 
@@ -984,3 +1027,28 @@ def create_group_chat():
 def get_users():
     users = User.query.with_entities(User.id, User.username).all()
     return jsonify([{'id': u.id, 'username': u.username} for u in users])
+
+
+@views.route('/api/users/<int:user_id>/block', methods=['POST'])
+@login_required
+def block_user(user_id):
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = True
+    db.session.commit()
+    return jsonify({'message': 'User blocked successfully'}), 200
+
+
+@views.route('/api/users/<int:user_id>/unblock', methods=['POST'])
+@login_required
+def unblock_user(user_id):
+    if not current_user.is_moderator:
+        return jsonify({'error': 'Access denied'}), 403
+
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = False
+    db.session.commit()
+    return jsonify({'message': 'User unblocked successfully'}), 200
+

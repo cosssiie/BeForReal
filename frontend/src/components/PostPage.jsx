@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useEffect, useState, useRef} from 'react';
+import {useParams} from 'react-router-dom';
 import PostItem from './PostItem';
-import { ArrowUp, ArrowDown, Flag, Trash, Send, MessageCircle, EllipsisVertical, CornerDownLeft, X } from "lucide-react";
+import {ArrowUp, ArrowDown, Flag, Trash, Send, MessageCircle, EllipsisVertical, CornerDownLeft, X} from "lucide-react";
 import ReportModal from "./ReportModal";
-import { style } from 'framer-motion/client';
+import {style} from 'framer-motion';
 
 function buildCommentTree(comments) {
     const map = {};
     const roots = [];
 
-    comments.forEach(c => map[c.id] = { ...c, replies: [] });
+    comments.forEach(c => map[c.id] = {...c, replies: []});
 
     comments.forEach(c => {
         if (c.parent_id) {
@@ -23,15 +23,19 @@ function buildCommentTree(comments) {
 }
 
 function CommentItem({
-    comment,
-    onReply,
-    onDelete,
-    userId,
-    user,
-    post,
-    votes = {},
-    handleKarmaChange = () => { },
-}) {
+                         comment,
+                         onReply,
+                         onDelete,
+                         userId,
+                         user,
+                         post,
+                         votes = {},
+                         handleKarmaChange = () => {
+                         },
+                         handleCommentKarmaChange = () => {
+                         }
+
+                     }) {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyText, setReplyText] = useState('');
     const [showOptions, setShowOptions] = useState(false);
@@ -66,13 +70,14 @@ function CommentItem({
         }
     };
 
+
     const handleReportSubmit = async (reason) => {
         try {
             const res = await fetch(`/api/comments/${comment.id}/report`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ reason }),
+                body: JSON.stringify({reason}),
             });
 
             if (res.ok) {
@@ -97,7 +102,7 @@ function CommentItem({
                     borderLeft: comment.parent_id ? '1px solid #ccc' : 'none',
                     paddingLeft: 10
                 }}>
-                    <div className="comment-header" style={{ position: 'relative' }}>
+                    <div className="comment-header" style={{position: 'relative'}}>
                         {comment.parent_id && (
                             <div className="reply-to">
                                 Reply to @{comment.parent_username || 'user'}
@@ -111,13 +116,13 @@ function CommentItem({
                             className="options-button"
                             onClick={() => setShowOptions(prev => !prev)}
                             aria-label="Options"
-                            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
+                            style={{marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer'}}
                         >
-                            <EllipsisVertical size={18} />
+                            <EllipsisVertical size={18}/>
                         </button>
 
                         {showOptions && (
-                            <div className="options-popup" ref={optionsRef} style={{ top: '-35px', right: '-40px'}}>
+                            <div className="options-popup" ref={optionsRef} style={{top: '-35px', right: '-40px'}}>
                                 <button
                                     className="flag-button"
                                     onClick={() => {
@@ -125,7 +130,7 @@ function CommentItem({
                                         setShowOptions(false);
                                     }}
                                 >
-                                    <Flag size={16} />
+                                    <Flag size={16}/>
                                 </button>
                                 {(userId === comment.userId || user?.is_moderator) && (
                                     <button
@@ -137,7 +142,7 @@ function CommentItem({
                                             }
                                         }}
                                     >
-                                        <Trash size={16} />
+                                        <Trash size={16}/>
                                     </button>
                                 )}
                             </div>
@@ -146,21 +151,21 @@ function CommentItem({
                     <div className="comment-body">
                         <p className="comment-text">{comment.text}</p>
                         <div className="comment-footer">
-                            <div className="karma-container" style={{ backgroundColor: '#f6f6f6' }}>
+                            <div className="karma-container" style={{backgroundColor: '#f6f6f6'}}>
                                 <ArrowUp
                                     size={16}
-                                    className={`karma-button ${votes[post.id] === 1 ? 'voted-up' : ''}`}
-                                    onClick={() => handleKarmaChange(post.id, 1, userId)}
+                                    className={`karma-button ${votes[comment.id] === 1 ? 'voted-up' : ''}`}
+                                    onClick={() => handleCommentKarmaChange(comment.id, 1, userId)}
                                 />
-                                <span className="karma-value">{post.karma}</span>
+                                <span className="karma-value">{comment.karma}</span>
                                 <ArrowDown
                                     size={16}
-                                    className={`karma-button ${votes[post.id] === -1 ? 'voted-down' : ''}`}
-                                    onClick={() => handleKarmaChange(post.id, -1, userId)}
+                                    className={`karma-button ${votes[comment.id] === -1 ? 'voted-down' : ''}`}
+                                    onClick={() => handleCommentKarmaChange(comment.id, -1, userId)}
                                 />
                             </div>
                             <button className="reply-button" onClick={() => setShowReplyBox(!showReplyBox)}>
-                                {showReplyBox ? <X size={18} /> : <CornerDownLeft size={18} />}
+                                {showReplyBox ? <X size={18}/> : <CornerDownLeft size={18}/>}
                             </button>
                         </div>
 
@@ -178,7 +183,7 @@ function CommentItem({
                             onChange={(e) => setReplyText(e.target.value)}
                             rows={2}
                         />
-                        <button className="reply-form-button" type="submit"><Send size={18} /></button>
+                        <button className="reply-form-button" type="submit"><Send size={18}/></button>
                     </form>
                 )}
                 {comment.replies?.length > 0 && (
@@ -193,12 +198,14 @@ function CommentItem({
                                 user={user}
                                 userIsModerator={user?.is_moderator}
                                 post={post}
+                                votes={votes}
+                                handleCommentKarmaChange={handleCommentKarmaChange}
                             />
 
                         ))}
                     </div>
                 )}
-            </div >
+            </div>
             {showReport && (
                 <ReportModal
                     onClose={() => setShowReport(false)}
@@ -209,21 +216,23 @@ function CommentItem({
     );
 }
 
-function PostPage({ userId, user, userIsModerator }) {
-    const { postId } = useParams();
+function PostPage({userId, user, userIsModerator}) {
+    const {postId} = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
+    const [commentVotes, setCommentVotes] = useState({});
+
     useEffect(() => {
-        fetch(`/api/posts/${postId}`, { credentials: 'include' })
+        fetch(`/api/posts/${postId}`, {credentials: 'include'})
             .then(res => res.json())
             .then(data => setPost(data.post))
             .catch(err => console.error("Error fetching post:", err));
 
-        fetch(`/api/comments/${postId}`, { credentials: 'include' })
+        fetch(`/api/comments/${postId}`, {credentials: 'include'})
             .then(res => res.json())
             .then(data => setComments(data))
             .catch(err => console.error("Error fetching comments:", err));
@@ -257,6 +266,51 @@ function PostPage({ userId, user, userIsModerator }) {
             setSubmitting(false);
         }
     };
+
+   const handleCommentKarmaChange = (commentId, delta) => {
+    const currentVote = commentVotes[commentId];
+
+    fetch(`/api/comments/${commentId}/vote`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({ delta }),
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to vote');
+        return res.json();
+    })
+    .then(() => {
+        // Після успішного голосування оновлюємо коментарі з сервера
+        fetch(`/api/comments/${postId}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                setComments(data);
+
+                if (currentVote === delta) {
+                    // Якщо повторне натискання тим самим голосом — видаляємо голос
+                    setCommentVotes(prev => {
+                        const newVotes = { ...prev };
+                        delete newVotes[commentId];
+                        return newVotes;
+                    });
+                } else {
+                    // Інакше оновлюємо локальний голос
+                    setCommentVotes(prev => ({
+                        ...prev,
+                        [commentId]: delta,
+                    }));
+                }
+            })
+            .catch(err => console.error('Failed to refresh comments:', err));
+    })
+    .catch(err => {
+        console.error('Vote error:', err);
+        alert('Не вдалося проголосувати');
+    });
+};
+
+
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
@@ -302,7 +356,7 @@ function PostPage({ userId, user, userIsModerator }) {
                         <form className="add-comment-form" onSubmit={handleCommentSubmit}>
                             <div className="user-avatar">
                                 {user?.avatar ? (
-                                    <img src={user.avatar} alt={user.username} />
+                                    <img src={user.avatar} alt={user.username}/>
                                 ) : (
                                     <span>{user?.username.charAt(0).toUpperCase()}</span>
                                 )}
@@ -324,7 +378,7 @@ function PostPage({ userId, user, userIsModerator }) {
                                         <span className="spinner"></span>
                                     ) : (
                                         <>
-                                            <Send size={18} />
+                                            <Send size={18}/>
                                         </>
                                     )}
                                 </button>
@@ -336,7 +390,7 @@ function PostPage({ userId, user, userIsModerator }) {
                     <div className="comments-list">
                         {comments.length === 0 ? (
                             <div className="empty-state">
-                                <MessageCircle size={48} className="icon" />
+                                <MessageCircle size={48} className="icon"/>
                                 <h3>No comments yet</h3>
                                 <p>Be the first to share what you think!</p>
                             </div>
@@ -350,6 +404,8 @@ function PostPage({ userId, user, userIsModerator }) {
                                     userId={userId}
                                     user={user}
                                     post={post}
+                                    votes={commentVotes} // ✅ додаємо
+                                    handleCommentKarmaChange={handleCommentKarmaChange}
                                 />
                             ))
                         )}
