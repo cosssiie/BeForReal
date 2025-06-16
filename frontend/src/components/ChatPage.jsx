@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import io from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
 import { ArrowRight, Plus, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io();
 
@@ -22,6 +23,9 @@ function ChatPage({ userId }) {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
+
+
 
 
   const handleAddUser = (id) => {
@@ -51,14 +55,14 @@ function ChatPage({ userId }) {
       .catch(err => console.error('Failed to load chats:', err));
   }, [userId]);
 
-
-  useEffect(() => {
-    if (chatId && chats.length > 0) {
-      setSelectedChatId(Number(chatId));
-    } else if (chats.length > 0 && selectedChatId === null) {
-      setSelectedChatId(selectedChatIdFromLocation || chats[0].id);
-    }
-  }, [chatId, chats, selectedChatIdFromLocation]);
+  //дозволяє переходити до потрібного чату одразу після створення, але потім проблеми із надсиланням повідомлень
+  // useEffect(() => {
+  //   if (chatId && chats.length > 0) {
+  //     setSelectedChatId(Number(chatId));
+  //   } else if (chats.length > 0 && selectedChatId === null) {
+  //     setSelectedChatId(selectedChatIdFromLocation || chats[0].id);
+  //   }
+  // }, [chatId, chats, selectedChatIdFromLocation]);
 
 
   useEffect(() => {
@@ -82,10 +86,7 @@ function ChatPage({ userId }) {
       setChats(prevChats =>
         prevChats.map(chat =>
           chat.id === newMessage.chatId
-            ? {
-              ...chat,
-              lastMessage: newMessage.text
-            }
+            ? { ...chat, lastMessage: newMessage.text }
             : chat
         )
       );
@@ -204,6 +205,7 @@ function ChatPage({ userId }) {
       })
         .then(res => res.json())
         .then(data => {
+          const newChatId = data.chat_id;
           setShowGroupModal(false);
           setGroupName('');
           setSelectedUserIds([]);
@@ -214,7 +216,8 @@ function ChatPage({ userId }) {
             .then(res => res.json())
             .then(data => {
               setChats(data);
-              setSelectedChatId(data[0]?.id);
+              setSelectedChatId(newChatId);
+              navigate(`/chats/${newChatId}`);
             });
         });
     } else {
@@ -243,6 +246,7 @@ function ChatPage({ userId }) {
             alert(data.error);
             return;
           }
+          const newChatId = data.chat_id;
           setShowGroupModal(false);
           setGroupName('');
           setSelectedUserIds([]);
@@ -253,7 +257,8 @@ function ChatPage({ userId }) {
             .then(res => res.json())
             .then(chats => {
               setChats(chats);
-              setSelectedChatId(data.chat_id);
+              setSelectedChatId(newChatId);
+              navigate(`/chats/${newChatId}`);
             });
         });
     }

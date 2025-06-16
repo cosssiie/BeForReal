@@ -16,7 +16,7 @@
 /* Profile Header */
 .profile-header {
     background: linear-gradient(135deg, #03122E 0%, #191F45 100%);
-    padding: 40px 32px;
+    padding: 20px 32px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -84,14 +84,23 @@
     gap: 12px;
 }
 
-.additional-button{
+.additional-button {
     justify-content: flex-end;
     margin-bottom: 10px;
 
 }
 
+.account-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+}
+
 .change-profile,
-.chat-button {
+.chat-button,
+.block-button,
+.unblock-button {
     background: linear-gradient(135deg, #6674B9 0%, #9EBAE5 100%);
     color: white;
     padding: 12px 24px;
@@ -104,7 +113,9 @@
 }
 
 .change-profile:hover,
-.chat-button:hover {
+.chat-button:hover,
+.block-button:hover,
+.unblock-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 116, 185, 0.4);
 }

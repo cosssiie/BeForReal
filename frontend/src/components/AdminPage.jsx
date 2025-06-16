@@ -29,7 +29,7 @@ function AdminPage() {
 
     // Відображення таблиці для кожного типу репортів
     const renderTable = () => {
-        if (reports.length === 0) return <p>Немає скарг</p>;
+        if (reports.length === 0) return <p>No reports</p>;
 
         switch (activeTab) {
             case 'posts':

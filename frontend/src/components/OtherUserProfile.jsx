@@ -46,7 +46,7 @@ function OtherUserProfile() {
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        axios.get('/api/current_user', {withCredentials: true})
+        axios.get('/api/current_user', { withCredentials: true })
             .then(res => {
                 setUserId(res.data.id);
                 setCurrentUser(res.data);
@@ -60,7 +60,8 @@ function OtherUserProfile() {
 
         setIsLoadingUser(true);
         axios.get(`/api/users/${id}`)
-            .then(res => setUserData(res.data))
+            .then(res => { setUserData(res.data); console.log("User data loaded:", res.data); }
+            )
             .catch(err => console.error('Error loading user:', err))
             .finally(() => setIsLoadingUser(false));
     }, [id]);
@@ -137,42 +138,43 @@ function OtherUserProfile() {
             });
 
             if (res.ok) {
-                alert('Скаргу надіслано');
+                alert('Report was send');
                 setShowReport(false);
                 setShowOptions(false);
             } else {
                 const err = await res.json();
-                alert(err.error || 'Не вдалося надіслати скаргу');
+                alert(err.error || 'Error sending report');
             }
         } catch (error) {
-            console.error('Помилка при скарзі:', error);
+            console.error('Error sending report:', error);
         }
     };
 
     const handleBlockUser = async () => {
-    try {
-        const res = await axios.post(`/api/users/${userData.id}/block`, {}, { withCredentials: true });
-        if (res.status === 200) {
-            alert("Користувача заблоковано");
-            setUserData(prev => ({ ...prev, is_blocked: true }));
+        try {
+            const res = await axios.post(`/api/users/${userData.id}/block`, {}, { withCredentials: true });
+            if (res.status === 200) {
+                alert("User is blocked");
+                setUserData(prev => ({ ...prev, is_blocked: true }));
+            }
+        } catch (error) {
+            alert("Error blocking user");
+            console.error(error);
         }
-    } catch (error) {
-        alert("Помилка при блокуванні");
-    }
-};
+    };
 
-const handleUnblockUser = async () => {
-    try {
-        const res = await axios.post(`/api/users/${userData.id}/unblock`, {}, { withCredentials: true });
-        if (res.status === 200) {
-            alert("Користувача розблоковано");
-            setUserData(prev => ({ ...prev, is_blocked: false }));
+    const handleUnblockUser = async () => {
+        try {
+            const res = await axios.post(`/api/users/${userData.id}/unblock`, {}, { withCredentials: true });
+            if (res.status === 200) {
+                alert("User is unblocked");
+                setUserData(prev => ({ ...prev, is_blocked: false }));
+            }
+        } catch (error) {
+            alert("Error unblocking user");
+            console.error(error);
         }
-    } catch (error) {
-        alert("Помилка при розблокуванні");
-    }
-};
-
+    };
 
     if (isLoadingUser) {
         return <div className="loading" style={{fontSize: 20, textAlign: 'center', marginTop: 50}}>
@@ -193,9 +195,27 @@ const handleUnblockUser = async () => {
                         </button>
                         <div className="personal-info">
                             <span className="nickname">{userData.username}</span>
-                            <button className="chat-button" onClick={handleStartChat}>
-                                Start a Conversation
-                            </button>
+                            <div className="account-action-buttons">
+                                <button className="chat-button" onClick={handleStartChat}>
+                                    Start a Conversation
+                                </button>
+
+                                {currentUser?.is_moderator && userData.id !== currentUser.id && (
+                                    <div className="moderator-actions">
+                                        {userData.is_blocked ? (
+                                            <button className="unblock-button" onClick={handleUnblockUser}>
+                                                Unblock user
+                                            </button>
+                                        ) : (
+                                            <button className="block-button" onClick={handleBlockUser}>
+                                                Block user
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                            </div>
+
 
                             {showOptions && (
                                 <div className="options-popup" ref={optionsRef}>
