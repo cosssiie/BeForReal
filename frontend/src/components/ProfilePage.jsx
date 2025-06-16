@@ -5,7 +5,7 @@ import Pagination from './Pagination';
 import UpdateProfileModal from './UpdateProfileModal';
 import Sidebar from './Sidebar';
 
-function ProfilePage() {
+function ProfilePage({ onLogout }) {
     const [userData, setUserData] = useState({
         id: null,
         username: '',
@@ -84,6 +84,10 @@ function ProfilePage() {
     const handleModalClose = () => setShowModal(false);
 
     const handleProfileUpdate = async (formData) => {
+        if (formData.isAccountDeleted) {
+            onLogout();
+            return;
+        }
         try {
             const response = await axios.put('/api/user/update', formData, {
                 headers: {
@@ -182,6 +186,7 @@ function ProfilePage() {
                     userData={userData}
                     onClose={handleModalClose}
                     onSubmit={handleProfileUpdate}
+                    onLogout={onLogout}
                 />
             )}
         </>

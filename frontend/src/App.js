@@ -75,7 +75,7 @@ function App() {
               <Route path="/chats" element={<ChatPage userId={currentUserId} />} />
               <Route path="/chats/:chatId?" element={<ChatPage userId={currentUserId} />} />
               <Route path="/chats/:id" element={<Chat userId={currentUserId} />} />
-              <Route path="/profile" element={<ProfilePage user={user} />} />
+              <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} />} />
               <Route
                 path="/admin-panel"
                 element={user?.is_moderator ? <AdminPage /> : <Navigate to="/home" />}
