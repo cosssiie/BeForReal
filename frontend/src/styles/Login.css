@@ -1,0 +1,274 @@
+/* Wrapper */
+.login-page,
+.sign-up-page {
+    position: relative;
+    height: 100vh;
+    background: linear-gradient(135deg, #EBF2FF 0%, #DEE8FF 50%, #CCD4DE 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Background Shapes */
+.bg-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: float ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    50% {
+        transform: translate(35px, -40px) rotate(180deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(360deg);
+    }
+}
+
+.shape-1 {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #03122E, #191F45);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 6s;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #062159, #0D52BF);
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+    animation-duration: 7s;
+}
+
+.shape-3 {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #384D7A, #3D73B9);
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+    animation-duration: 5s;
+}
+
+.shape-4 {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #6674B9, #9EBAE5);
+    top: 20%;
+    right: 30%;
+    animation-delay: 1s;
+    animation-duration: 8s;
+}
+
+/* Logo */
+.logo-wrapper {
+    z-index: 130;
+    position: absolute;
+    top: 10%;
+    left: 31%;
+    display: flex;
+    align-items: center;
+    animation: slideInDown 0.8s ease-out;
+}
+
+.site-logo {
+    max-width: 140px;
+    /* Adjusted for better fit in top-left corner */
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* Header */
+.login-header,
+.sign-up-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.login-title,
+.sign-up-title {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #03122E 0%, #062159 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+/* Container */
+.login-container,
+.sign-up-container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(3, 18, 46, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 10;
+    position: relative;
+    /* Ensure logo positioning works */
+    animation: slideInUp 0.8s ease-out;
+}
+
+/* Анімація зверху */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form */
+.login-form,
+.sign-up-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #666;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+.eye-icon {
+    vertical-align: middle;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid rgba(156, 166, 189, 0.2);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    color: #03122E;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #062159;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 4px rgba(6, 33, 89, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-input::placeholder {
+    color: #9CA6BD;
+}
+
+/* Button */
+.login-btn,
+.sign-up-btn {
+    background: linear-gradient(135deg, #062159 0%, #0D52BF 100%);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(6, 33, 89, 0.3);
+    position: relative;
+}
+
+.login-btn:hover,
+.sign-up-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(6, 33, 89, 0.4);
+}
+
+/* Create account */
+.create-account-button {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: #062159;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Error */
+.error-message {
+    color: #e63946;
+    margin-top: 16px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Animation class added dynamically */
+.animate-in {
+    animation: slideInUp 0.8s ease-out forwards;
+}
