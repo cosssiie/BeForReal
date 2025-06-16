@@ -54,10 +54,11 @@ function UpdateProfileModal({ userData, onClose, onSubmit }) {
 
         try {
             await axios.delete('/api/user/delete');
-            navigate('/login');  // перехід на сторінку входу
+            onSubmit({ isAccountDeleted: true });
+            navigate('/login');
         } catch (err) {
             console.error("Помилка при видаленні акаунту:", err);
-            alert("Помилка при видаленні акаунту");
+            alert("Error deleting account");
         }
     };
 
@@ -127,7 +128,7 @@ function UpdateProfileModal({ userData, onClose, onSubmit }) {
 
                 <div className="delete-section">
                     <button onClick={handleDeleteAccount} className="delete-btn">
-                        Видалити акаунт
+                        Delete account
                     </button>
                 </div>
 

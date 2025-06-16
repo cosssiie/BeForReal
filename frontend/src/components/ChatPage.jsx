@@ -55,7 +55,7 @@ function ChatPage({ userId }) {
       .catch(err => console.error('Failed to load chats:', err));
   }, [userId]);
 
-//дозволяє переходити до потрібного чату одразу після створення, але потім проблеми із надсиланням повідомлень
+  //дозволяє переходити до потрібного чату одразу після створення, але потім проблеми із надсиланням повідомлень
   // useEffect(() => {
   //   if (chatId && chats.length > 0) {
   //     setSelectedChatId(Number(chatId));
