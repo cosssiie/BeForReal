@@ -908,6 +908,7 @@ def get_user_by_id(id):
         'bio': user.bio,
         'karma': user.karma,
         'calculated_karma': user.calculated_karma,
+        'is_blocked': user.is_blocked
     })
 
 @views.route('/api/chats/start', methods=['POST'])
