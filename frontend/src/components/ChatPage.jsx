@@ -338,8 +338,8 @@ function ChatPage({ userId }) {
       </div>
 
       {showGroupModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modalCh-overlay">
+          <div className="modalCh">
             <h3>Create a new chat</h3>
             {selectedUserIds.length > 1 && (
               <input
