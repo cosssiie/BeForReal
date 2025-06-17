@@ -3,9 +3,8 @@
 }
 
 .report-table {
-    width: 100%;
+    background: #cce1fa;
     border-collapse: collapse;
-    background-color: rgb(255, 255, 255);
 }
 
 .tabs {
@@ -13,9 +12,9 @@
     justify-content: space-around;
     gap: 20px;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #b4d1f2;
     border-radius: 20px;
-    padding: 10px;
+    padding: 5px;
     margin-bottom: 20px;
 }
 
